@@ -1,0 +1,1 @@
+{"origin":"BLE","destinations":[{"iata":"ORB","name":"Örebro Airport","city":"Orebro","country":"Sweden","lat":59.22370147705078,"lon":15.038000106811523,"km":136,"minutes":40,"airlines":["HS"]},{"iata":"GOT","name":"Gothenburg-Landvetter Airport","city":"Gothenborg","country":"Sweden","lat":57.662799835205,"lon":12.279800415039,"km":358,"minutes":55,"airlines":["HS"]}]}

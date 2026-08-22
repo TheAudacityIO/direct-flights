@@ -1,0 +1,89 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+
+  --color-bg: #08090c;
+  --color-surface: #12141a;
+  --color-surface-2: #1a1d25;
+  --color-fg: #e8eaee;
+  --color-muted: #8a9099;
+  --color-subtle: #5c616a;
+  --color-accent: #7eb8c9;
+  --color-accent-dim: #3d6d7a;
+  --color-border: #23262e;
+  --color-origin: #f4f5f7;
+  --color-danger: #c98989;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  --shadow-panel: 0 18px 50px -24px rgb(0 0 0 / 0.7);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: var(--color-bg);
+    color: var(--color-fg);
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-bg);
+    color: var(--color-fg);
+    overflow: hidden;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-accent) 35%, transparent);
+    color: var(--color-fg);
+  }
+}
+
+/* MapLibre chrome — keep attribution quiet against the dark map. */
+.maplibregl-map {
+  font: inherit;
+}
+.maplibregl-ctrl-attrib {
+  background: color-mix(in oklab, var(--color-bg) 70%, transparent) !important;
+  color: var(--color-subtle);
+  font-size: 10px;
+  line-height: 1.4;
+}
+.maplibregl-ctrl-attrib a {
+  color: var(--color-muted);
+}
+.maplibregl-ctrl-bottom-right .maplibregl-ctrl-attrib {
+  margin: 0 8px 8px 0;
+}
+.maplibregl-canvas:focus {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
