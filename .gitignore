@@ -12,10 +12,11 @@ data/raw
 .vinxi
 screenshots
 artifacts
-.grok
-AGENTS.md
+# Grok-platform workspace state stays local, but the shipped build flags and
+# PWA assets are part of the repo (CI and fresh clones need them).
+.grok/*
+!.grok/app-env.json
 AGENTS.project.md
 startup.sh
 .node_modules.lock
-public/__grok
-
+.claude/

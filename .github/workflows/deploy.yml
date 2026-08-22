@@ -19,14 +19,28 @@ env:
   IMAGE_NAME: theaudacityio/direct-flights
 
 jobs:
+  # Broken code must not reach the box: the image only builds after the same
+  # gate CI runs (tests + typecheck).
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run typecheck
+
   build:
+    needs: check
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
       contents: read
       packages: write
-    outputs:
-      image: ${{ steps.meta.outputs.image }}
     steps:
       - uses: actions/checkout@v4
 
@@ -41,7 +55,6 @@ jobs:
       - id: meta
         run: |
           sha="$(echo "${GITHUB_SHA}" | cut -c1-7)"
-          echo "image=${REGISTRY}/${IMAGE_NAME}" >> "$GITHUB_OUTPUT"
           echo "tags=${REGISTRY}/${IMAGE_NAME}:latest,${REGISTRY}/${IMAGE_NAME}:${sha}" >> "$GITHUB_OUTPUT"
 
       - uses: docker/build-push-action@v6
@@ -51,8 +64,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          build-args: |
-            NITRO_PRESET=node-server
 
   deploy:
     needs: build
@@ -61,52 +72,40 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check SSH secrets
-        id: ssh
-        env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_KEY: ${{ secrets.SSH_KEY }}
-        run: |
-          if [ -z "$SSH_HOST" ] || [ -z "$SSH_KEY" ]; then
-            echo "configured=false" >> "$GITHUB_OUTPUT"
-            echo "SSH_HOST / SSH_KEY not set. Image is on GHCR; add secrets to finish the server deploy."
-          else
-            echo "configured=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Copy compose files
-        if: steps.ssh.outputs.configured == 'true'
+      - name: Sync compose config to atlas
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT || 22 }}
-          source: "deploy/docker-compose.yml,deploy/Caddyfile"
-          target: ${{ secrets.DEPLOY_PATH || '/opt/direct-flights' }}
-          strip_components: 1
+          host: ${{ secrets.ATLAS_HOST }}
+          username: ${{ secrets.ATLAS_USER }}
+          key: ${{ secrets.ATLAS_SSH_KEY }}
+          port: 22
+          source: "deploy/docker-compose.yml"
+          target: /home/miguel/direct-flights
+          overwrite: true
 
-      - name: Pull and restart
-        if: steps.ssh.outputs.configured == 'true'
+      - name: Pull image and restart stack
         uses: appleboy/ssh-action@v1.2.0
         env:
+          # The box pulls the private GHCR package while the job's ephemeral
+          # token is still valid.
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          IMAGE: ghcr.io/${{ env.IMAGE_NAME }}
           TAG: ${{ github.event.inputs.tag || 'latest' }}
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT || 22 }}
-          envs: GHCR_TOKEN,IMAGE,TAG
+          host: ${{ secrets.ATLAS_HOST }}
+          username: ${{ secrets.ATLAS_USER }}
+          key: ${{ secrets.ATLAS_SSH_KEY }}
+          port: 22
+          envs: GHCR_TOKEN,TAG
           script: |
-            set -euo pipefail
-            DEST="${{ secrets.DEPLOY_PATH || '/opt/direct-flights' }}"
-            mkdir -p "$DEST"
-            cd "$DEST"
+            set -e
             echo "$GHCR_TOKEN" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+            cd /home/miguel/direct-flights/deploy
             export TAG
             docker compose pull
             docker compose up -d --remove-orphans
+            docker logout ghcr.io
             docker image prune -f
+            sleep 5
             docker compose ps
+            code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:3080/" || true)
+            echo "port 3080 -> HTTP $code"

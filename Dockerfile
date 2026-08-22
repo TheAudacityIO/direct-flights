@@ -5,7 +5,10 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
-ENV NITRO_PRESET=node-server
+# Auth ships OFF in the deployed build (same invariant the test suite
+# enforces via .grok/app-env.json, which .dockerignore excludes).
+ENV NITRO_PRESET=node-server \
+    VITE_AUTH_ENABLED=false
 RUN npm run build
 
 FROM node:22-bookworm-slim
