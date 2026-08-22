@@ -4,7 +4,7 @@
 set -euo pipefail
 
 DEST="${DEPLOY_PATH:-/opt/direct-flights}"
-IMAGE="${IMAGE:-ghcr.io/miketineo/direct-flights:latest}"
+IMAGE="${IMAGE:-ghcr.io/theaudacityio/direct-flights:latest}"
 
 if ! command -v docker >/dev/null 2>&1; then
   echo "Docker is required. Install Docker Engine, then re-run." >&2
@@ -19,7 +19,7 @@ fi
 
 cd "$DEST"
 if [[ -n "${GHCR_TOKEN:-}" ]]; then
-  echo "$GHCR_TOKEN" | docker login ghcr.io -u "${GHCR_USER:-miketineo}" --password-stdin
+  echo "$GHCR_TOKEN" | docker login ghcr.io -u "${GHCR_USER:-theaudacityio}" --password-stdin
 fi
 
 export TAG="${TAG:-latest}"

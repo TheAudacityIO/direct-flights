@@ -1,6 +1,6 @@
 services:
   app:
-    image: ghcr.io/miketineo/direct-flights:${TAG:-latest}
+    image: ghcr.io/theaudacityio/direct-flights:${TAG:-latest}
     container_name: direct-flights
     restart: unless-stopped
     ports:

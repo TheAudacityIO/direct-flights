@@ -41,7 +41,7 @@ First image publish may need the GHCR package set public (or the SSH login above
 
 ```bash
 gh api --method PUT -H "Accept: application/vnd.github+json" \
-  /user/packages/container/direct-flights/visibility \
+  /orgs/TheAudacityIO/packages/container/direct-flights/visibility \
   -f visibility=public
 ```
 

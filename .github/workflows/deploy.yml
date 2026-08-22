@@ -16,7 +16,7 @@ concurrency:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: miketineo/direct-flights
+  IMAGE_NAME: theaudacityio/direct-flights
 
 jobs:
   build:
