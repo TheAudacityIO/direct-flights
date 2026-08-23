@@ -74,22 +74,28 @@ public/data/meta.json
 
 Destinations are unique nonstops (codeshares and multi-stop legs dropped), sorted by `minutes`.
 
-## Swap in a live provider
+## Swap in a live / observed provider
 
-Keep the same files and field names. Point `scripts/build-openflights.ts` (or a new `scripts/build-live.ts`) at a live API and emit the identical JSON.
+The UI reads `public/data/` only. OpenFlights has no dates, which is why seasonal pairs such as CAG–DUB (Ryanair, not daily) are missing.
+
+`buildObservedDataset` (`src/lib/flights/observed.ts`) unions operated legs over a lookback. A Saturday-only pair is kept if `lastSeen` falls inside the window. Optional `Destination` fields: `days`, `lastSeen`, `flightCount`.
+
+Do not scrape airline sites. Amadeus GDS misses most Ryanair. OpenSky REST cannot rebuild 12 months globally (2-day windows, credit caps). Preferred feed: an LCC-aware routes API (AirLabs `routes?dep_iata=`, AeroDataBox daily routes) stored at `secret/projects/direct-flights` once a key exists.
 
 | Provider | Starting point |
 | --- | --- |
-| [AeroDataBox](https://aerodatabox.com/) | `GET /airports/iata/{iata}/direct-flights` (or the routes-by-airport endpoint in your plan). Map each destination IATA + operator name into `Destination`. |
-| [Amadeus](https://developers.amadeus.com/) | `GET /v1/airport/direct-destinations?departureAirportCode=FCO`. Join airport metadata from Airport & City Search; airline names from Airline Code Lookup. |
+| Observed union | `buildObservedDataset(airports, operatedRoutes, { asOf, lookbackDays: 365 })` |
+| [AirLabs](https://airlabs.co/docs/routes) | `GET /api/v9/routes?dep_iata={IATA}` — includes `days` so weekly services survive |
+| [AeroDataBox](https://aerodatabox.com/) | Airport daily routes / FIDS; fold into `OperatedRoute` with `lastSeen` |
+| [Amadeus](https://developers.amadeus.com/) | Airport direct destinations — skips most LCCs, not the CAG network |
 
-Rebuild:
+Rebuild the OpenFlights dump (unchanged):
 
 ```bash
 npm run data:build -- --force
 ```
 
-Then deploy. The UI never invents routes; if a file is missing the origin shows an empty state.
+The UI never invents routes; if a file is missing the origin shows an empty state.
 
 ## Deploy
 

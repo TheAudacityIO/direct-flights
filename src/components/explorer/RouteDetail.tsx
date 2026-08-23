@@ -1,5 +1,6 @@
 import { ArrowRight, X } from "lucide-react";
 import { formatDuration, formatKm } from "@/lib/flights/geo";
+import { formatDays } from "@/lib/flights/observed";
 import type { AirportIndex, Destination } from "@/lib/flights/types";
 import { Button } from "@/components/ui/button";
 
@@ -10,6 +11,7 @@ type Props = {
 };
 
 export function RouteDetail({ origin, dest, onClose }: Props) {
+  const days = formatDays(dest.days);
   return (
     <section
       aria-label={`Route ${origin.iata} to ${dest.iata}`}
@@ -56,9 +58,12 @@ export function RouteDetail({ origin, dest, onClose }: Props) {
         {dest.airlines.length > 0
           ? dest.airlines.join(" · ")
           : "Operating airline not listed in this snapshot."}
+        {days ? ` · ${days}` : ""}
       </p>
       <p className="mt-2 text-[11px] text-subtle">
-        Estimated block time: great-circle ÷ 850 km/h + 30 min. Not a live schedule.
+        {dest.lastSeen
+          ? `Last seen ${dest.lastSeen}. Estimated block time, not a booking.`
+          : "Estimated block time: great-circle ÷ 850 km/h + 30 min. Not a live schedule."}
       </p>
     </section>
   );

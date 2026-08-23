@@ -6,6 +6,8 @@ For any coding assistant working in this repo (Grok, Claude Code, Cursor, Codex,
 
 Dark, ad-free nonstop flight explorer: OpenFlights data on a MapLibre map. TanStack Start + React, Nitro node-server build, static route data under `public/data/`. Originally scaffolded on the Grok app platform; now GitHub-hosted and self-deployed.
 
+The dump has no dates. Seasonal LCC pairs (CAG–DUB Ryanair) are missing. Do not scrape airline sites. Observed/operated union lives in `src/lib/flights/observed.ts`; a live rebuild needs an LCC-aware routes key in Vault `secret/projects/direct-flights` (none there yet).
+
 ## Commands (node 22)
 
 - Install: `npm ci`

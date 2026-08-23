@@ -22,6 +22,12 @@ export type Destination = {
   /** Estimated block time: haversine km / 850 km/h + 30 min, rounded. */
   minutes: number;
   airlines: string[];
+  /** Operating weekdays (`sun`…`sat`). Absent on the OpenFlights dump. */
+  days?: string[];
+  /** Last operated date `YYYY-MM-DD` inside the lookback. */
+  lastSeen?: string;
+  /** Distinct operated days (or flights) counted in the lookback. */
+  flightCount?: number;
 };
 
 export type RouteFile = {
@@ -37,6 +43,9 @@ export type DatasetMeta = {
   originCount: number;
   routeCount: number;
   note: string;
+  lookbackDays?: number;
+  windowFrom?: string;
+  windowTo?: string;
 };
 
 /** Internal airport record used while building the dataset. */

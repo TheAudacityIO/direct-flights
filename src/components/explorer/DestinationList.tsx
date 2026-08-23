@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { formatDuration, formatKm } from "@/lib/flights/geo";
+import { formatDays } from "@/lib/flights/observed";
 import type { Destination } from "@/lib/flights/types";
 import { cn } from "@/lib/utils";
 
@@ -55,6 +56,7 @@ export function DestinationList({ destinations, selectedIata, onSelect }: Props)
         <ul className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
           {filtered.map((d) => {
             const selected = d.iata === selectedIata;
+            const days = formatDays(d.days);
             return (
               <li key={d.iata}>
                 <button
@@ -83,6 +85,7 @@ export function DestinationList({ destinations, selectedIata, onSelect }: Props)
                         ? d.airlines.slice(0, 3).join(" · ") +
                           (d.airlines.length > 3 ? ` +${d.airlines.length - 3}` : "")
                         : "Airline unknown"}
+                      {days ? ` · ${days}` : ""}
                     </span>
                   </span>
                   <span className="shrink-0 text-right">
