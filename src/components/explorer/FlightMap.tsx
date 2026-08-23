@@ -340,16 +340,20 @@ export function FlightMap({
 
     (async () => {
       try {
-        const maplibreMod = await import("maplibre-gl");
-        await import("maplibre-gl/dist/maplibre-gl.css");
+        const [maplibreMod, workerMod] = await Promise.all([
+          import("maplibre-gl"),
+          import("maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url"),
+          import("maplibre-gl/dist/maplibre-gl.css"),
+        ]);
         if (cancelled || !containerRef.current) return;
 
-        const maplibregl =
-          (maplibreMod as { default?: typeof maplibreMod }).default ?? maplibreMod;
+        const { Map: MapLibre, setWorkerUrl } = maplibreMod;
+        // v6 worker is a sibling of import.meta.url; Vite must emit it via ?worker&url.
+        setWorkerUrl(workerMod.default);
 
         reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-        map = new maplibregl.Map({
+        map = new MapLibre({
           container: containerRef.current,
           style: STYLE_URL,
           center: [12, 28],
