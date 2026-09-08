@@ -72,16 +72,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Sync compose config to atlas
-        uses: appleboy/scp-action@v0.1.7
+      # atlas stopped accepting SSH from the public internet on 2026-09-08: ufw
+      # now allows port 22 only from Miguel's home IP and the tailnet. The runner
+      # joins the tailnet so it can reach the box on its 100.x address.
+      - name: Connect to tailnet
+        uses: tailscale/github-action@v3
         with:
-          host: ${{ secrets.ATLAS_HOST }}
-          username: ${{ secrets.ATLAS_USER }}
-          key: ${{ secrets.ATLAS_SSH_KEY }}
-          port: 22
-          source: "deploy/docker-compose.yml"
-          target: /home/miguel/direct-flights
-          overwrite: true
+          authkey: ${{ secrets.TS_AUTHKEY }}
+          version: latest
+
+      # This was appleboy/scp-action, which is a Docker container action and so
+      # would not see the runner's tailscale0 interface. Native scp runs on the
+      # host and does. (ssh-action below is composite, already runs on the host,
+      # so it only needed the address swapped.)
+      - name: Sync compose config to atlas
+        env:
+          ATLAS_HOST: ${{ secrets.ATLAS_TS_HOST }}
+          ATLAS_USER: ${{ secrets.ATLAS_USER }}
+          ATLAS_SSH_KEY: ${{ secrets.ATLAS_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$ATLAS_SSH_KEY" > ~/.ssh/atlas
+          chmod 600 ~/.ssh/atlas
+          scp -i ~/.ssh/atlas -o StrictHostKeyChecking=accept-new -P 22 \
+            deploy/docker-compose.yml \
+            "$ATLAS_USER@$ATLAS_HOST:/home/miguel/direct-flights/deploy/docker-compose.yml"
 
       - name: Pull image and restart stack
         uses: appleboy/ssh-action@v1.2.0
@@ -91,7 +107,7 @@ jobs:
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ github.event.inputs.tag || 'latest' }}
         with:
-          host: ${{ secrets.ATLAS_HOST }}
+          host: ${{ secrets.ATLAS_TS_HOST }}
           username: ${{ secrets.ATLAS_USER }}
           key: ${{ secrets.ATLAS_SSH_KEY }}
           port: 22
