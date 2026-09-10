@@ -1,0 +1,79 @@
+name: Data refresh
+
+# Monthly AeroDataBox overlay rebuild, sized to the FREE plan (400 API
+# units / 1600 requests per ~30 days). The fetch script reads live quota
+# headers and stops at its floors, so a run cannot exhaust the month.
+# The push below is made with GITHUB_TOKEN, which never triggers other
+# workflows; deploy.yml therefore also listens for this workflow's
+# completion via workflow_run.
+
+on:
+  schedule:
+    - cron: '23 4 5 * *'
+  workflow_dispatch:
+    inputs:
+      max_airports:
+        description: Max airports to fetch this run
+        required: false
+        default: '120'
+
+concurrency:
+  group: data-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Fetch AeroDataBox overlay
+        env:
+          AERODATABOX_API_KEY: ${{ secrets.AERODATABOX_API_KEY }}
+          ADB_MAX_AIRPORTS: ${{ inputs.max_airports || '120' }}
+        run: npm run data:fetch-observed
+
+      - name: Rebuild static dataset (baseline + overlay)
+        run: npm run data:build -- --force
+
+      - name: 'Canary: CAG must include DUB'
+        run: |
+          node -e "
+            const d = require('./public/data/routes/CAG.json');
+            const dub = d.destinations.find((x) => x.iata === 'DUB');
+            if (!dub) { console.error('CANARY FAILED: CAG->DUB missing'); process.exit(1); }
+            console.log('canary ok: CAG->DUB present via', dub.airlines.join('/'), '—', d.destinations.length, 'destinations');
+          "
+
+      - name: Tests and typecheck
+        run: |
+          npm test
+          npm run typecheck
+
+      - name: Commit and push data
+        run: |
+          git config user.name "audacity-data-refresh"
+          git config user.email "ops@theaudacity.io"
+          git add data/observed public/data
+          if git diff --cached --quiet; then
+            echo "no data changes this month"
+            exit 0
+          fi
+          git commit \
+            -m "data: monthly AeroDataBox overlay refresh" \
+            -m "Automated fetch of current routes for the busiest origins," \
+            -m "merged over the OpenFlights baseline. See data/observed/" \
+            -m "operated-routes.json for quota telemetry." \
+            -m "Actor: audacity/data-refresh" \
+            -m "Via: gha+schedule"
+          git push origin HEAD:main

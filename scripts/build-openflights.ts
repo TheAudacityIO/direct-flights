@@ -12,6 +12,8 @@ import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { parseAirports, parseAirlines, parseRoutes, buildDataset } from "../src/lib/flights/pipeline.ts";
+import { buildObservedDataset, windowFrom } from "../src/lib/flights/observed.ts";
+import { mergeObserved } from "../src/lib/flights/overlay.ts";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const RAW = path.join(ROOT, "data/raw");
@@ -42,20 +44,39 @@ async function main() {
     ensureRaw("routes"),
   ]);
 
-  const built = buildDataset(
-    parseAirports(airportsDat),
-    parseAirlines(airlinesDat),
-    parseRoutes(routesDat),
-  );
+  const airportRows = parseAirports(airportsDat);
+  const built = buildDataset(airportRows, parseAirlines(airlinesDat), parseRoutes(routesDat));
+
+  // AeroDataBox overlay: observed origins replace the baseline; the long
+  // tail stays OpenFlights. Absent file = plain baseline build.
+  const OBSERVED = path.join(ROOT, "data/observed/operated-routes.json");
+  let dataset = built;
+  let overlay: { source: string; asOf: string; lookbackDays: number; origins: number } | null =
+    null;
+  if (existsSync(OBSERVED)) {
+    const file = JSON.parse(await readFile(OBSERVED, "utf8"));
+    const observedBuilt = buildObservedDataset(airportRows, file.routes, {
+      asOf: file.asOf,
+      lookbackDays: file.lookbackDays,
+    });
+    const res = mergeObserved(built, observedBuilt);
+    dataset = res.merged;
+    overlay = {
+      source: file.source,
+      asOf: file.asOf,
+      lookbackDays: file.lookbackDays,
+      origins: res.replacedOrigins.length,
+    };
+  }
 
   const routesDir = path.join(OUT, "routes");
   await rm(routesDir, { recursive: true, force: true });
   await mkdir(routesDir, { recursive: true });
 
-  await writeFile(path.join(OUT, "airports.json"), JSON.stringify(built.airports));
+  await writeFile(path.join(OUT, "airports.json"), JSON.stringify(dataset.airports));
 
   const writes: Promise<void>[] = [];
-  for (const [iata, destinations] of built.routesByOrigin) {
+  for (const [iata, destinations] of dataset.routesByOrigin) {
     writes.push(
       writeFile(
         path.join(routesDir, `${iata}.json`),
@@ -65,26 +86,38 @@ async function main() {
   }
   await Promise.all(writes);
 
-  const originCount = built.routesByOrigin.size;
+  const originCount = dataset.routesByOrigin.size;
   const meta = {
-    source: "OpenFlights",
+    source: overlay ? "OpenFlights + AeroDataBox overlay" : "OpenFlights",
     attribution:
-      "Airport and route data © OpenFlights.org (https://openflights.org/data.html)",
+      "Airport and route data © OpenFlights.org (https://openflights.org/data.html)" +
+      (overlay ? "; current-route overlay via AeroDataBox (https://aerodatabox.com)" : ""),
     generatedAt: new Date().toISOString(),
-    airportCount: built.airports.length,
+    airportCount: dataset.airports.length,
     originCount,
-    routeCount: built.routeCount,
-    note: "Historical OpenFlights dump (~2014 schedules). Not a live timetable.",
+    routeCount: dataset.routeCount,
+    note: overlay
+      ? `OpenFlights baseline (~2014) with a current AeroDataBox route overlay for the ${overlay.origins} busiest airports (as of ${overlay.asOf}).`
+      : "Historical OpenFlights dump (~2014 schedules). Not a live timetable.",
+    ...(overlay
+      ? {
+          lookbackDays: overlay.lookbackDays,
+          windowFrom: windowFrom(overlay.asOf, overlay.lookbackDays),
+          windowTo: overlay.asOf,
+          observedOrigins: overlay.origins,
+        }
+      : {}),
   };
   await writeFile(path.join(OUT, "meta.json"), JSON.stringify(meta, null, 2));
 
-  const sample = (code: string) => built.routesByOrigin.get(code)?.length ?? 0;
+  const sample = (code: string) => dataset.routesByOrigin.get(code)?.length ?? 0;
   console.log(
     JSON.stringify(
       {
-        airports: built.airports.length,
+        airports: dataset.airports.length,
         origins: originCount,
-        routes: built.routeCount,
+        routes: dataset.routeCount,
+        observedOrigins: overlay?.origins ?? 0,
         CAG: sample("CAG"),
         FCO: sample("FCO"),
       },

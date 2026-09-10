@@ -7,6 +7,11 @@ on:
     # rebuild and redeploy the live site.
     paths-ignore:
       - '**.md'
+  # The monthly data-refresh workflow pushes with GITHUB_TOKEN, and such
+  # pushes never trigger push workflows; chain off its completion instead.
+  workflow_run:
+    workflows: [Data refresh]
+    types: [completed]
   workflow_dispatch:
     inputs:
       tag:
@@ -26,6 +31,8 @@ jobs:
   # Broken code must not reach the box: the image only builds after the same
   # gate CI runs (tests + typecheck).
   check:
+    # For workflow_run chaining, deploy only after a SUCCESSFUL data refresh.
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

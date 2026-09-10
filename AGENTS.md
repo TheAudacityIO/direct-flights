@@ -6,7 +6,16 @@ For any coding assistant working in this repo (Grok, Claude Code, Cursor, Codex,
 
 Dark, ad-free nonstop flight explorer: OpenFlights data on a MapLibre map. TanStack Start + React, Nitro node-server build, static route data under `public/data/`. Originally scaffolded on the Grok app platform; now GitHub-hosted and self-deployed.
 
-The dump has no dates. Seasonal LCC pairs (CAG–DUB Ryanair) are missing. Do not scrape airline sites. Observed/operated union lives in `src/lib/flights/observed.ts`; a live rebuild needs an LCC-aware routes key in Vault `secret/projects/direct-flights` (none there yet).
+The OpenFlights dump has no dates and misses modern LCC pairs; it is the BASELINE only. Current routes for the busiest origins come from an AeroDataBox overlay (see Data pipeline below). Do not scrape airline sites.
+
+## Data pipeline (baseline + overlay)
+
+- Baseline: OpenFlights dumps → `scripts/build-openflights.ts` → `public/data/`.
+- Overlay: `scripts/fetch-aerodatabox.ts` fetches AeroDataBox daily-route stats per origin and writes the committed `data/observed/operated-routes.json` (includes quota telemetry); the build merges it via `src/lib/flights/overlay.ts` + `observed.ts`. Observed origins replace the baseline; the long tail stays OpenFlights.
+- Endpoint: `GET https://aerodatabox.p.rapidapi.com/airports/iata/{code}/stats/routes/daily`. The `/flights/...` path variant 404s: do not "fix" the path.
+- FREE plan budget: 400 API units / 1600 requests per ~30 days. The fetch script reads live quota headers and stops at its floors (`ADB_UNIT_FLOOR`, default 100); never loop it manually.
+- Refresh: `.github/workflows/data-refresh.yml`, monthly + manual dispatch. Its push uses `GITHUB_TOKEN` (which triggers no push workflows), so `deploy.yml` chains off it via `workflow_run`.
+- Key location: GitHub Actions secret `AERODATABOX_API_KEY` on this repo; locally, export env `AERODATABOX_API_KEY`. Never paste the key into code, docs, or logs. Vault mirror at `secret/projects/direct-flights` is PENDING: the atlas AppRole policy cannot write that path and extending Vault policy is ask-first, so the mirror waits for Miguel's next OIDC `vault login`.
 
 Framework docs: `MISSION.md` (why + non-goals), `SUCCESS.md` (definition of done, verifiable), `PLANE.md` (roadmap single-source), `PLANNING.md` (decisions + retro). Read MISSION.md before proposing scope changes; update PLANE.md when you finish or queue work.
 
