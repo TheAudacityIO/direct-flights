@@ -43,6 +43,16 @@ jobs:
           ADB_MAX_AIRPORTS: ${{ inputs.max_airports || '120' }}
         run: npm run data:fetch-observed
 
+      # Fetched data costs real quota; keep it salvageable even when a later
+      # step fails (a lost run already cost 288 of 400 monthly units once).
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: aerodatabox-observed
+          path: data/observed/operated-routes.json
+          if-no-files-found: ignore
+          retention-days: 35
+
       - name: Rebuild static dataset (baseline + overlay)
         run: npm run data:build -- --force
 

@@ -31,6 +31,12 @@ const UNIT_FLOOR = Number(process.env.ADB_UNIT_FLOOR ?? 100);
 const REQUEST_FLOOR = Number(process.env.ADB_REQUEST_FLOOR ?? 50);
 const FALLBACK_MAX = Number(process.env.ADB_FALLBACK_MAX ?? 60);
 const DELAY_MS = Number(process.env.ADB_DELAY_MS ?? 400);
+// Origins fetched FIRST regardless of global rank. CAG is the canary
+// airport: without the pin it never makes the free-plan top-N cut.
+const PINNED = (process.env.ADB_PINNED ?? "CAG")
+  .split(",")
+  .map((s) => s.trim().toUpperCase())
+  .filter((s) => /^[A-Z]{3}$/.test(s));
 
 type Quota = { unitsRemaining: number | null; requestsRemaining: number | null };
 
@@ -62,6 +68,7 @@ async function main() {
   const airportsRaw = await readFile(path.join(ROOT, "public/data/airports.json"), "utf8");
   const ranked: { iata: string; destinations: number }[] = JSON.parse(airportsRaw);
   ranked.sort((a, b) => b.destinations - a.destinations || a.iata.localeCompare(b.iata));
+  const order = [...PINNED, ...ranked.map((r) => r.iata).filter((i) => !PINNED.includes(i))];
 
   const asOf = new Date().toISOString().slice(0, 10);
   const routes: OperatedRoute[] = [];
@@ -70,11 +77,11 @@ async function main() {
   let unitsRemaining: number | null = null;
   let requestsRemaining: number | null = null;
   let unitCostPerCall: number | null = null;
-  let cap = Math.min(MAX_AIRPORTS, ranked.length);
+  let cap = Math.min(MAX_AIRPORTS, order.length);
   let stopReason = "cap reached";
 
   for (let i = 0; i < cap; i++) {
-    const iata = ranked[i].iata;
+    const iata = order[i];
     const url = `https://${HOST}/airports/iata/${iata}/stats/routes/daily`;
     let res: Response;
     try {
