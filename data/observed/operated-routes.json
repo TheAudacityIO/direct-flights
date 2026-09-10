@@ -1,0 +1,943 @@
+{
+ "source": "AeroDataBox (RapidAPI)",
+ "endpoint": "/airports/iata/{code}/stats/routes/daily",
+ "asOf": "2026-09-10",
+ "lookbackDays": 30,
+ "fetchedOrigins": [
+  "CAG"
+ ],
+ "skippedOrigins": [],
+ "unitCostPerCall": null,
+ "unitsRemaining": 94,
+ "requestsRemaining": 1550,
+ "routes": [
+  {
+   "originIata": "CAG",
+   "destIata": "AHO",
+   "airline": "Fly Air41 Airways",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 4
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "AMS",
+   "airline": "KLM",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 34
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "ARN",
+   "airline": "Neos",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 13
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "ARN",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 0
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "ATH",
+   "airline": "Neos",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 4
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "BCN",
+   "airline": "Vueling",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 47
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "BGY",
+   "airline": "Ryanair",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 103
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "BLQ",
+   "airline": "Fly Air41 Airways",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 111
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "BLQ",
+   "airline": "Ryanair",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 0
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "BRI",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 26
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "BRN",
+   "airline": "SkyAlps SRL",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 4
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "BSL",
+   "airline": "easyJet",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 13
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "BUD",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 17
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "BVA",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 13
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "BZO",
+   "airline": "SkyAlps SRL",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 21
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "CCF",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 13
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "CDG",
+   "airline": "Air France",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 9
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "CIA",
+   "airline": "Ryanair",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 94
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "CRL",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 17
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "CTA",
+   "airline": "Fly Air41 Airways",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 39
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "CTA",
+   "airline": "Ryanair",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 0
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "CUF",
+   "airline": "Fly Air41 Airways",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 17
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "CUF",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 0
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "DUB",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 13
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "DUS",
+   "airline": "Eurowings",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 21
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "FCO",
+   "airline": "Fly Air41 Airways",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 321
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "FKB",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 17
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "FLR",
+   "airline": "Fly Air41 Airways",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 17
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "FLR",
+   "airline": "Volotea",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 0
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "FRA",
+   "airline": "Lufthansa",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 26
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "FRL",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 13
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "GOA",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 13
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "GOT",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 9
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "GVA",
+   "airline": "easyJet",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 17
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "HAM",
+   "airline": "Eurowings",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 9
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "HHN",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 21
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "KRK",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 26
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "LGW",
+   "airline": "British Airways",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 39
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "LIN",
+   "airline": "Fly Air41 Airways",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 300
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "LUX",
+   "airline": "Luxair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 13
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "MAD",
+   "airline": "Iberia",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 34
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "MAD",
+   "airline": "Ryanair",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 0
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "MLA",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 21
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "MRS",
+   "airline": "Volotea",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 13
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "MUC",
+   "airline": "Lufthansa",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 43
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "MXP",
+   "airline": "easyJet",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 124
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "MXP",
+   "airline": "Neos",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 0
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "MXP",
+   "airline": "Ryanair",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 0
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "NAP",
+   "airline": "easyJet",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 51
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "NAP",
+   "airline": "Ryanair",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 0
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "NRN",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 21
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "NUE",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 13
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "OLB",
+   "airline": "Fly Air41 Airways",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 4
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "OPO",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 13
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "ORY",
+   "airline": "easyJet",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 30
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "ORY",
+   "airline": "Transavia France",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 0
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "PEG",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 17
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "PMF",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 17
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "PMI",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 13
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "PMO",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 21
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "POZ",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 26
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "PRG",
+   "airline": "SmartWings",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 17
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "PSA",
+   "airline": "Fly Air41 Airways",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 77
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "PSA",
+   "airline": "Ryanair",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 0
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "PSR",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 9
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "RMI",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 13
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "STN",
+   "airline": "Ryanair",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 30
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "STR",
+   "airline": "Eurowings",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 17
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "SUF",
+   "airline": "Fly Air41 Airways",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 9
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "SVQ",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 13
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "SZG",
+   "airline": "Eurowings",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 4
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "TLV",
+   "airline": "El Al",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 13
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "TRN",
+   "airline": "Ryanair",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 69
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "TRS",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 26
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "VCE",
+   "airline": "Ryanair",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 60
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "VCE",
+   "airline": "Volotea",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 0
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "VIE",
+   "airline": "Austrian",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 47
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "VIE",
+   "airline": "Ryanair",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 0
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "VLC",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-09-10",
+   "flightCount": 13
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "VRN",
+   "airline": "Neos",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 86
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "VRN",
+   "airline": "Ryanair",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 0
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "VRN",
+   "airline": "Volotea",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 0
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "ZRH",
+   "airline": "Edelweiss Air",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-09-10",
+   "flightCount": 34
+  }
+ ]
+}
