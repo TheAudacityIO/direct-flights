@@ -3,6 +3,10 @@ name: Deploy
 on:
   push:
     branches: [main]
+    # Docs and roadmap edits (MISSION/SUCCESS/PLANE/PLANNING, README) must not
+    # rebuild and redeploy the live site.
+    paths-ignore:
+      - '**.md'
   workflow_dispatch:
     inputs:
       tag:

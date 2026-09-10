@@ -8,6 +8,13 @@ Dark, ad-free nonstop flight explorer: OpenFlights data on a MapLibre map. TanSt
 
 The dump has no dates. Seasonal LCC pairs (CAG–DUB Ryanair) are missing. Do not scrape airline sites. Observed/operated union lives in `src/lib/flights/observed.ts`; a live rebuild needs an LCC-aware routes key in Vault `secret/projects/direct-flights` (none there yet).
 
+Framework docs: `MISSION.md` (why + non-goals), `SUCCESS.md` (definition of done, verifiable), `PLANE.md` (roadmap single-source), `PLANNING.md` (decisions + retro). Read MISSION.md before proposing scope changes; update PLANE.md when you finish or queue work.
+
+## Conventions
+
+- Every commit message ends with `Actor:` and `Via:` trailers identifying who drove and through what (e.g. `Actor: miguel`, `Via: grok+code-fast-1` or `Via: cc+claude-fable-5`).
+- Markdown-only pushes do not deploy (`deploy.yml` ignores `**.md`); code pushes to `main` ship to the live site.
+
 ## Commands (node 22)
 
 - Install: `npm ci`
