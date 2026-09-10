@@ -22,11 +22,11 @@ A dark nonstop-route explorer. Search any airport, see every direct destination 
 - [ ] Wire monetization once the pub id exists: `public/ads.txt`, the `adsbygoogle` script, 1-2 conservative display slots (sidebar/bottom-sheet edge, never over the map), and a Google-certified CMP for EEA consent (Consent Mode v2).
 - [ ] Rewarded-unlock loop (the FlightConnections-Premium counter): gate heavier features (date/time filters, schedule depth) behind a Google Ad Manager "rewarded ads for web" unit. Policy bounds: reward is granted after a 5s in-view ad, must be non-monetary and redeemable on-site only; interstitials only as between-navigation vignettes, NEVER popups on first load (intrusive-interstitial penalty + AdSense policy).
 - [ ] Google Search Console: verify the property, submit the sitemap.
+- [ ] Data upgrade (data-source assessment 2026-09-10): the OpenFlights dump is ~2014-stale and the observed-route union (`src/lib/flights/observed.ts`) is wired but UNFED. Fix: Amadeus Self-Service "Airport Routes" key → Vault `secret/projects/direct-flights` + repo secret, overlay in `build-openflights.ts`, weekly CI rebuild (~3,000 calls/refresh, single-digit euros). HUMAN GATE: Miguel signs up at developers.amadeus.com (test key instant; production key needs billing details, provisioning 1-3 business days). Test-env data is a limited cache: treat test-key output as plumbing validation only; the CAG–DUB Ryanair canary passes only on the production key. ⚠ Prerequisite for the rewarded premium features (date/schedule depth needs dated data; OAG/Cirium stay revenue-gated).
 
 ## Later
 
 - [ ] Portfolio site #2 using the same runbook + framework (pick the niche after direct-flights shows impressions).
-- [ ] OpenFlights data refresh automation (`npm run data:build` on a schedule instead of manual rebuilds).
 - [ ] Ad-slot/layout tuning once there is traffic data worth reading.
 - [ ] Lightweight analytics (PostHog free tier) if AdSense reporting alone proves too coarse.
 
