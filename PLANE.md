@@ -11,14 +11,16 @@ A dark nonstop-route explorer. Search any airport, see every direct destination 
 
 ## Now
 
-- [ ] Decide the ad positioning: the tagline says "ad-free" and AdSense contradicts it. Options: reposition ("fast, free, no clutter") or stay ad-free and drop AdSense for this site. Owner: Miguel. Leaning: reposition; the promise worth keeping is "no clutter, loads fast", not "zero ads".
-- [ ] Privacy policy page (`/privacy`), linked from the footer. Required for AdSense approval and EU compliance regardless of positioning.
+- [ ] Register the chosen domain (naming research 2026-09-10 in PLANNING.md; recommendation: flydirectfrom.com, $11/yr .com, verified available). HUMAN GATE: Miguel confirms name + registrar.
+- [ ] Execute the rename once the domain exists: site copy drops "ad-free" (new promise: fast, free, no clutter), README/AGENTS/`src/lib/og/site.json` identity, cloudflared ingress + DNS for the new hostname, 301 from flights.miketineo.com, keep the old hostname serving through the transition.
+- [ ] Privacy policy page (`/privacy`), linked from the footer. Required for AdSense approval and EU compliance.
 - [ ] Per-airport crawlable pages + `sitemap.xml` from the existing `public/data/routes/*.json` (real text content per airport: destinations, airlines, distances). This is both the SEO play and the "content depth" AdSense approval wants; a map-only SPA risks a thin-content rejection.
 
 ## Next
 
-- [ ] Miguel creates/verifies the AdSense account and adds flights.miketineo.com → yields the `ca-pub-…` publisher id. HUMAN GATE: only Miguel can do this.
-- [ ] Wire monetization once the pub id exists: `public/ads.txt`, the `adsbygoogle` script, 1-2 conservative ad slots (sidebar/bottom-sheet edge, never over the map), and a Google-certified CMP for EEA consent (Consent Mode v2).
+- [ ] Miguel creates/verifies the AdSense account and adds the new domain → yields the `ca-pub-…` publisher id. HUMAN GATE: only Miguel can do this.
+- [ ] Wire monetization once the pub id exists: `public/ads.txt`, the `adsbygoogle` script, 1-2 conservative display slots (sidebar/bottom-sheet edge, never over the map), and a Google-certified CMP for EEA consent (Consent Mode v2).
+- [ ] Rewarded-unlock loop (the FlightConnections-Premium counter): gate heavier features (date/time filters, schedule depth) behind a Google Ad Manager "rewarded ads for web" unit. Policy bounds: reward is granted after a 5s in-view ad, must be non-monetary and redeemable on-site only; interstitials only as between-navigation vignettes, NEVER popups on first load (intrusive-interstitial penalty + AdSense policy).
 - [ ] Google Search Console: verify the property, submit the sitemap.
 
 ## Later
