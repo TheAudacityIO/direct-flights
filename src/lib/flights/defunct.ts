@@ -10,6 +10,7 @@
  */
 export const DEFUNCT_AIRLINES: ReadonlySet<string> = new Set([
   "Adria Airways", // 2019
+  "bmibaby", // 2012
   "Aigle Azur", // 2019
   "Air Berlin", // 2017
   "Air Italy", // 2020 (ex-Meridiana)
@@ -20,6 +21,7 @@ export const DEFUNCT_AIRLINES: ReadonlySet<string> = new Set([
   "Excel Airways", // 2008 (XL Airways UK; residual rows in the dump)
   "Flybe", // 2020 (2022 relaunch ceased 2023)
   "Germania", // 2019
+  "Go Air", // Go First, 2023
   "Great Lakes Airlines", // 2018
   "Insel Air (7I/INC) (Priv)", // 2019
   "Interjet (ABC Aerolineas)", // 2020
@@ -34,6 +36,8 @@ export const DEFUNCT_AIRLINES: ReadonlySet<string> = new Set([
   "Norwegian Long Haul AS", // 2021
   "Oceanair", // Avianca Brasil, 2019
   "Primera Air", // 2018
+  "Shaheen Air International", // 2018
+  "SkyWork Airlines", // 2018
   "Small Planet Airlines", // 2018
   "Spanair", // 2012
   "TAME", // 2020

@@ -44,6 +44,8 @@ const AIRLINES_DAT = `
 4,"Alitalia",\\N,"AZ","AZA","ALITALIA","Italy","N"
 2,"Delta Air Lines",\\N,"DL","DAL","DELTA","United States","Y"
 3,"Codeshare Air",\\N,"CS","CSA","CSHARE","Italy","Y"
+5,"US Airways",\\N,"US","USA","U S AIR","United States","N"
+6,"American Airlines",\\N,"AA","AAL","AMERICAN","United States","Y"
 `.trim();
 
 const ROUTES_DAT = `
@@ -56,6 +58,8 @@ AZ,4,FCO,1555,JFK,3797,,0,772
 AZ,4,FCO,1555,CIA,1556,,0,319
 AZ,1,FCO,1555,CIA,1556,,1,319
 AZ,1,CAG,1554,FCO,1555,,0,319
+US,5,FCO,1555,JFK,3797,,0,772
+AA,6,FCO,1555,JFK,3797,,0,772
 2B,410,AER,2965,KZN,2990,,0,CR2
 `.trim();
 
@@ -88,7 +92,7 @@ describe("parse + clean pipeline", () => {
 
     const jfk = fco.find((d) => d.iata === "JFK");
     assert.ok(jfk);
-    assert.deepEqual(jfk.airlines, ["Delta Air Lines", "ITA Airways"]);
+    assert.deepEqual(jfk.airlines, ["American Airlines", "Delta Air Lines", "ITA Airways"]);
     assert.ok(jfk.km > 6700 && jfk.km < 7100);
     assert.equal(jfk.minutes, Math.round((jfk.km / 850) * 60 + 30));
     assert.ok(!jfk.airlines.includes("Codeshare Air"));
@@ -119,6 +123,17 @@ describe("parse + clean pipeline", () => {
       built.airports.find((a) => a.iata === "CIA"),
       undefined,
     );
+  });
+
+  it("renames absorbed brands to their successor and dedupes", () => {
+    const built = buildDataset(
+      parseAirports(AIRPORTS_DAT),
+      parseAirlines(AIRLINES_DAT),
+      parseRoutes(ROUTES_DAT),
+    );
+    const jfk = built.routesByOrigin.get("FCO")!.find((d) => d.iata === "JFK")!;
+    assert.ok(!jfk.airlines.includes("US Airways"));
+    assert.equal(jfk.airlines.filter((a) => a === "American Airlines").length, 1);
   });
 
   it("sorts destinations by estimated duration", () => {

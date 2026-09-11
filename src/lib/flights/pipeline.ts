@@ -1,5 +1,6 @@
 import { parseCsvLine, isMissing } from "./csv.ts";
 import { isDefunctAirline } from "./defunct.ts";
+import { successorAirline } from "./successors.ts";
 import { estimateDurationMin, haversineKm } from "./geo.ts";
 import type {
   AirportIndex,
@@ -186,7 +187,11 @@ export function buildDataset(
       if (!dest) continue;
       // A pair flown only by carriers that have since folded is not a
       // nonstop route any more; an unresolved (empty) list stays as-is.
-      const airlines = allAirlines.filter((a) => !isDefunctAirline(a));
+      // Absorbed brands take their successor's name (deduped: US Airways +
+      // American on one pair is one American row).
+      const airlines = [
+        ...new Set(allAirlines.filter((a) => !isDefunctAirline(a)).map(successorAirline)),
+      ];
       if (allAirlines.length > 0 && airlines.length === 0) continue;
       const km = Math.round(
         haversineKm(
