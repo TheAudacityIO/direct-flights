@@ -1,10 +1,10 @@
 {
   "source": "OpenFlights + AeroDataBox overlay",
   "attribution": "Airport and route data © OpenFlights.org (https://openflights.org/data.html); current-route overlay via AeroDataBox (https://aerodatabox.com)",
-  "generatedAt": "2026-09-11T15:45:46.945Z",
+  "generatedAt": "2026-09-11T18:48:01.756Z",
   "airportCount": 2961,
-  "originCount": 2936,
-  "routeCount": 32664,
+  "originCount": 2937,
+  "routeCount": 32706,
   "note": "Routes from the OpenFlights archive (~2014, defunct carriers removed), with routes observed operating in the 30 days to 2026-09-10 for one airport (AeroDataBox). Not a live timetable.",
   "lookbackDays": 30,
   "windowFrom": "2026-08-11",

@@ -67,11 +67,18 @@ export function toOperatedRoutes(
   return out;
 }
 
+function byDuration(a: Destination, b: Destination): number {
+  return a.minutes - b.minutes || a.iata.localeCompare(b.iata);
+}
+
 /**
  * Observed origins replace the baseline wholesale (current schedules beat the
  * 2014 snapshot: dead routes drop, missing LCC routes appear); every other
- * origin keeps its OpenFlights destinations. The airport index is recomputed
- * from the merged map so destination counts and the used-airport set agree.
+ * origin keeps its OpenFlights destinations. An observed A->B is also
+ * evidence that B->A operates, so the return leg is mirrored onto B when B is
+ * not itself observed: it replaces B's archive row for A or is added. The
+ * airport index is recomputed from the merged map so destination counts and
+ * the used-airport set agree.
  */
 export function mergeObserved(
   base: BuiltDataset,
@@ -89,6 +96,30 @@ export function mergeObserved(
   const meta = new Map<string, AirportIndex>();
   for (const ap of base.airports) meta.set(ap.iata, ap);
   for (const ap of observed.airports) if (!meta.has(ap.iata)) meta.set(ap.iata, ap);
+
+  const observedOrigins = new Set(replacedOrigins);
+  const touched = new Set<string>();
+  for (const origin of replacedOrigins) {
+    const ap = meta.get(origin);
+    if (!ap) continue;
+    for (const d of routesByOrigin.get(origin) ?? []) {
+      if (observedOrigins.has(d.iata) || !d.lastSeen) continue;
+      const mirrored: Destination = {
+        ...d,
+        iata: ap.iata,
+        name: ap.name,
+        city: ap.city,
+        country: ap.country,
+        lat: ap.lat,
+        lon: ap.lon,
+      };
+      const list = (routesByOrigin.get(d.iata) ?? []).filter((x) => x.iata !== origin);
+      list.push(mirrored);
+      routesByOrigin.set(d.iata, list);
+      touched.add(d.iata);
+    }
+  }
+  for (const iata of touched) routesByOrigin.get(iata)!.sort(byDuration);
 
   const used = new Set<string>();
   let routeCount = 0;

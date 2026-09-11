@@ -157,13 +157,55 @@ describe("mergeObserved", () => {
     assert.equal(cag[0].flightCount, 13);
 
     assert.equal(merged.routesByOrigin.get("OLB")!.length, 1);
-    assert.equal(merged.routeCount, 2);
+    // CAG->DUB observed mirrors as DUB->CAG (see the next test).
+    assert.equal(merged.routeCount, 3);
 
     const index = new Map(merged.airports.map((a) => [a.iata, a.destinations]));
     assert.equal(index.get("CAG"), 1);
     assert.equal(index.get("OLB"), 1);
-    assert.equal(index.get("DUB"), 0);
+    assert.equal(index.get("DUB"), 1);
     assert.equal(index.has("STN"), false);
+  });
+
+  it("mirrors an observed leg onto the unobserved destination as its return", () => {
+    const { merged } = mergeObserved(baseDataset(), observedDataset());
+    const dub = merged.routesByOrigin.get("DUB")!;
+    assert.equal(dub.length, 1);
+    assert.equal(dub[0].iata, "CAG");
+    assert.equal(dub[0].name, "CAG airport");
+    assert.deepEqual(dub[0].airlines, ["Ryanair"]);
+    assert.equal(dub[0].lastSeen, AS_OF);
+    assert.equal(dub[0].flightCount, 13);
+  });
+
+  it("replaces the destination's archive row for the observed origin, keeps its others", () => {
+    const base = baseDataset();
+    base.routesByOrigin.set("DUB", [dest("STN", 70), dest("CAG", 200)]);
+    const { merged } = mergeObserved(base, observedDataset());
+    const dub = merged.routesByOrigin.get("DUB")!;
+    assert.deepEqual(
+      dub.map((d) => [d.iata, d.airlines[0], Boolean(d.lastSeen)]),
+      [
+        ["STN", "Baseline Air", false],
+        ["CAG", "Ryanair", true],
+      ],
+    );
+  });
+
+  it("never mirrors onto an origin that is itself observed", () => {
+    const observed = buildObservedDataset(
+      [airport("CAG"), airport("DUB", 53, -6), airport("STN", 51, 0)],
+      [
+        { originIata: "CAG", destIata: "DUB", airline: "Ryanair", days: [], lastSeen: AS_OF, flightCount: 13 },
+        { originIata: "DUB", destIata: "STN", airline: "Ryanair", days: [], lastSeen: AS_OF, flightCount: 5 },
+      ],
+      { asOf: AS_OF, lookbackDays: LOOKBACK },
+    );
+    const { merged } = mergeObserved(baseDataset(), observed);
+    // DUB's own observed list (STN only) is authoritative: no CAG mirrored in.
+    assert.deepEqual(merged.routesByOrigin.get("DUB")!.map((d) => d.iata), ["STN"]);
+    // STN was not observed and gains the return leg.
+    assert.deepEqual(merged.routesByOrigin.get("STN")!.map((d) => d.iata), ["DUB"]);
   });
 
   it("keeps the baseline when the observed origin produced no routes", () => {
