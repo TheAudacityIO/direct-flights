@@ -1,7 +1,7 @@
 {
   "source": "OpenFlights + AeroDataBox overlay",
   "attribution": "Airport and route data © OpenFlights.org (https://openflights.org/data.html); current-route overlay via AeroDataBox (https://aerodatabox.com)",
-  "generatedAt": "2026-09-11T21:37:49.035Z",
+  "generatedAt": "2026-09-11T21:42:08.907Z",
   "airportCount": 2961,
   "originCount": 2937,
   "routeCount": 32673,

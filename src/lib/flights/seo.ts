@@ -1,10 +1,76 @@
 /** Pure helpers for the per-airport pages and the sitemap (no fs, testable). */
+import { haversineKm } from "./geo.ts";
 import type { AirportIndex, DatasetMeta, Destination } from "./types.ts";
 
 export const SITE_ORIGIN = "https://flydirectfrom.com";
 
 export function airportPagePath(iata: string): string {
   return `/from/${iata.toUpperCase()}`;
+}
+
+/** `Congo (Kinshasa)` -> `congo-kinshasa`; unique across the dataset's 222 countries. */
+export function countrySlug(country: string): string {
+  return country
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+export function countryPagePath(country: string): string {
+  return `/countries/${countrySlug(country)}`;
+}
+
+export function countryPageTitle(country: string, airportCount: number): string {
+  return `Direct flights from ${country}: ${airportCount} ${
+    airportCount === 1 ? "airport" : "airports"
+  } with nonstop routes`;
+}
+
+export type NearbyAirport = Pick<AirportIndex, "iata" | "name" | "city" | "country" | "destinations"> & {
+  km: number;
+};
+
+/** Closest other origins within `maxKm`, nearest first: the "also consider" links. */
+export function nearbyAirports(
+  origin: Pick<AirportIndex, "iata" | "lat" | "lon">,
+  airports: AirportIndex[],
+  limit = 6,
+  maxKm = 400,
+): NearbyAirport[] {
+  return airports
+    .filter((a) => a.iata !== origin.iata && a.destinations > 0)
+    .map(({ iata, name, city, country, destinations, lat, lon }) => ({
+      iata,
+      name,
+      city,
+      country,
+      destinations,
+      km: Math.round(haversineKm(origin, { lat, lon })),
+    }))
+    .filter((a) => a.km <= maxKm)
+    .sort((a, b) => a.km - b.km || a.iata.localeCompare(b.iata))
+    .slice(0, limit);
+}
+
+export type AirportGlance = {
+  countries: number;
+  airlines: number;
+  verified: number;
+  longest: Destination | null;
+  shortest: Destination | null;
+};
+
+export function airportGlance(destinations: Destination[]): AirportGlance {
+  const byKm = destinations.slice().sort((a, b) => a.km - b.km);
+  return {
+    countries: new Set(destinations.map((d) => d.country)).size,
+    airlines: new Set(destinations.flatMap((d) => d.airlines)).size,
+    verified: destinations.filter((d) => d.lastSeen).length,
+    longest: byKm.at(-1) ?? null,
+    shortest: byKm[0] ?? null,
+  };
 }
 
 export function airportLabel(ap: Pick<AirportIndex, "iata" | "name" | "city">): string {

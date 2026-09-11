@@ -15,6 +15,10 @@ export const Route = createRootRoute({
       { title: APP_NAME },
       { name: "description", content: APP_DESC },
       { name: "theme-color", content: "#08090c" },
+      { property: "og:site_name", content: APP_NAME },
+      { property: "og:type", content: "website" },
+      { property: "og:image", content: "https://flydirectfrom.com/og.jpg" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },

@@ -14,7 +14,7 @@ import path from "node:path";
 import { parseAirports, parseAirlines, parseRoutes, buildDataset } from "../src/lib/flights/pipeline.ts";
 import { buildObservedDataset, windowFrom } from "../src/lib/flights/observed.ts";
 import { mergeObserved } from "../src/lib/flights/overlay.ts";
-import { airportPagePath, buildSitemap } from "../src/lib/flights/seo.ts";
+import { airportPagePath, buildSitemap, countryPagePath } from "../src/lib/flights/seo.ts";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const RAW = path.join(ROOT, "data/raw");
@@ -111,8 +111,16 @@ async function main() {
   };
   await writeFile(path.join(OUT, "meta.json"), JSON.stringify(meta, null, 2));
 
-  // One crawlable page per origin, plus the static pages.
-  const pages = ["/", "/from", "/privacy", ...[...dataset.routesByOrigin.keys()].sort().map(airportPagePath)];
+  // One crawlable page per origin and per country, plus the static pages.
+  const countries = [...new Set(dataset.airports.filter((a) => a.destinations > 0).map((a) => a.country))].sort();
+  const pages = [
+    "/",
+    "/from",
+    "/about-the-data",
+    "/privacy",
+    ...countries.map(countryPagePath),
+    ...[...dataset.routesByOrigin.keys()].sort().map(airportPagePath),
+  ];
   await writeFile(path.join(ROOT, "public/sitemap.xml"), buildSitemap(pages, meta.generatedAt));
 
   const sample = (code: string) => dataset.routesByOrigin.get(code)?.length ?? 0;

@@ -382,10 +382,13 @@ function EmptyHint({
             All airports
           </a>
           {" · "}
+          <a href="/about-the-data" className="underline underline-offset-2 hover:text-fg">
+            About the data
+          </a>
+          {" · "}
           <a href="/privacy" className="underline underline-offset-2 hover:text-fg">
             Privacy
           </a>
-          {" · Data: OpenFlights + AeroDataBox"}
         </p>
       </div>
     </div>

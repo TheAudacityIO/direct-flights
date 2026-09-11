@@ -10,7 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutTheDataRouteImport } from './routes/about-the-data'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as CountriesSlugRouteImport } from './routes/countries.$slug'
 import { Route as FromIndexRouteImport } from './routes/from.index'
 import { Route as FromIataRouteImport } from './routes/from.$iata'
 
@@ -19,9 +21,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutTheDataRoute = AboutTheDataRouteImport.update({
+  id: '/about-the-data',
+  path: '/about-the-data',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CountriesSlugRoute = CountriesSlugRouteImport.update({
+  id: '/countries/$slug',
+  path: '/countries/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FromIndexRoute = FromIndexRouteImport.update({
@@ -37,34 +49,61 @@ const FromIataRoute = FromIataRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about-the-data': typeof AboutTheDataRoute
   '/privacy': typeof PrivacyRoute
+  '/countries/$slug': typeof CountriesSlugRoute
   '/from/$iata': typeof FromIataRoute
   '/from/': typeof FromIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about-the-data': typeof AboutTheDataRoute
   '/privacy': typeof PrivacyRoute
+  '/countries/$slug': typeof CountriesSlugRoute
   '/from/$iata': typeof FromIataRoute
   '/from': typeof FromIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about-the-data': typeof AboutTheDataRoute
   '/privacy': typeof PrivacyRoute
+  '/countries/$slug': typeof CountriesSlugRoute
   '/from/$iata': typeof FromIataRoute
   '/from/': typeof FromIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/privacy' | '/from/$iata' | '/from/'
+  fullPaths:
+    | '/'
+    | '/about-the-data'
+    | '/privacy'
+    | '/countries/$slug'
+    | '/from/$iata'
+    | '/from/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/privacy' | '/from/$iata' | '/from'
-  id: '__root__' | '/' | '/privacy' | '/from/$iata' | '/from/'
+  to:
+    | '/'
+    | '/about-the-data'
+    | '/privacy'
+    | '/countries/$slug'
+    | '/from/$iata'
+    | '/from'
+  id:
+    | '__root__'
+    | '/'
+    | '/about-the-data'
+    | '/privacy'
+    | '/countries/$slug'
+    | '/from/$iata'
+    | '/from/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutTheDataRoute: typeof AboutTheDataRoute
   PrivacyRoute: typeof PrivacyRoute
+  CountriesSlugRoute: typeof CountriesSlugRoute
   FromIataRoute: typeof FromIataRoute
   FromIndexRoute: typeof FromIndexRoute
 }
@@ -78,11 +117,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about-the-data': {
+      id: '/about-the-data'
+      path: '/about-the-data'
+      fullPath: '/about-the-data'
+      preLoaderRoute: typeof AboutTheDataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/countries/$slug': {
+      id: '/countries/$slug'
+      path: '/countries/$slug'
+      fullPath: '/countries/$slug'
+      preLoaderRoute: typeof CountriesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/from/': {
@@ -104,7 +157,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutTheDataRoute: AboutTheDataRoute,
   PrivacyRoute: PrivacyRoute,
+  CountriesSlugRoute: CountriesSlugRoute,
   FromIataRoute: FromIataRoute,
   FromIndexRoute: FromIndexRoute,
 }

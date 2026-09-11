@@ -1,13 +1,16 @@
 import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { ProvenanceChip } from "@/components/explorer/ProvenanceChip";
+import { SiteFooter } from "@/components/site/SiteFooter";
 import { formatDuration, formatKm } from "@/lib/flights/geo";
 import { formatDays } from "@/lib/flights/observed";
 import { getAirportPage } from "@/lib/flights/pages";
 import {
+  airportGlance,
   airportLabel,
   airportPageDescription,
   airportPagePath,
   airportPageTitle,
+  countrySlug,
   provenanceSentence,
   SITE_ORIGIN,
 } from "@/lib/flights/seo";
@@ -58,8 +61,9 @@ function NotFoundPage() {
 }
 
 function AirportPage() {
-  const { origin, destinations, meta } = Route.useLoaderData();
-  const countries = new Set(destinations.map((d) => d.country)).size;
+  const { origin, destinations, nearby, meta } = Route.useLoaderData();
+  const glance = airportGlance(destinations);
+  const countries = glance.countries;
   return (
     <main className="mx-auto min-h-dvh w-full max-w-3xl px-5 py-12">
       <p className="text-[11px] uppercase tracking-[0.18em] text-subtle">
@@ -69,6 +73,10 @@ function AirportPage() {
         {" / "}
         <Link to="/from" className="hover:text-fg">
           Airports
+        </Link>
+        {" / "}
+        <Link to="/countries/$slug" params={{ slug: countrySlug(origin.country) }} className="hover:text-fg">
+          {origin.country}
         </Link>
       </p>
       <h1 className="mt-2 text-3xl font-medium tracking-tight text-fg text-balance">
@@ -140,13 +148,80 @@ function AirportPage() {
         </table>
       </div>
 
-      <p className="mt-8 text-[11px] leading-relaxed text-subtle">
-        {meta.attribution}. Distances are great-circle; durations are estimates (km ÷ 850 km/h + 30
-        min).{" "}
-        <Link to="/privacy" className="underline underline-offset-2 hover:text-fg">
-          Privacy
-        </Link>
-      </p>
+      <section className="mt-10">
+        <h2 className="text-base font-medium text-fg">At a glance</h2>
+        <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
+          <Stat label="Nonstop destinations" value={String(destinations.length)} />
+          <Stat label="Countries served" value={String(countries)} />
+          <Stat label="Airlines" value={String(glance.airlines)} />
+          {glance.longest ? (
+            <Stat
+              label="Longest route"
+              value={`${glance.longest.city || glance.longest.name} (${glance.longest.iata}), ${formatKm(glance.longest.km)}`}
+            />
+          ) : null}
+          {glance.shortest ? (
+            <Stat
+              label="Shortest route"
+              value={`${glance.shortest.city || glance.shortest.name} (${glance.shortest.iata}), ${formatKm(glance.shortest.km)}`}
+            />
+          ) : null}
+          <Stat
+            label="Verified current"
+            value={`${glance.verified} of ${destinations.length}`}
+          />
+        </dl>
+      </section>
+
+      {nearby.length > 0 ? (
+        <section className="mt-10">
+          <h2 className="text-base font-medium text-fg">Nearby departure airports</h2>
+          <p className="mt-1 text-xs text-subtle">
+            Other origins within 400 km of {origin.iata}, nearest first.
+          </p>
+          <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+            {nearby.map((ap) => (
+              <li key={ap.iata}>
+                <Link
+                  to="/from/$iata"
+                  params={{ iata: ap.iata }}
+                  className="text-muted hover:text-fg hover:underline underline-offset-2"
+                >
+                  {ap.city || ap.name} <span className="font-mono text-accent">{ap.iata}</span>{" "}
+                  <span className="text-subtle">
+                    {formatKm(ap.km)} · {ap.destinations}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      <section className="mt-10 text-sm leading-relaxed text-muted">
+        <h2 className="text-base font-medium text-fg">About these routes</h2>
+        <p className="mt-2">
+          Rows marked Verified were observed operating in the {meta.lookbackDays ?? 30} days to{" "}
+          {meta.windowTo ?? "the last refresh"}. Rows marked Archive come from the OpenFlights route
+          archive (~2014) with carriers that have since folded removed; treat them as a starting
+          point and confirm with the airline before booking.{" "}
+          <Link to="/about-the-data" className="underline underline-offset-2 hover:text-fg">
+            How the data is built
+          </Link>
+          .
+        </p>
+      </section>
+
+      <SiteFooter attribution={meta.attribution} />
     </main>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt className="text-[11px] uppercase tracking-wider text-subtle">{label}</dt>
+      <dd className="mt-0.5 text-fg">{value}</dd>
+    </div>
   );
 }

@@ -1,10 +1,14 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
+  airportGlance,
   airportPageDescription,
   airportPagePath,
   airportPageTitle,
   buildSitemap,
+  countryPagePath,
+  countrySlug,
+  nearbyAirports,
   provenanceSentence,
 } from "./seo.ts";
 import type { Destination } from "./types.ts";
@@ -58,5 +62,50 @@ describe("airport page seo", () => {
     assert.match(xml, /<loc>https:\/\/flydirectfrom\.com\/from\/FCO<\/loc>/);
     assert.equal((xml.match(/<url>/g) ?? []).length, 2);
     assert.match(xml, /<lastmod>2026-09-11<\/lastmod>/);
+  });
+});
+
+describe("country and neighbourhood helpers", () => {
+  it("slugs country names to ascii kebab-case", () => {
+    assert.equal(countrySlug("Congo (Kinshasa)"), "congo-kinshasa");
+    assert.equal(countrySlug("Côte d'Ivoire"), "cote-d-ivoire");
+    assert.equal(countryPagePath("United States"), "/countries/united-states");
+  });
+
+  it("lists the nearest other origins within range, nearest first", () => {
+    const ap = (iata: string, lat: number, lon: number, destinations = 5) => ({
+      iata,
+      name: iata,
+      city: iata,
+      country: "Italy",
+      lat,
+      lon,
+      destinations,
+    });
+    const fco = ap("FCO", 41.8, 12.24);
+    const near = nearbyAirports(fco, [
+      fco,
+      ap("CIA", 41.8, 12.6),
+      ap("NAP", 40.88, 14.29),
+      ap("LHR", 51.47, -0.46),
+      ap("XXX", 41.9, 12.3, 0),
+    ]);
+    assert.deepEqual(
+      near.map((a) => a.iata),
+      ["CIA", "NAP"],
+    );
+    assert.ok(near[0].km < near[1].km);
+  });
+
+  it("summarises a destination list", () => {
+    const g = airportGlance([
+      dest({ iata: "JFK", km: 6900, lastSeen: "2026-09-10" }),
+      dest({ iata: "CAG", km: 400, country: "Italy", airlines: ["ITA Airways", "Ryanair"] }),
+    ]);
+    assert.equal(g.countries, 2);
+    assert.equal(g.airlines, 3);
+    assert.equal(g.verified, 1);
+    assert.equal(g.longest?.iata, "JFK");
+    assert.equal(g.shortest?.iata, "CAG");
   });
 });
