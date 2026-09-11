@@ -1,7 +1,9 @@
-import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
+import { createRootRoute, HeadContent, Link, Outlet, Scripts } from "@tanstack/react-router";
+import { SiteFooter } from "@/components/site/SiteFooter";
 import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import appCss from "../styles.css?url";
+import { ADS_ENABLED, ADSENSE_CLIENT } from "@/lib/ads/config";
 
 const APP_NAME = "FlyDirectFrom";
 const APP_DESC =
@@ -37,7 +39,34 @@ export const Route = createRootRoute({
       { rel: "manifest", href: "/__grok/manifest.webmanifest" },
       { rel: "apple-touch-icon", href: "/__grok/icon-180.png" },
     ],
+    scripts: ADS_ENABLED
+      ? [
+          {
+            src: `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`,
+            async: true,
+            crossOrigin: "anonymous",
+          },
+        ]
+      : [],
   }),
+  notFoundComponent: () => (
+    <main className="mx-auto min-h-dvh w-full max-w-2xl px-5 py-12">
+      <p className="text-[11px] uppercase tracking-[0.18em] text-muted">FlyDirectFrom</p>
+      <h1 className="mt-2 text-3xl font-medium tracking-tight text-fg">Page not found</h1>
+      <p className="mt-3 text-sm leading-relaxed text-muted">
+        Nothing lives at this address.{" "}
+        <Link to="/from" className="underline underline-offset-2 hover:text-fg">
+          Browse airports by country
+        </Link>{" "}
+        or{" "}
+        <Link to="/" className="underline underline-offset-2 hover:text-fg">
+          search the map
+        </Link>
+        .
+      </p>
+      <SiteFooter />
+    </main>
+  ),
   component: () => (
     <html lang="en" className="antialiased" suppressHydrationWarning>
       <head>

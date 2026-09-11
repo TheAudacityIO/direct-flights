@@ -1,6 +1,8 @@
 import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { ProvenanceChip } from "@/components/explorer/ProvenanceChip";
 import { SiteFooter } from "@/components/site/SiteFooter";
+import { AdSlot } from "@/components/ads/AdSlot";
+import { AD_SLOTS } from "@/lib/ads/config";
 import { formatDuration, formatKm } from "@/lib/flights/geo";
 import { formatDays } from "@/lib/flights/observed";
 import { getAirportPage } from "@/lib/flights/pages";
@@ -11,6 +13,7 @@ import {
   airportPagePath,
   airportPageTitle,
   countrySlug,
+  pageMeta,
   provenanceSentence,
   SITE_ORIGIN,
 } from "@/lib/flights/seo";
@@ -26,13 +29,14 @@ export const Route = createFileRoute("/from/$iata")({
     return page;
   },
   head: ({ loaderData }) => {
-    if (!loaderData) return {};
+    if (!loaderData) return { meta: [{ title: "Airport not found · FlyDirectFrom" }] };
     const { origin, destinations } = loaderData;
     return {
-      meta: [
-        { title: `${airportPageTitle(origin, destinations.length)} · FlyDirectFrom` },
-        { name: "description", content: airportPageDescription(origin, destinations) },
-      ],
+      meta: pageMeta(
+        `${airportPageTitle(origin, destinations.length)} · FlyDirectFrom`,
+        airportPageDescription(origin, destinations),
+        airportPagePath(origin.iata),
+      ),
       links: [{ rel: "canonical", href: SITE_ORIGIN + airportPagePath(origin.iata) }],
     };
   },
@@ -56,22 +60,26 @@ function NotFoundPage() {
         </Link>
         .
       </p>
+      <SiteFooter />
     </main>
   );
 }
 
 function AirportPage() {
-  const { origin, destinations, nearby, meta } = Route.useLoaderData();
+  const { origin, destinations, nearby, pageless, meta } = Route.useLoaderData();
+  const noPage = new Set(pageless);
   const glance = airportGlance(destinations);
+  // The dataset sorts by rounded minutes; km is the same order without the ties.
+  const rows = destinations.slice().sort((a, b) => a.km - b.km || a.iata.localeCompare(b.iata));
   const countries = glance.countries;
   return (
     <main className="mx-auto min-h-dvh w-full max-w-3xl px-5 py-12">
-      <p className="text-[11px] uppercase tracking-[0.18em] text-subtle">
+      <p className="text-[11px] uppercase tracking-[0.18em] text-muted">
         <Link to="/" className="hover:text-fg">
           FlyDirectFrom
         </Link>
         {" / "}
-        <Link to="/from" className="hover:text-fg">
+        <Link to="/from" activeOptions={{ exact: true }} className="hover:text-fg">
           Airports
         </Link>
         {" / "}
@@ -99,46 +107,57 @@ function AirportPage() {
         </Link>
       </p>
 
+      <AdSlot slot={AD_SLOTS.airportPage} minHeight={120} className="mt-6" />
+
       <div className="mt-8 overflow-x-auto">
-        <table className="w-full min-w-[36rem] border-collapse text-sm">
+        <table className="w-full border-collapse text-sm">
           <thead>
-            <tr className="border-b border-border text-left text-[11px] uppercase tracking-wider text-subtle">
+            <tr className="border-b border-border text-left text-[11px] uppercase tracking-wider text-muted whitespace-nowrap">
               <th className="py-2 pr-3 font-medium">Destination</th>
               <th className="py-2 pr-3 font-medium">Airlines</th>
               <th className="py-2 pr-3 text-right font-medium">Distance</th>
-              <th className="py-2 pr-3 text-right font-medium">Est. time</th>
+              <th className="py-2 pr-3 text-right font-medium">Time</th>
               <th className="py-2 font-medium">Status</th>
             </tr>
           </thead>
           <tbody>
-            {destinations.map((d) => {
+            {rows.map((d) => {
               const days = formatDays(d.days);
+              const label = (
+                <>
+                  {d.city || d.name}{" "}
+                  <span className="font-mono text-[13px] text-accent">{d.iata}</span>
+                </>
+              );
               return (
                 <tr key={d.iata} className="border-b border-border/60 align-top">
-                  <td className="py-2.5 pr-3">
-                    <Link
-                      to="/from/$iata"
-                      params={{ iata: d.iata }}
-                      className="text-fg hover:underline underline-offset-2"
-                    >
-                      {d.city || d.name}{" "}
-                      <span className="font-mono text-[13px] text-accent">{d.iata}</span>
-                    </Link>
+                  <td className="py-2.5 pr-3 [overflow-wrap:anywhere]">
+                    {noPage.has(d.iata) ? (
+                      <span className="text-fg">{label}</span>
+                    ) : (
+                      <Link
+                        to="/from/$iata"
+                        params={{ iata: d.iata }}
+                        className="text-fg hover:underline underline-offset-2"
+                      >
+                        {label}
+                      </Link>
+                    )}
                     <span className="block text-xs text-muted">
                       {d.name}, {d.country}
                     </span>
                   </td>
-                  <td className="py-2.5 pr-3 text-muted">
+                  <td className="py-2.5 pr-3 text-muted [overflow-wrap:anywhere]">
                     {d.airlines.length > 0 ? d.airlines.join(", ") : "Airline unknown"}
                     {days ? <span className="block text-xs text-subtle">{days}</span> : null}
                   </td>
-                  <td className="py-2.5 pr-3 text-right font-mono tabular-nums text-muted">
+                  <td className="py-2.5 pr-3 text-right font-mono tabular-nums text-muted whitespace-nowrap">
                     {formatKm(d.km)}
                   </td>
-                  <td className="py-2.5 pr-3 text-right font-mono tabular-nums text-fg">
+                  <td className="py-2.5 pr-3 text-right font-mono tabular-nums text-fg whitespace-nowrap">
                     {formatDuration(d.minutes)}
                   </td>
-                  <td className="py-2.5">
+                  <td className="py-2.5 whitespace-nowrap">
                     <ProvenanceChip dest={d} />
                   </td>
                 </tr>
@@ -189,7 +208,8 @@ function AirportPage() {
                 >
                   {ap.city || ap.name} <span className="font-mono text-accent">{ap.iata}</span>{" "}
                   <span className="text-subtle">
-                    {formatKm(ap.km)} · {ap.destinations}
+                    {formatKm(ap.km)} · {ap.destinations}{" "}
+                    {ap.destinations === 1 ? "destination" : "destinations"}
                   </span>
                 </Link>
               </li>
@@ -201,16 +221,19 @@ function AirportPage() {
       <section className="mt-10 text-sm leading-relaxed text-muted">
         <h2 className="text-base font-medium text-fg">About these routes</h2>
         <p className="mt-2">
-          Rows marked Verified were observed operating in the {meta.lookbackDays ?? 30} days to{" "}
+          Rows marked Verified were seen operating in the {meta.lookbackDays ?? 30} days to{" "}
           {meta.windowTo ?? "the last refresh"}. Rows marked Archive come from the OpenFlights route
-          archive (~2014) with carriers that have since folded removed; treat them as a starting
-          point and confirm with the airline before booking.{" "}
+          archive (around 2014); we remove the airlines we know have folded, but a route can still
+          have changed since, so treat those rows as a starting point and confirm with the airline
+          before booking.{" "}
           <Link to="/about-the-data" className="underline underline-offset-2 hover:text-fg">
             How the data is built
           </Link>
           .
         </p>
       </section>
+
+      <AdSlot slot={AD_SLOTS.airportPage} className="mt-10" />
 
       <SiteFooter attribution={meta.attribution} />
     </main>

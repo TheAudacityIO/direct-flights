@@ -8,12 +8,8 @@ import type { AirportIndex, Destination } from "@/lib/flights/types";
 // for good; the durable follow-up (self-hosted Protomaps) is in PLANE.md.
 const STYLE_URL = "https://tiles.openfreemap.org/styles/dark";
 
-// The style JSON ships no attribution strings, and OpenFreeMap asks for
-// credit, so it rides the map's attribution control explicitly.
-const MAP_ATTRIBUTION =
-  '<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> © ' +
-  '<a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> ' +
-  'Data from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
+// The OpenFreeMap TileJSON carries the OpenFreeMap / OpenMapTiles / OSM
+// credit itself; the local fallback style declares its own on its source.
 
 const LOCAL_STYLE = {
   version: 8 as const,
@@ -21,6 +17,7 @@ const LOCAL_STYLE = {
     land: {
       type: "geojson" as const,
       data: "/data/land.geojson",
+      attribution: "Land outlines from Natural Earth",
     },
   },
   layers: [
@@ -337,7 +334,7 @@ export function FlightMap({
           style: STYLE_URL,
           center: [12, 28],
           zoom: 1.55,
-          attributionControl: { compact: true, customAttribution: MAP_ATTRIBUTION },
+          attributionControl: { compact: true },
           keyboard: false,
           pitchWithRotate: false,
           dragRotate: false,

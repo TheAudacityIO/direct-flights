@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { formatDuration, formatKm } from "@/lib/flights/geo";
 import { formatDays } from "@/lib/flights/observed";
 import { ProvenanceChip } from "./ProvenanceChip";
@@ -13,6 +13,15 @@ type Props = {
 
 export function DestinationList({ destinations, selectedIata, onSelect }: Props) {
   const [filter, setFilter] = useState("");
+  const filterId = useId();
+  const listRef = useRef<HTMLUListElement>(null);
+  // A deep link or map click can select a row far down the list.
+  useEffect(() => {
+    if (!selectedIata) return;
+    listRef.current
+      ?.querySelector('[aria-current="true"]')
+      ?.scrollIntoView({ block: "nearest" });
+  }, [selectedIata]);
   const filtered = useMemo(() => {
     const q = filter.trim().toLowerCase();
     if (!q) return destinations;
@@ -38,11 +47,11 @@ export function DestinationList({ destinations, selectedIata, onSelect }: Props)
     <div className="flex min-h-0 flex-1 flex-col">
       {destinations.length > 12 && (
         <div className="mb-2 px-1">
-          <label htmlFor="dest-filter" className="sr-only">
+          <label htmlFor={filterId} className="sr-only">
             Filter destinations
           </label>
           <input
-            id="dest-filter"
+            id={filterId}
             type="search"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
@@ -54,7 +63,7 @@ export function DestinationList({ destinations, selectedIata, onSelect }: Props)
       {filtered.length === 0 ? (
         <p className="px-1 py-6 text-sm text-muted">No destinations match that filter.</p>
       ) : (
-        <ul className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
+        <ul ref={listRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
           {filtered.map((d) => {
             const selected = d.iata === selectedIata;
             const days = formatDays(d.days);

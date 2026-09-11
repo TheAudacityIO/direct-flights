@@ -4,6 +4,17 @@ import type { AirportIndex, DatasetMeta, Destination } from "./types.ts";
 
 export const SITE_ORIGIN = "https://flydirectfrom.com";
 
+/** Title, description and share (og:*) tags for one page in the shape TanStack's head() wants. */
+export function pageMeta(title: string, description: string, path: string) {
+  return [
+    { title },
+    { name: "description", content: description },
+    { property: "og:title", content: title },
+    { property: "og:description", content: description },
+    { property: "og:url", content: SITE_ORIGIN + path },
+  ];
+}
+
 export function airportPagePath(iata: string): string {
   return `/from/${iata.toUpperCase()}`;
 }
@@ -73,8 +84,16 @@ export function airportGlance(destinations: Destination[]): AirportGlance {
   };
 }
 
+const fold = (s: string) =>
+  s
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+/** "Rome Fiumicino (FCO)"; the city is not repeated when the name already starts with it ("London Heathrow Airport (LHR)"). */
 export function airportLabel(ap: Pick<AirportIndex, "iata" | "name" | "city">): string {
-  const place = ap.city && ap.city !== ap.name ? `${ap.city} ${ap.name}` : ap.name;
+  const repeats = !ap.city || ap.city === ap.name || fold(ap.name).startsWith(fold(ap.city));
+  const place = repeats ? ap.name : `${ap.city} ${ap.name}`;
   return `${place} (${ap.iata})`;
 }
 
@@ -110,11 +129,14 @@ export function provenanceSentence(
   destinations: Destination[],
   meta: Pick<DatasetMeta, "windowFrom" | "windowTo">,
 ): string {
-  const observed = destinations.some((d) => d.lastSeen);
-  if (observed && meta.windowFrom && meta.windowTo) {
+  const verified = destinations.filter((d) => d.lastSeen).length;
+  if (verified === destinations.length && verified > 0 && meta.windowFrom && meta.windowTo) {
     return `Routes observed operating between ${meta.windowFrom} and ${meta.windowTo} (AeroDataBox). Estimated durations, not a timetable.`;
   }
-  return "Routes from the OpenFlights archive (~2014) with defunct carriers removed; not verified as current. Estimated durations, not a timetable.";
+  if (verified > 0 && meta.windowFrom && meta.windowTo) {
+    return `${verified} of ${destinations.length} routes observed operating between ${meta.windowFrom} and ${meta.windowTo} (AeroDataBox); the rest come from the OpenFlights archive (~2014), known defunct carriers removed. Estimated durations, not a timetable.`;
+  }
+  return "Routes from the OpenFlights archive (~2014) with known defunct carriers removed; not verified as current. Estimated durations, not a timetable.";
 }
 
 export function buildSitemap(paths: string[], lastmod: string): string {

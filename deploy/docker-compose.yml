@@ -3,6 +3,13 @@ services:
     image: ghcr.io/theaudacityio/direct-flights:${TAG:-latest}
     container_name: direct-flights
     restart: unless-stopped
+    # The privacy page promises request logs live at most 14 days; the app
+    # itself logs nothing per request, so this bounds whatever stderr keeps.
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     ports:
       - "127.0.0.1:3080:3000"
     environment:

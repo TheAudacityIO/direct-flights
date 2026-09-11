@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Explorer, type ExplorerSearch } from "@/components/explorer/Explorer";
+import { pageMeta } from "@/lib/flights/seo";
 
 function parseIata(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
@@ -9,14 +10,11 @@ function parseIata(value: unknown): string | undefined {
 
 export const Route = createFileRoute("/")({
   head: () => ({
-    meta: [
-      { title: "Direct flights from any airport, on one map · FlyDirectFrom" },
-      {
-        name: "description",
-        content:
-          "Where can you fly direct? Pick an airport and see every nonstop destination with airlines, distance and estimated flight time. Free, fast, no clutter.",
-      },
-    ],
+    meta: pageMeta(
+      "Direct flights from any airport, on one map · FlyDirectFrom",
+      "Where can you fly direct? Pick an airport and see every nonstop destination with airlines, distance and estimated flight time. Free, fast, no clutter.",
+      "/",
+    ),
     links: [{ rel: "canonical", href: "https://flydirectfrom.com/" }],
   }),
   validateSearch: (raw: Record<string, unknown>): ExplorerSearch => ({

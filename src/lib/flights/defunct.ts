@@ -19,6 +19,7 @@ export const DEFUNCT_AIRLINES: ReadonlySet<string> = new Set([
   "Blue Panorama Airlines", // 2021
   "Estonian Air", // 2015
   "Excel Airways", // 2008 (XL Airways UK; residual rows in the dump)
+  "Flybaboo", // 2011 (became Baboo, then Darwin)
   "Flybe", // 2020 (2022 relaunch ceased 2023)
   "Germania", // 2019
   "Go Air", // Go First, 2023

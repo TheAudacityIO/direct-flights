@@ -1,22 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { getCountryIndex } from "@/lib/flights/pages";
-import { SITE_ORIGIN } from "@/lib/flights/seo";
+import { pageMeta, SITE_ORIGIN } from "@/lib/flights/seo";
 
 export const Route = createFileRoute("/from/")({
   loader: () => getCountryIndex(),
   head: ({ loaderData }) => ({
-    meta: [
-      { title: "Direct flights by country and departure airport · FlyDirectFrom" },
-      {
-        name: "description",
-        content: `Nonstop routes from ${
-          loaderData?.countries.reduce((n, c) => n + c.airports, 0) ?? ""
-        } airports in ${
-          loaderData?.countries.length ?? ""
-        } countries. Pick a country, then an airport, to see every direct destination with airlines, distance and estimated time.`,
-      },
-    ],
+    meta: pageMeta(
+      "Direct flights by country and departure airport · FlyDirectFrom",
+      `Nonstop routes from ${
+        loaderData?.countries.reduce((n, c) => n + c.airports, 0) ?? ""
+      } airports in ${
+        loaderData?.countries.length ?? ""
+      } countries. Pick a country, then an airport, to see every direct destination with airlines, distance and estimated time.`,
+      "/from",
+    ),
     links: [{ rel: "canonical", href: `${SITE_ORIGIN}/from` }],
   }),
   component: CountryHubPage,
@@ -27,7 +25,7 @@ function CountryHubPage() {
   const airportCount = countries.reduce((n, c) => n + c.airports, 0);
   return (
     <main className="mx-auto min-h-dvh w-full max-w-3xl px-5 py-12">
-      <p className="text-[11px] uppercase tracking-[0.18em] text-subtle">
+      <p className="text-[11px] uppercase tracking-[0.18em] text-muted">
         <Link to="/" className="hover:text-fg">
           FlyDirectFrom
         </Link>
@@ -75,7 +73,7 @@ function CountryHubPage() {
                   <Link
                     to="/countries/$slug"
                     params={{ slug: c.slug }}
-                    className="text-subtle hover:text-fg hover:underline underline-offset-2"
+                    className="text-muted hover:text-fg hover:underline underline-offset-2"
                   >
                     all {c.airports} in {c.country} →
                   </Link>

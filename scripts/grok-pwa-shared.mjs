@@ -407,7 +407,7 @@ export function normalizeHeadContext(ctx = {}) {
 
 export function injectGrokPwaHead(html, ctx = {}) {
   if (typeof html !== "string") return html;
-  const { site, projectId, creator, creatorId, host, cwd } = normalizeHeadContext(ctx);
+  const { site, projectId, creator, creatorId, host } = normalizeHeadContext(ctx);
   const documentTitle = titleFromDocument(html);
   const appName = resolveOgTitle(
     site,
@@ -415,7 +415,9 @@ export function injectGrokPwaHead(html, ctx = {}) {
     host,
     documentTitle,
   );
-  let next = stripShareMetaTags(html);
+  // Share cards are the app's own (og:* in src/routes): the platform used to
+  // strip them and pin og:title to the site name on every page.
+  let next = html;
 
   const missing = grokPwaHeadTags(appName)
     .filter(([key]) => {
@@ -424,11 +426,6 @@ export function injectGrokPwaHead(html, ctx = {}) {
       return !next.includes(`name="${key}"`);
     })
     .map(([, tag]) => tag);
-
-  next = insertAfterHeadOpen(
-    next,
-    grokOgHeadTags({ host, appName, site, documentTitle, cwd }).join(""),
-  );
 
   // The platform's "Created with Grok" banner script (grok.com/.../extensions.js)
   // is no longer injected: this is a self-hosted site with a privacy page that

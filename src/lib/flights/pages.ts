@@ -10,6 +10,8 @@ export type AirportPageData = {
   origin: AirportIndex;
   destinations: Destination[];
   nearby: NearbyAirport[];
+  /** Destination codes that have no /from page of their own (no departures in the data). */
+  pageless: string[];
   meta: DatasetMeta;
 };
 
@@ -24,10 +26,12 @@ export const getAirportPage = createServerFn({ method: "GET" })
     ]);
     const origin = airports.find((a) => a.iata === iata);
     if (!origin || !routes || routes.destinations.length === 0) return null;
+    const withPage = new Set(airports.filter((a) => a.destinations > 0).map((a) => a.iata));
     return {
       origin,
       destinations: routes.destinations,
       nearby: nearbyAirports(origin, airports),
+      pageless: routes.destinations.map((d) => d.iata).filter((i) => !withPage.has(i)),
       meta,
     };
   });

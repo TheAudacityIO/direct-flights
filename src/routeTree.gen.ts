@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutTheDataRouteImport } from './routes/about-the-data'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as CountriesIndexRouteImport } from './routes/countries.index'
 import { Route as CountriesSlugRouteImport } from './routes/countries.$slug'
 import { Route as FromIndexRouteImport } from './routes/from.index'
 import { Route as FromIataRouteImport } from './routes/from.$iata'
@@ -29,6 +30,11 @@ const AboutTheDataRoute = AboutTheDataRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CountriesIndexRoute = CountriesIndexRouteImport.update({
+  id: '/countries/',
+  path: '/countries/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CountriesSlugRoute = CountriesSlugRouteImport.update({
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/countries/$slug': typeof CountriesSlugRoute
   '/from/$iata': typeof FromIataRoute
+  '/countries/': typeof CountriesIndexRoute
   '/from/': typeof FromIndexRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/countries/$slug': typeof CountriesSlugRoute
   '/from/$iata': typeof FromIataRoute
+  '/countries': typeof CountriesIndexRoute
   '/from': typeof FromIndexRoute
 }
 export interface FileRoutesById {
@@ -70,6 +78,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/countries/$slug': typeof CountriesSlugRoute
   '/from/$iata': typeof FromIataRoute
+  '/countries/': typeof CountriesIndexRoute
   '/from/': typeof FromIndexRoute
 }
 export interface FileRouteTypes {
@@ -80,6 +89,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/countries/$slug'
     | '/from/$iata'
+    | '/countries/'
     | '/from/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -88,6 +98,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/countries/$slug'
     | '/from/$iata'
+    | '/countries'
     | '/from'
   id:
     | '__root__'
@@ -96,6 +107,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/countries/$slug'
     | '/from/$iata'
+    | '/countries/'
     | '/from/'
   fileRoutesById: FileRoutesById
 }
@@ -105,6 +117,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   CountriesSlugRoute: typeof CountriesSlugRoute
   FromIataRoute: typeof FromIataRoute
+  CountriesIndexRoute: typeof CountriesIndexRoute
   FromIndexRoute: typeof FromIndexRoute
 }
 
@@ -129,6 +142,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/countries/': {
+      id: '/countries/'
+      path: '/countries'
+      fullPath: '/countries/'
+      preLoaderRoute: typeof CountriesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/countries/$slug': {
@@ -161,6 +181,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   CountriesSlugRoute: CountriesSlugRoute,
   FromIataRoute: FromIataRoute,
+  CountriesIndexRoute: CountriesIndexRoute,
   FromIndexRoute: FromIndexRoute,
 }
 export const routeTree = rootRouteImport

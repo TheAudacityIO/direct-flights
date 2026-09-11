@@ -176,6 +176,10 @@ export default defineConfig(({ command, isPreview }) => ({
             // manifest + head-tag middleware). Nitro v3 defaults serverDir to
             // false, so removing this silently unwires /?install=1 on deploys.
             serverDir: "./server",
+            // The dataset changes once a month; let browsers and Cloudflare keep it for an hour.
+            routeRules: {
+              "/data/**": { headers: { "cache-control": "public, max-age=3600, stale-while-revalidate=86400" } },
+            },
           }),
         ]
       : []),

@@ -4,6 +4,8 @@ import { AirportSearch } from "./AirportSearch";
 import { DestinationList } from "./DestinationList";
 import { FlightMap } from "./FlightMap";
 import { RouteDetail } from "./RouteDetail";
+import { AdSlot } from "@/components/ads/AdSlot";
+import { AD_SLOTS } from "@/lib/ads/config";
 import { Button } from "@/components/ui/button";
 import { loadAirports, loadRoutes } from "@/lib/flights/api";
 import type { AirportIndex, Destination, RouteFile } from "@/lib/flights/types";
@@ -60,8 +62,9 @@ export function Explorer({ search, onSearchChange }: Props) {
     return airports.find((a) => a.iata === search.from) ?? null;
   }, [airports, search.from]);
 
+  const originIata = origin?.iata;
   useEffect(() => {
-    if (!search.from) {
+    if (!originIata) {
       setRouteFile(null);
       setRoutesError(null);
       setRoutesLoading(false);
@@ -70,7 +73,7 @@ export function Explorer({ search, onSearchChange }: Props) {
     let cancelled = false;
     setRoutesLoading(true);
     setRoutesError(null);
-    loadRoutes(search.from)
+    loadRoutes(originIata)
       .then((file) => {
         if (!cancelled) setRouteFile(file);
       })
@@ -86,7 +89,7 @@ export function Explorer({ search, onSearchChange }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [search.from]);
+  }, [originIata]);
 
   const destinations = routeFile?.destinations ?? [];
   const selected: Destination | null =
@@ -126,9 +129,9 @@ export function Explorer({ search, onSearchChange }: Props) {
           onSelectDest={selectDest}
           compactPanel={isMobile}
         />
-        <MapZoomButtons />
+        {!(isMobile && origin && sheet === "full") && <MapZoomButtons />}
 
-        <header className="pointer-events-none absolute inset-x-0 top-0 z-20 p-3 pt-[max(0.75rem,env(safe-area-inset-top))] md:p-5">
+        <header className="pointer-events-none absolute inset-x-0 top-0 z-40 p-3 pt-[max(0.75rem,env(safe-area-inset-top))] md:p-5">
           <div className="pointer-events-auto mx-auto flex max-w-xl flex-col gap-2 md:mx-0 md:max-w-md">
             <div className="flex items-center gap-2">
               <BrandMark hasOrigin={Boolean(origin)} />
@@ -154,11 +157,12 @@ export function Explorer({ search, onSearchChange }: Props) {
           </div>
         </header>
 
-        {!search.from && !loadError && (
+        {!origin && !loadError && (
           <EmptyHint
             airports={airports}
             onPick={selectOrigin}
             loading={!airports && !loadError}
+            unknownCode={airports && search.from ? search.from : null}
           />
         )}
 
@@ -212,20 +216,34 @@ export function Explorer({ search, onSearchChange }: Props) {
               <ChevronsUp className="mt-0.5 size-3.5" strokeWidth={1.75} />
             )}
           </button>
-          <div className="flex min-h-0 flex-1 flex-col px-3 pb-3">
-            <PanelHeader
-              origin={origin}
-              count={destinations.length}
-              loading={routesLoading}
-              error={routesError}
-              onReset={clearOrigin}
-            />
-            {sheet !== "peek" && (
-              <DestinationList
-                destinations={destinations}
-                selectedIata={selected?.iata ?? null}
-                onSelect={selectDest}
-              />
+          <div className="flex min-h-0 flex-1 flex-col px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+            {selected ? (
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-2">
+                <RouteDetail
+                  origin={origin}
+                  dest={selected}
+                  onClose={() => onSearchChange({ from: origin.iata })}
+                />
+              </div>
+            ) : (
+              <>
+                <PanelHeader
+                  origin={origin}
+                  count={destinations.length}
+                  loading={routesLoading}
+                  error={routesError}
+                  onReset={clearOrigin}
+                  primary={isMobile}
+                />
+                {sheet !== "peek" && (
+                  <DestinationList
+                    key={origin.iata}
+                    destinations={destinations}
+                    selectedIata={null}
+                    onSelect={selectDest}
+                  />
+                )}
+              </>
             )}
           </div>
         </section>
@@ -244,12 +262,15 @@ export function Explorer({ search, onSearchChange }: Props) {
             loading={routesLoading}
             error={routesError}
             onReset={clearOrigin}
+            primary={!isMobile}
           />
           <DestinationList
+            key={origin.iata}
             destinations={destinations}
             selectedIata={selected?.iata ?? null}
             onSelect={selectDest}
           />
+          <AdSlot slot={AD_SLOTS.mapSidebar} minHeight={100} className="mt-3 shrink-0 pr-1" />
         </aside>
       )}
     </div>
@@ -293,20 +314,24 @@ function PanelHeader({
   loading,
   error,
   onReset,
+  primary,
 }: {
   origin: AirportIndex;
   count: number;
   loading: boolean;
   error: string | null;
   onReset: () => void;
+  /** The sheet and the aside both mount; only the visible one carries the page's h1. */
+  primary: boolean;
 }) {
+  const Heading = primary ? "h1" : "p";
   return (
     <div className="mb-3 flex items-start justify-between gap-2 px-1">
       <div className="min-w-0">
         <p className="font-mono text-sm tracking-wide text-accent">{origin.iata}</p>
-        <h2 className="truncate text-base font-medium text-fg text-balance">
+        <Heading className="truncate text-base font-medium text-fg text-balance">
           {origin.city || origin.name}
-        </h2>
+        </Heading>
         <p className="mt-0.5 text-xs text-muted">
           {loading
             ? "Loading nonstops…"
@@ -340,10 +365,12 @@ function EmptyHint({
   airports,
   onPick,
   loading,
+  unknownCode,
 }: {
   airports: AirportIndex[] | null;
   onPick: (ap: AirportIndex) => void;
   loading: boolean;
+  unknownCode: string | null;
 }) {
   const chips = ["CAG", "FCO", "LHR", "JFK"];
   const found =
@@ -357,9 +384,16 @@ function EmptyHint({
           Search an airport. See every nonstop.
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-muted text-pretty">
-          Great-circle arcs, airlines, distance and estimated block time. Verified routes where we
-          have current data; the rest from the OpenFlights archive, defunct carriers removed.
+          Pick an airport and the map draws every route you can fly without a connection, with the
+          airlines, the distance and a rough flight time. Routes we have seen operate recently are
+          marked Verified; the rest come from the OpenFlights archive.
         </p>
+        {unknownCode ? (
+          <p className="mt-3 text-sm text-fg">
+            No airport with code <span className="font-mono text-accent">{unknownCode}</span> has
+            nonstop routes in our data. Try another one:
+          </p>
+        ) : null}
         {loading ? (
           <p className="mt-4 text-sm text-muted">Loading airports…</p>
         ) : (
@@ -397,7 +431,7 @@ function EmptyHint({
 
 function MapZoomButtons() {
   return (
-    <div className="absolute bottom-3 left-3 z-20 flex flex-col overflow-hidden rounded-md border border-border bg-surface md:bottom-8 md:left-5">
+    <div className="absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-3 z-20 flex flex-col overflow-hidden rounded-md border border-border bg-surface md:bottom-8 md:left-5">
       <Button
         variant="ghost"
         size="icon"
