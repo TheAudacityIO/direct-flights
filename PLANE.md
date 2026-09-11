@@ -11,8 +11,7 @@ A dark nonstop-route explorer. Search any airport, see every direct destination 
 
 ## Now
 
-- [ ] Register the chosen domain (naming research 2026-09-10 in PLANNING.md; recommendation: flydirectfrom.com, $11/yr .com, verified available). HUMAN GATE: Miguel confirms name + registrar.
-- [ ] Execute the rename once the domain exists: site copy drops "ad-free" (new promise: fast, free, no clutter), README/AGENTS/`src/lib/og/site.json` identity, cloudflared ingress + DNS for the new hostname, 301 from flights.miketineo.com, keep the old hostname serving through the transition.
+- [ ] Execute the rename now that the domain is live: site copy drops "ad-free" (new promise: fast, free, no clutter), README/AGENTS/`src/lib/og/site.json` identity, cloudflared ingress + DNS for the new hostname, 301 from flights.miketineo.com, keep the old hostname serving through the transition.
 - [ ] Privacy policy page (`/privacy`), linked from the footer. Required for AdSense approval and EU compliance.
 - [ ] Per-airport crawlable pages + `sitemap.xml` from the existing `public/data/routes/*.json` (real text content per airport: destinations, airlines, distances). This is both the SEO play and the "content depth" AdSense approval wants; a map-only SPA risks a thin-content rejection.
 
@@ -44,4 +43,5 @@ A dark nonstop-route explorer. Search any airport, see every direct destination 
 - [x] 2026-08-22: CI fixed (13 template-residue test failures), auth-off invariant restored and baked into the image.
 - [x] 2026-09: MapLibre v6 worker fix (blank map); observed-route union so weekly nonstops survive.
 - [x] 2026-09-10: Framework retrofit (MISSION/SUCCESS/PLANNING/PLANE, thin CLAUDE.md).
+- [x] 2026-09-11: flydirectfrom.com bought by Miguel (Cloudflare Registrar, zone on the personal account) and wired: apex + www CNAME -> atlas tunnel (proxied), cloudflared ingress -> 127.0.0.1:3080, new-zone hygiene applied (browser cache TTL respect-origin, Bot Fight Mode + JS detections off; crawler_protection endpoint 400s on this zone, HTML verified free of cdn-cgi injections). Both hostnames serve the app; old flights.miketineo.com untouched until the copy rename + canonical/301.
 - [x] 2026-09-10: AeroDataBox decision executed on the FREE plan (Miguel's call: 400 units / 1600 requests per ~30 days). Overlay integration shipped: `scripts/fetch-aerodatabox.ts` (adaptive quota budgeting from live headers) → `data/observed/operated-routes.json` → merge in `build-openflights.ts` via `src/lib/flights/overlay.ts` (observed origins replace baseline, long tail stays OpenFlights). Monthly `data-refresh.yml` + `workflow_run` chaining into deploy. Canary CAG→DUB (Ryanair, avgDaily 0.43) verified on the free key before integration.
