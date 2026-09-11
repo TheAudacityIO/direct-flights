@@ -50,9 +50,9 @@ function PrivacyPage() {
             the site.
           </p>
           <p className="mt-2">
-            The map background is loaded from CARTO&apos;s tile servers, so your browser requests
-            map images directly from them; their servers see your IP address like any content
-            delivery network would.
+            The map background is loaded from OpenFreeMap&apos;s public tile servers (OpenStreetMap
+            data), so your browser requests map tiles directly from them; their servers see your IP
+            address like any content delivery network would.
           </p>
         </section>
 
