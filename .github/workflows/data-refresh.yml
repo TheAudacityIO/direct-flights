@@ -74,7 +74,7 @@ jobs:
         run: |
           git config user.name "audacity-data-refresh"
           git config user.email "ops@theaudacity.io"
-          git add data/observed public/data
+          git add data/observed public/data public/sitemap.xml
           if git diff --cached --quiet; then
             echo "no data changes this month"
             exit 0

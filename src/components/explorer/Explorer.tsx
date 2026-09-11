@@ -314,6 +314,14 @@ function PanelHeader({
               ? error
               : `${count} nonstop ${count === 1 ? "destination" : "destinations"}`}
         </p>
+        {!loading && !error && count > 0 && (
+          <a
+            href={`/from/${origin.iata}`}
+            className="mt-1 inline-block text-xs text-subtle underline underline-offset-2 hover:text-fg"
+          >
+            Full list as a page
+          </a>
+        )}
       </div>
       <Button
         variant="ghost"
@@ -370,6 +378,10 @@ function EmptyHint({
           </div>
         )}
         <p className="mt-4 text-[11px] text-subtle">
+          <a href="/from" className="underline underline-offset-2 hover:text-fg">
+            All airports
+          </a>
+          {" · "}
           <a href="/privacy" className="underline underline-offset-2 hover:text-fg">
             Privacy
           </a>

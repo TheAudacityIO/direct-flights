@@ -206,6 +206,7 @@ export function buildDataset(
         airlines: airlines.slice().sort((a, b) => a.localeCompare(b)),
       });
     }
+    if (destinations.length === 0) continue;
     destinations.sort((a, b) => a.minutes - b.minutes || a.iata.localeCompare(b.iata));
     routesByOrigin.set(originIata, destinations);
     destCount.set(originIata, destinations.length);
