@@ -268,8 +268,8 @@ function BrandMark({ hasOrigin }: { hasOrigin: boolean }) {
     <button
       type="button"
       className="flex size-11 shrink-0 items-center justify-center rounded-lg border border-border bg-surface text-accent hover:bg-surface-2"
-      aria-label={hasOrigin ? "Show all routes on the map" : "Direct Flights"}
-      title={hasOrigin ? "Show all routes" : "Direct Flights"}
+      aria-label={hasOrigin ? "Show all routes on the map" : "FlyDirectFrom"}
+      title={hasOrigin ? "Show all routes" : "FlyDirectFrom"}
       onClick={() => {
         if (hasOrigin) {
           window.dispatchEvent(new Event("direct-flights-fit"));
@@ -359,7 +359,7 @@ function EmptyHint({
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-muted text-pretty">
           {note ??
-            "Great-circle arcs, airlines, distance and estimated block time — from a historical OpenFlights snapshot, not a live timetable."}
+            "Great-circle arcs, airlines, distance and estimated block time. OpenFlights baseline, with a live route overlay for the busiest airports."}
         </p>
         {loading ? (
           <p className="mt-4 text-sm text-muted">Loading airports…</p>
@@ -378,6 +378,12 @@ function EmptyHint({
             ))}
           </div>
         )}
+        <p className="mt-4 text-[11px] text-subtle">
+          <a href="/privacy" className="underline underline-offset-2 hover:text-fg">
+            Privacy
+          </a>
+          {" · Data: OpenFlights + AeroDataBox"}
+        </p>
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ For any coding assistant working in this repo (Grok, Claude Code, Cursor, Codex,
 
 ## What this is
 
-Dark, ad-free nonstop flight explorer: OpenFlights data on a MapLibre map. TanStack Start + React, Nitro node-server build, static route data under `public/data/`. Originally scaffolded on the Grok app platform; now GitHub-hosted and self-deployed.
+FlyDirectFrom (flydirectfrom.com): dark, fast, free nonstop flight explorer, no clutter. OpenFlights baseline + AeroDataBox overlay on a MapLibre map. TanStack Start + React, Nitro node-server build, static route data under `public/data/`. Originally scaffolded on the Grok app platform; now GitHub-hosted and self-deployed.
 
 The OpenFlights dump has no dates and misses modern LCC pairs; it is the BASELINE only. Current routes for the busiest origins come from an AeroDataBox overlay (see Data pipeline below). Do not scrape airline sites.
 
@@ -36,7 +36,7 @@ Framework docs: `MISSION.md` (why + non-goals), `SUCCESS.md` (definition of done
 ## Deploy (atlas, via GitHub Actions)
 
 - `.github/workflows/ci.yml`: tests + typecheck + build on every PR and push to `main`.
-- `.github/workflows/deploy.yml`: push to `main` (or manual dispatch with an image tag) runs the same checks, builds `ghcr.io/theaudacityio/direct-flights`, then over SSH pulls it on the atlas box and runs `docker compose up -d` in `/home/miguel/direct-flights/deploy`. The compose service binds `127.0.0.1:3080`; cloudflared ingress serves it publicly as `https://flights.miketineo.com`.
+- `.github/workflows/deploy.yml`: push to `main` (or manual dispatch with an image tag) runs the same checks, builds `ghcr.io/theaudacityio/direct-flights`, then over SSH pulls it on the atlas box and runs `docker compose up -d` in `/home/miguel/direct-flights/deploy`. The compose service binds `127.0.0.1:3080`; cloudflared ingress serves it publicly as `https://flydirectfrom.com` (canonical). `www.flydirectfrom.com` and the legacy `flights.miketineo.com` 301 to the canonical host via `server/middleware/host-redirect.ts`.
 - SSH uses the write-only repo secrets `ATLAS_HOST`, `ATLAS_USER`, `ATLAS_SSH_KEY`. Re-provision them with the `copy-atlas-secrets.yml` workflow in `TheAudacityIO/bloop`.
 - Verify a deploy by the workflow's last step output (`docker compose ps` + the HTTP code), not by the job merely finishing.
 - Canonical playbook for this deploy pattern: the atlas infra repo, `docs/runbooks/deploy-app-from-github.md` (local checkout: `~/hack/miketineo/the-audacity/atlas`).

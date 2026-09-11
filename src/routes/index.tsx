@@ -8,6 +8,9 @@ function parseIata(value: unknown): string | undefined {
 }
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    links: [{ rel: "canonical", href: "https://flydirectfrom.com/" }],
+  }),
   validateSearch: (raw: Record<string, unknown>): ExplorerSearch => ({
     from: parseIata(raw.from),
     to: parseIata(raw.to),

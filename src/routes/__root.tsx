@@ -3,9 +3,9 @@ import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import appCss from "../styles.css?url";
 
-const APP_NAME = "Direct Flights";
+const APP_NAME = "FlyDirectFrom";
 const APP_DESC =
-  "Explore every nonstop route on a dark world map. Search an airport, see great-circle arcs, airlines, distance and duration.";
+  "Where can you fly direct? Search any airport and see every nonstop destination on a fast, free map. No clutter.";
 
 export const Route = createRootRoute({
   head: () => ({

@@ -1,8 +1,8 @@
-# Direct Flights
+# FlyDirectFrom
 
-A dark, ad-free nonstop-route explorer. Search any airport, see every direct destination as animated great-circle arcs, and read airline, distance, and estimated duration in a sidebar (bottom sheet on mobile).
+A dark, fast, free nonstop-route explorer with no clutter. Live at [flydirectfrom.com](https://flydirectfrom.com). Search any airport, see every direct destination as animated great-circle arcs, and read airline, distance, and estimated duration in a sidebar (bottom sheet on mobile).
 
-**Data is historical.** Routes come from [OpenFlights](https://openflights.org/data.html) (~2014 schedules). This is not a live timetable and must not be used for travel planning.
+**Data honesty.** The baseline comes from [OpenFlights](https://openflights.org/data.html) (~2014 schedules) with a monthly [AeroDataBox](https://aerodatabox.com) overlay of current routes for the busiest airports. Still not a live timetable; do not book from it.
 
 ## Screenshots
 
