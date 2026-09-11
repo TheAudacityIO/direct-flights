@@ -1,6 +1,7 @@
 import { estimateDurationMin, haversineKm } from "./geo.ts";
 import type { AirportIndex, AirportRecord, Destination } from "./types.ts";
 import type { BuiltDataset } from "./pipeline.ts";
+import { brandedAirline } from "./operators.ts";
 
 export const DOW = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
 export type Dow = (typeof DOW)[number];
@@ -100,7 +101,7 @@ export function buildObservedDataset(
       agg = { airlines: new Set(), days: new Set(), lastSeen: route.lastSeen, flightCount: 0 };
       destMap.set(dest, agg);
     }
-    if (route.airline) agg.airlines.add(route.airline);
+    if (route.airline) agg.airlines.add(brandedAirline(route.airline));
     for (const d of route.days) agg.days.add(d);
     if (route.lastSeen > agg.lastSeen) agg.lastSeen = route.lastSeen;
     agg.flightCount += route.flightCount;

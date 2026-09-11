@@ -97,6 +97,17 @@ describe("buildObservedDataset", () => {
     assert.equal(built.routeCount, 1);
   });
 
+  it("carries the booked brand for a wet-lease operator and discloses it", () => {
+    const built = buildObservedDataset(
+      AIRPORTS,
+      [route({ destIata: "FCO", airline: "Fly Air41 Airways" })],
+      { asOf, lookbackDays },
+    );
+    const fco = built.routesByOrigin.get("CAG")?.find((d) => d.iata === "FCO");
+    assert.ok(fco);
+    assert.deepEqual(fco.airlines, ["ITA Airways (operated by Fly Air41 Airways)"]);
+  });
+
   it("drops a pair whose lastSeen is older than the lookback", () => {
     const built = buildObservedDataset(
       AIRPORTS,
