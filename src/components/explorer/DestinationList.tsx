@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { formatDuration, formatKm } from "@/lib/flights/geo";
 import { formatDays } from "@/lib/flights/observed";
+import { ProvenanceChip } from "./ProvenanceChip";
 import type { Destination } from "@/lib/flights/types";
 import { cn } from "@/lib/utils";
 
@@ -77,8 +78,9 @@ export function DestinationList({ destinations, selectedIata, onSelect }: Props)
                     {d.iata}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm text-fg">
-                      {d.city || d.name}
+                    <span className="flex items-center gap-1.5">
+                      <span className="truncate text-sm text-fg">{d.city || d.name}</span>
+                      <ProvenanceChip dest={d} className="shrink-0" />
                     </span>
                     <span className="mt-0.5 block truncate text-xs text-muted">
                       {d.airlines.length > 0

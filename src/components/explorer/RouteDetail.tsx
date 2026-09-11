@@ -3,6 +3,7 @@ import { formatDuration, formatKm } from "@/lib/flights/geo";
 import { formatDays } from "@/lib/flights/observed";
 import type { AirportIndex, Destination } from "@/lib/flights/types";
 import { Button } from "@/components/ui/button";
+import { ProvenanceChip } from "./ProvenanceChip";
 
 type Props = {
   origin: AirportIndex;
@@ -23,6 +24,7 @@ export function RouteDetail({ origin, dest, onClose }: Props) {
             <span>{origin.iata}</span>
             <ArrowRight className="size-3.5 text-accent" strokeWidth={1.75} aria-hidden />
             <span>{dest.iata}</span>
+            <ProvenanceChip dest={dest} />
           </p>
           <p className="mt-1 truncate text-sm text-muted">
             {origin.city || origin.name} → {dest.city || dest.name}

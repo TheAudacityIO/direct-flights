@@ -1,1 +1,1 @@
-{"origin":"MHQ","destinations":[{"iata":"ARN","name":"Stockholm-Arlanda Airport","city":"Stockholm","country":"Sweden","lat":59.651901245117,"lon":17.918600082397,"km":122,"minutes":39,"airlines":["NextJet"]},{"iata":"TKU","name":"Turku Airport","city":"Turku","country":"Finland","lat":60.514099121094,"lon":22.262800216675,"km":137,"minutes":40,"airlines":["NextJet"]},{"iata":"HEL","name":"Helsinki Vantaa Airport","city":"Helsinki","country":"Finland","lat":60.317199707031,"lon":24.963300704956,"km":281,"minutes":50,"airlines":["Flybe"]}]}
+{"origin":"MHQ","destinations":[]}

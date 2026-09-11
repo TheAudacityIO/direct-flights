@@ -1,1 +1,1 @@
-{"origin":"CME","destinations":[{"iata":"MEX","name":"Licenciado Benito Juarez International Airport","city":"Mexico City","country":"Mexico","lat":19.4363,"lon":-99.072098,"km":769,"minutes":84,"airlines":["AeroMéxico","Interjet (ABC Aerolineas)"]}]}
+{"origin":"CME","destinations":[{"iata":"MEX","name":"Licenciado Benito Juarez International Airport","city":"Mexico City","country":"Mexico","lat":19.4363,"lon":-99.072098,"km":769,"minutes":84,"airlines":["AeroMéxico"]}]}

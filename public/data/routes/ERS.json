@@ -1,1 +1,1 @@
-{"origin":"ERS","destinations":[{"iata":"OND","name":"Ondangwa Airport","city":"Ondangwa","country":"Namibia","lat":-17.878201,"lon":15.9526,"km":539,"minutes":68,"airlines":["Air Namibia"]},{"iata":"NDU","name":"Rundu Airport","city":"Rundu","country":"Namibia","lat":-17.956499099731,"lon":19.719400405884,"km":586,"minutes":71,"airlines":["Air Namibia"]},{"iata":"MPA","name":"Katima Mulilo Airport","city":"Mpacha","country":"Namibia","lat":-17.634399,"lon":24.176701,"km":925,"minutes":95,"airlines":["Air Namibia"]}]}
+{"origin":"ERS","destinations":[]}

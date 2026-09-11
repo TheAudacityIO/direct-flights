@@ -1,1 +1,1 @@
-{"origin":"JYV","destinations":[{"iata":"HEL","name":"Helsinki Vantaa Airport","city":"Helsinki","country":"Finland","lat":60.317199707031,"lon":24.963300704956,"km":235,"minutes":47,"airlines":["Flybe"]},{"iata":"KEM","name":"Kemi-Tornio Airport","city":"Kemi","country":"Finland","lat":65.778701782227,"lon":24.582099914551,"km":379,"minutes":57,"airlines":["Finnair"]}]}
+{"origin":"JYV","destinations":[{"iata":"KEM","name":"Kemi-Tornio Airport","city":"Kemi","country":"Finland","lat":65.778701782227,"lon":24.582099914551,"km":379,"minutes":57,"airlines":["Finnair"]}]}

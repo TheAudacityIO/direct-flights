@@ -40,7 +40,8 @@ const AIRPORTS_DAT = `
 `.trim();
 
 const AIRLINES_DAT = `
-1,"Alitalia",\\N,"AZ","AZA","ALITALIA","Italy","Y"
+1,"ITA Airways",\\N,"AZ","ITY","ITARROW","Italy","Y"
+4,"Alitalia",\\N,"AZ","AZA","ALITALIA","Italy","N"
 2,"Delta Air Lines",\\N,"DL","DAL","DELTA","United States","Y"
 3,"Codeshare Air",\\N,"CS","CSA","CSHARE","Italy","Y"
 `.trim();
@@ -51,6 +52,8 @@ AZ,1,FCO,1555,JFK,3797,,0,772
 DL,2,FCO,1555,JFK,3797,,0,772
 CS,3,FCO,1555,JFK,3797,Y,0,772
 AZ,1,FCO,1555,CAG,1554,,0,319
+AZ,4,FCO,1555,JFK,3797,,0,772
+AZ,4,FCO,1555,CIA,1556,,0,319
 AZ,1,FCO,1555,CIA,1556,,1,319
 AZ,1,CAG,1554,FCO,1555,,0,319
 2B,410,AER,2965,KZN,2990,,0,CR2
@@ -85,7 +88,7 @@ describe("parse + clean pipeline", () => {
 
     const jfk = fco.find((d) => d.iata === "JFK");
     assert.ok(jfk);
-    assert.deepEqual(jfk.airlines, ["Alitalia", "Delta Air Lines"]);
+    assert.deepEqual(jfk.airlines, ["Delta Air Lines", "ITA Airways"]);
     assert.ok(jfk.km > 6700 && jfk.km < 7100);
     assert.equal(jfk.minutes, Math.round((jfk.km / 850) * 60 + 30));
     assert.ok(!jfk.airlines.includes("Codeshare Air"));
@@ -97,6 +100,25 @@ describe("parse + clean pipeline", () => {
 
     const fcoIndex = built.airports.find((a) => a.iata === "FCO");
     assert.equal(fcoIndex?.destinations, 2);
+  });
+
+  it("strips defunct carriers and drops pairs only they flew", () => {
+    const airports = parseAirports(AIRPORTS_DAT);
+    const airlines = parseAirlines(AIRLINES_DAT);
+    const routes = parseRoutes(ROUTES_DAT);
+    const built = buildDataset(airports, airlines, routes);
+    const fco = built.routesByOrigin.get("FCO")!;
+    // FCO-JFK keeps its living carriers; FCO-CIA was Alitalia-only and goes.
+    assert.ok(!fco.find((d) => d.iata === "JFK")!.airlines.includes("Alitalia"));
+    assert.equal(
+      fco.find((d) => d.iata === "CIA"),
+      undefined,
+    );
+    assert.equal(built.airports.find((a) => a.iata === "FCO")?.destinations, 2);
+    assert.equal(
+      built.airports.find((a) => a.iata === "CIA"),
+      undefined,
+    );
   });
 
   it("sorts destinations by estimated duration", () => {

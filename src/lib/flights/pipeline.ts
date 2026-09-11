@@ -1,4 +1,5 @@
 import { parseCsvLine, isMissing } from "./csv.ts";
+import { isDefunctAirline } from "./defunct.ts";
 import { estimateDurationMin, haversineKm } from "./geo.ts";
 import type {
   AirportIndex,
@@ -180,9 +181,13 @@ export function buildDataset(
     const origin = byIata.get(originIata);
     if (!origin) continue;
     const destinations: Destination[] = [];
-    for (const [dstIata, airlines] of destMap) {
+    for (const [dstIata, allAirlines] of destMap) {
       const dest = byIata.get(dstIata);
       if (!dest) continue;
+      // A pair flown only by carriers that have since folded is not a
+      // nonstop route any more; an unresolved (empty) list stays as-is.
+      const airlines = allAirlines.filter((a) => !isDefunctAirline(a));
+      if (allAirlines.length > 0 && airlines.length === 0) continue;
       const km = Math.round(
         haversineKm(
           { lat: origin.lat, lon: origin.lon },
