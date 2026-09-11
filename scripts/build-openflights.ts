@@ -97,8 +97,8 @@ async function main() {
     originCount,
     routeCount: dataset.routeCount,
     note: overlay
-      ? `OpenFlights baseline (~2014) with a current AeroDataBox route overlay for the ${overlay.origins} busiest airports (as of ${overlay.asOf}).`
-      : "Historical OpenFlights dump (~2014 schedules). Not a live timetable.",
+      ? `Routes from the OpenFlights archive (~2014, defunct carriers removed), with routes observed operating in the ${overlay.lookbackDays} days to ${overlay.asOf} for ${overlay.origins === 1 ? "one airport" : `${overlay.origins} airports`} (AeroDataBox). Not a live timetable.`
+      : "Routes from the OpenFlights archive (~2014, defunct carriers removed). Not a live timetable.",
     ...(overlay
       ? {
           lookbackDays: overlay.lookbackDays,

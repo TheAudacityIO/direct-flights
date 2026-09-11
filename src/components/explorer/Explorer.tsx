@@ -5,7 +5,7 @@ import { DestinationList } from "./DestinationList";
 import { FlightMap } from "./FlightMap";
 import { RouteDetail } from "./RouteDetail";
 import { Button } from "@/components/ui/button";
-import { loadAirports, loadMeta, loadRoutes } from "@/lib/flights/api";
+import { loadAirports, loadRoutes } from "@/lib/flights/api";
 import type { AirportIndex, Destination, RouteFile } from "@/lib/flights/types";
 import { cn } from "@/lib/utils";
 
@@ -21,7 +21,6 @@ type Props = {
 
 export function Explorer({ search, onSearchChange }: Props) {
   const [airports, setAirports] = useState<AirportIndex[] | null>(null);
-  const [datasetNote, setDatasetNote] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [routeFile, setRouteFile] = useState<RouteFile | null>(null);
   const [routesError, setRoutesError] = useState<string | null>(null);
@@ -51,11 +50,6 @@ export function Explorer({ search, onSearchChange }: Props) {
           setLoadError(err instanceof Error ? err.message : "Could not load airports.");
         }
       });
-    loadMeta()
-      .then((meta) => {
-        if (!cancelled && meta.note) setDatasetNote(meta.note);
-      })
-      .catch(() => undefined);
     return () => {
       cancelled = true;
     };
@@ -165,7 +159,6 @@ export function Explorer({ search, onSearchChange }: Props) {
             airports={airports}
             onPick={selectOrigin}
             loading={!airports && !loadError}
-            note={datasetNote}
           />
         )}
 
@@ -339,12 +332,10 @@ function EmptyHint({
   airports,
   onPick,
   loading,
-  note,
 }: {
   airports: AirportIndex[] | null;
   onPick: (ap: AirportIndex) => void;
   loading: boolean;
-  note: string | null;
 }) {
   const chips = ["CAG", "FCO", "LHR", "JFK"];
   const found =
@@ -358,8 +349,8 @@ function EmptyHint({
           Search an airport. See every nonstop.
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-muted text-pretty">
-          {note ??
-            "Great-circle arcs, airlines, distance and estimated block time. OpenFlights baseline, with a live route overlay for the busiest airports."}
+          Great-circle arcs, airlines, distance and estimated block time. Verified routes where we
+          have current data; the rest from the OpenFlights archive, defunct carriers removed.
         </p>
         {loading ? (
           <p className="mt-4 text-sm text-muted">Loading airports…</p>
