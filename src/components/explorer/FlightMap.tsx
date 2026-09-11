@@ -3,38 +3,17 @@ import type { Map as MapLibreMap, GeoJSONSource, MapMouseEvent } from "maplibre-
 import { greatCircleCoords, splitAntimeridian } from "@/lib/flights/geo";
 import type { AirportIndex, Destination } from "@/lib/flights/types";
 
-const STYLE_URL =
-  "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
+// OpenFreeMap public instance: keyless, donation-backed. CARTO's courtesy
+// tiles started watermarking "API KEY REQUIRED" on 2026-09-11 and are gone
+// for good; the durable follow-up (self-hosted Protomaps) is in PLANE.md.
+const STYLE_URL = "https://tiles.openfreemap.org/styles/dark";
 
-const RASTER_FALLBACK = {
-  version: 8 as const,
-  sources: {
-    carto: {
-      type: "raster" as const,
-      tiles: [
-        "https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png",
-        "https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png",
-        "https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png",
-      ],
-      tileSize: 256,
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    },
-  },
-  layers: [
-    {
-      id: "background",
-      type: "background" as const,
-      paint: { "background-color": "#08090c" },
-    },
-    {
-      id: "carto",
-      type: "raster" as const,
-      source: "carto",
-      paint: { "raster-opacity": 0.92 },
-    },
-  ],
-};
+// The style JSON ships no attribution strings, and OpenFreeMap asks for
+// credit, so it rides the map's attribution control explicitly.
+const MAP_ATTRIBUTION =
+  '<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> © ' +
+  '<a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> ' +
+  'Data from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
 
 const LOCAL_STYLE = {
   version: 8 as const,
@@ -358,7 +337,7 @@ export function FlightMap({
           style: STYLE_URL,
           center: [12, 28],
           zoom: 1.55,
-          attributionControl: { compact: true },
+          attributionControl: { compact: true, customAttribution: MAP_ATTRIBUTION },
           keyboard: false,
           pitchWithRotate: false,
           dragRotate: false,
@@ -374,8 +353,7 @@ export function FlightMap({
             msg.toLowerCase().includes("ajax");
           if (!isStyle) return;
           styleAttempt += 1;
-          if (styleAttempt === 1) map?.setStyle(RASTER_FALLBACK);
-          else if (styleAttempt === 2) map?.setStyle(LOCAL_STYLE);
+          if (styleAttempt === 1) map?.setStyle(LOCAL_STYLE);
         });
 
         const onReady = () => {

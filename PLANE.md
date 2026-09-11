@@ -33,7 +33,7 @@ A dark nonstop-route explorer. Search any airport, see every direct destination 
 
 ## Backlog
 
-- [ ] Basemap ownership before real traffic: today the map uses CARTO's free public Dark Matter raster tiles (no key, no SLA, courtesy tier that throttles commercial-scale referrers). Migrate to self-hosted Protomaps PMTiles (low-zoom planet extract served from our box, dark vector style, OSM attribution kept) BEFORE the AdSense launch drives volume. ~half a day. Rejected: OSM tile servers (policy-prohibited), Google (wrong stack + cost), Mapbox/MapTiler/Stadia (per-load or subscription against an RPM-thin ads business).
+- [ ] Basemap ownership: the CARTO courtesy-tile risk FIRED 2026-09-11 (tiles watermarked "API KEY REQUIRED"); emergency swap to OpenFreeMap's keyless public dark style shipped same day (attribution added, CARTO raster fallback tier removed). OpenFreeMap is donation-backed with no SLA either, so the durable fix stays: migrate to self-hosted Protomaps PMTiles (low-zoom planet extract served from our box, dark vector style, OSM attribution kept) BEFORE the AdSense launch drives volume. ~half a day. Rejected: OSM tile servers (policy-prohibited), Google (wrong stack + cost), Mapbox/MapTiler/Stadia (per-load or subscription against an RPM-thin ads business).
 - [ ] Auth-on decision: only if a feature needs accounts (requires `DATABASE_URL` + Better Auth config on atlas; flag alone is not enough).
 - [ ] PWA install-page artwork (Grok platform never exported it; stylesheet currently hides the gap).
 
