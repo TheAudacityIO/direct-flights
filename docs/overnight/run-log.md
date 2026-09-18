@@ -64,3 +64,24 @@ placeholder values.
   an unattended run (`blocked.md` B5, B6).
 - Per-origin sitemap `lastmod`: belongs in the data build, changes a committed artefact monthly.
 - No AeroDataBox call was made; the data pipeline was not touched.
+
+## 2026-09-19: basemap ownership (PLANE.md Now #1), gates removed by Miguel
+
+Miguel's direction: no human gates for this exercise; AdSense console steps were already done on
+his side (review "getting ready"); storage preference MinIO on atlas over R2/S3/GCS.
+
+| Change | Where | Why |
+|---|---|---|
+| `tiles` stack: MinIO, loopback 9000, bucket `tiles` anonymous read, CORS `*` | `/opt/atlas/stacks/tiles/` on the box, mirrored to the atlas repo `stacks/tiles/` (uncommitted there; that repo carries unrelated dirty state) | PMTiles only needs HTTP range reads; no request caps, no third-party key |
+| Planet extract z0-10 (Protomaps build 20260917, 3.75 GB) + sprites + Noto fonts uploaded | MinIO bucket | one archive covers the product's zoom range (fitBounds caps at 5) |
+| Tunnel ingress + proxied CNAME `tiles.flydirectfrom.com` | Cloudflare personal account (backup of the previous tunnel config in the job tmp dir) | public origin for the browser |
+| Cloudflare cache rule for `/tiles/assets/*` | zone ruleset | fonts and sprites cached at the edge; the archive itself is above the free-plan cache size and is served by MinIO directly |
+| `pmtiles` + `@protomaps/basemaps` deps; style built from the dark flavor with the site palette; `pmtiles://` protocol | `src/components/explorer/FlightMap.tsx`, `package.json` | replaces the OpenFreeMap style URL; land.geojson fallback kept |
+| Preconnect and privacy text updated | `src/routes/__root.tsx`, `src/routes/privacy.tsx` | no third-party tile provider sees requests any more |
+| Refresh recipe | `docs/basemap.md` | monthly-ish re-extract is one command |
+
+Verification: tests 73 + 135 pass (three consecutive runs), typecheck and lint clean, production build
+OK; headless Chromium against the built server loaded `/?from=FCO` with 23 requests to
+tiles.flydirectfrom.com, attribution "Protomaps © OpenStreetMap", zero console or HTTP errors,
+screenshot reviewed (dark basemap, labels, arcs). EU-IP check on the live site shows the Google
+consent-message endpoint already loading, so the GDPR message is published.

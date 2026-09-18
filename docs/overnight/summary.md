@@ -37,3 +37,7 @@ No secrets in the diff. The data pipeline and AeroDataBox quota were not touched
 - B4: Ad Manager rewarded unit (optional).
 
 Details and commands: `docs/overnight/blocked.md` and `docs/overnight/monetisation.md` § 2 and § 3.
+
+## Update 2026-09-19
+
+Miguel removed the human gates: AdSense console steps are done (review pending at Google), the branch merges on green CI, and the basemap moved to MinIO on atlas (PLANE.md Now #1 done, `docs/basemap.md`). Remaining human-only item: none in the loop. Optional: a Google service account for Search Console reads; otherwise Cloudflare analytics is the traffic metric.

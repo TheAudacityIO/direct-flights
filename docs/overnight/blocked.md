@@ -2,7 +2,7 @@
 
 Written 2026-09-18. Each item names the decision, the options, and where to look.
 
-## B1. Merge and deploy the overnight branch
+## B1. Merge and deploy the overnight branch (RESOLVED 2026-09-19: Miguel removed human gates for this exercise; the branch is merged on green CI by the agent)
 
 Decision: whether `overnight/seo-monetisation` goes to `main`. It was committed locally on atlas
 and NOT pushed: `TheAudacityIO/direct-flights` is not on the auto-commit allowlist in
@@ -28,7 +28,7 @@ Decision: verify `flydirectfrom.com` in Search Console. Needs Miguel's Google ac
 
 Then submit the sitemap and request indexing for `/`, `/from`, `/from/FCO`.
 
-## B3. AdSense site review and go-live (PLANE.md Now #3, #4)
+## B3. AdSense site review and go-live (RESOLVED 2026-09-19 on Miguel's side; review pending at Google, consent message verified loading from an EU IP)
 
 Decision: none new, but every step is a console action under Miguel's account:
 

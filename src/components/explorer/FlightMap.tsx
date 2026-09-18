@@ -3,13 +3,43 @@ import type { Map as MapLibreMap, GeoJSONSource, MapMouseEvent } from "maplibre-
 import { greatCircleCoords, splitAntimeridian } from "@/lib/flights/geo";
 import type { AirportIndex, Destination } from "@/lib/flights/types";
 
-// OpenFreeMap public instance: keyless, donation-backed. CARTO's courtesy
-// tiles started watermarking "API KEY REQUIRED" on 2026-09-11 and are gone
-// for good; the durable follow-up (self-hosted Protomaps) is in PLANE.md.
-const STYLE_URL = "https://tiles.openfreemap.org/styles/dark";
+// Self-hosted basemap: one PMTiles archive (Protomaps planet build, z0-10)
+// plus its sprites and fonts, served by MinIO on atlas behind the tunnel at
+// tiles.flydirectfrom.com. No third-party tile server, no key, no SLA to
+// lose (CARTO watermarked its courtesy tiles on 2026-09-11; OpenFreeMap was
+// the stopgap). Refresh recipe: docs/basemap.md. Style layers come from
+// @protomaps/basemaps' dark flavor with the site's own background and land
+// colours so the map matches the rest of the dark identity.
+const TILES_ORIGIN = "https://tiles.flydirectfrom.com/tiles";
+const PMTILES_URL = `${TILES_ORIGIN}/world-z10.pmtiles`;
+const BASEMAP_ATTRIBUTION =
+  '<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>';
 
-// The OpenFreeMap TileJSON carries the OpenFreeMap / OpenMapTiles / OSM
-// credit itself; the local fallback style declares its own on its source.
+type BasemapsModule = typeof import("@protomaps/basemaps");
+
+function basemapStyle(basemaps: BasemapsModule) {
+  const flavor = {
+    ...basemaps.namedFlavor("dark"),
+    background: "#08090c",
+    earth: "#1a1f29",
+    water: "#08090c",
+  };
+  return {
+    version: 8 as const,
+    glyphs: `${TILES_ORIGIN}/assets/fonts/{fontstack}/{range}.pbf`,
+    sprite: `${TILES_ORIGIN}/assets/sprites/v4/dark`,
+    sources: {
+      protomaps: {
+        type: "vector" as const,
+        url: `pmtiles://${PMTILES_URL}`,
+        attribution: BASEMAP_ATTRIBUTION,
+      },
+    },
+    layers: basemaps.layers("protomaps", flavor, { lang: "en" }),
+  };
+}
+
+// The local fallback style declares its own credit on its source.
 
 const LOCAL_STYLE = {
   version: 8 as const,
@@ -316,22 +346,26 @@ export function FlightMap({
 
     (async () => {
       try {
-        const [maplibreMod, workerMod] = await Promise.all([
+        const [maplibreMod, workerMod, , pmtilesMod, basemapsMod] = await Promise.all([
           import("maplibre-gl"),
           import("maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url"),
           import("maplibre-gl/dist/maplibre-gl.css"),
+          import("pmtiles"),
+          import("@protomaps/basemaps"),
         ]);
         if (cancelled || !containerRef.current) return;
 
-        const { Map: MapLibre, setWorkerUrl } = maplibreMod;
+        const { Map: MapLibre, setWorkerUrl, addProtocol } = maplibreMod;
         // v6 worker is a sibling of import.meta.url; Vite must emit it via ?worker&url.
         setWorkerUrl(workerMod.default);
+        // pmtiles:// sources read tiles by HTTP range request straight from the archive.
+        addProtocol("pmtiles", new pmtilesMod.Protocol().tile);
 
         reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
         map = new MapLibre({
           container: containerRef.current,
-          style: STYLE_URL,
+          style: basemapStyle(basemapsMod),
           center: [12, 28],
           zoom: 1.55,
           attributionControl: { compact: true },
