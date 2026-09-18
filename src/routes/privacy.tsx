@@ -14,7 +14,7 @@ export const Route = createFileRoute("/privacy")({
   component: PrivacyPage,
 });
 
-const UPDATED = "2026-09-12";
+const UPDATED = "2026-09-19";
 const link = "underline underline-offset-2 hover:text-fg";
 
 function PrivacyPage() {
@@ -61,9 +61,9 @@ function PrivacyPage() {
             handles that same request data to deliver and protect it.
           </p>
           <p className="mt-2">
-            The map background comes straight from OpenFreeMap&apos;s tile servers (OpenStreetMap
-            data), so your browser fetches those tiles from them directly and they see your IP
-            address the way any content network would.
+            The map background (OpenStreetMap data, packaged by Protomaps) is served from our own
+            server at tiles.flydirectfrom.com, behind the same Cloudflare setup, so no third-party
+            tile provider sees your requests.
           </p>
         </section>
 

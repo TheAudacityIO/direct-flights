@@ -139,6 +139,81 @@ export function provenanceSentence(
   return "Routes from the OpenFlights archive (~2014) with known defunct carriers removed; not verified as current. Estimated durations, not a timetable.";
 }
 
+/** Structured data (schema.org JSON-LD) as a TanStack head `scripts` entry. `<` is escaped so data can never close the tag. */
+export function jsonLdScript(data: Record<string, unknown>) {
+  return {
+    type: "application/ld+json",
+    children: JSON.stringify({ "@context": "https://schema.org", ...data }).replace(/</g, "\\u003c"),
+  };
+}
+
+export type Crumb = { name: string; path: string };
+
+export function breadcrumbJsonLd(crumbs: Crumb[]): Record<string, unknown> {
+  return {
+    "@type": "BreadcrumbList",
+    itemListElement: crumbs.map((c, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: c.name,
+      item: SITE_ORIGIN + c.path,
+    })),
+  };
+}
+
+/** Breadcrumb trail for /from/{IATA}: site, airports hub, country, airport. */
+export function airportCrumbs(ap: Pick<AirportIndex, "iata" | "name" | "city" | "country">): Crumb[] {
+  return [
+    { name: "FlyDirectFrom", path: "/" },
+    { name: "Airports", path: "/from" },
+    { name: ap.country, path: countryPagePath(ap.country) },
+    { name: `${ap.city || ap.name} (${ap.iata})`, path: airportPagePath(ap.iata) },
+  ];
+}
+
+/** Breadcrumb trail for /countries/{slug}: site, airports hub, country. */
+export function countryCrumbs(country: string): Crumb[] {
+  return [
+    { name: "FlyDirectFrom", path: "/" },
+    { name: "Airports", path: "/from" },
+    { name: country, path: countryPagePath(country) },
+  ];
+}
+
+/** The airport page as a WebPage about a schema.org Airport (iataCode is the searchable key). */
+export function airportPageJsonLd(
+  ap: Pick<AirportIndex, "iata" | "name" | "city" | "country" | "lat" | "lon">,
+  count: number,
+): Record<string, unknown> {
+  return {
+    "@type": "WebPage",
+    "@id": SITE_ORIGIN + airportPagePath(ap.iata),
+    url: SITE_ORIGIN + airportPagePath(ap.iata),
+    name: airportPageTitle(ap, count),
+    isPartOf: { "@id": `${SITE_ORIGIN}/#website` },
+    about: {
+      "@type": "Airport",
+      name: ap.name,
+      iataCode: ap.iata,
+      address: { "@type": "PostalAddress", addressLocality: ap.city || undefined, addressCountry: ap.country },
+      geo: { "@type": "GeoCoordinates", latitude: ap.lat, longitude: ap.lon },
+    },
+  };
+}
+
+/** Site-level WebSite node, emitted on the home page; airport pages point at it via isPartOf. */
+export function websiteJsonLd(): Record<string, unknown> {
+  return {
+    "@type": "WebSite",
+    "@id": `${SITE_ORIGIN}/#website`,
+    url: `${SITE_ORIGIN}/`,
+    name: "FlyDirectFrom",
+    description:
+      "Where can you fly direct? Pick an airport and see every nonstop destination with airlines, distance and estimated flight time.",
+    publisher: { "@type": "Organization", name: "The Audacity" },
+  };
+}
+
 export function buildSitemap(paths: string[], lastmod: string): string {
   const day = lastmod.slice(0, 10);
   const urls = paths

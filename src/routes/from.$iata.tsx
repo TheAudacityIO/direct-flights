@@ -7,12 +7,16 @@ import { formatDuration, formatKm } from "@/lib/flights/geo";
 import { formatDays } from "@/lib/flights/observed";
 import { getAirportPage } from "@/lib/flights/pages";
 import {
+  airportCrumbs,
   airportGlance,
   airportLabel,
   airportPageDescription,
+  airportPageJsonLd,
   airportPagePath,
   airportPageTitle,
+  breadcrumbJsonLd,
   countrySlug,
+  jsonLdScript,
   pageMeta,
   provenanceSentence,
   SITE_ORIGIN,
@@ -38,6 +42,10 @@ export const Route = createFileRoute("/from/$iata")({
         airportPagePath(origin.iata),
       ),
       links: [{ rel: "canonical", href: SITE_ORIGIN + airportPagePath(origin.iata) }],
+      scripts: [
+        jsonLdScript(breadcrumbJsonLd(airportCrumbs(origin))),
+        jsonLdScript(airportPageJsonLd(origin, destinations.length)),
+      ],
     };
   },
   notFoundComponent: NotFoundPage,
