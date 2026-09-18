@@ -1,15 +1,21 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
+  airportCrumbs,
   airportGlance,
   airportPageDescription,
+  airportPageJsonLd,
   airportPagePath,
   airportPageTitle,
+  breadcrumbJsonLd,
   buildSitemap,
+  countryCrumbs,
   countryPagePath,
   countrySlug,
+  jsonLdScript,
   nearbyAirports,
   provenanceSentence,
+  websiteJsonLd,
 } from "./seo.ts";
 import type { Destination } from "./types.ts";
 
@@ -107,5 +113,48 @@ describe("country and neighbourhood helpers", () => {
     assert.equal(g.verified, 1);
     assert.equal(g.longest?.iata, "JFK");
     assert.equal(g.shortest?.iata, "CAG");
+  });
+});
+
+describe("structured data", () => {
+  it("wraps json-ld as a data script with the schema.org context", () => {
+    const tag = jsonLdScript({ "@type": "Thing", name: "x" });
+    assert.equal(tag.type, "application/ld+json");
+    assert.deepEqual(JSON.parse(tag.children), {
+      "@context": "https://schema.org",
+      "@type": "Thing",
+      name: "x",
+    });
+  });
+
+  it("escapes < so data can never close the script tag", () => {
+    const tag = jsonLdScript({ name: "</script><b>" });
+    assert.doesNotMatch(tag.children, /<\/script>/);
+    assert.equal(JSON.parse(tag.children).name, "</script><b>");
+  });
+
+  it("builds the airport breadcrumb trail with absolute urls", () => {
+    const ld = breadcrumbJsonLd(airportCrumbs(FCO)) as {
+      itemListElement: Array<{ position: number; name: string; item: string }>;
+    };
+    assert.deepEqual(
+      ld.itemListElement.map((i) => [i.position, i.name, i.item]),
+      [
+        [1, "FlyDirectFrom", "https://flydirectfrom.com/"],
+        [2, "Airports", "https://flydirectfrom.com/from"],
+        [3, "Italy", "https://flydirectfrom.com/countries/italy"],
+        [4, "Rome (FCO)", "https://flydirectfrom.com/from/FCO"],
+      ],
+    );
+    assert.equal(countryCrumbs("Italy").length, 3);
+  });
+
+  it("describes the airport page as a WebPage about a schema.org Airport", () => {
+    const ld = airportPageJsonLd({ ...FCO, lat: 41.8, lon: 12.24 }, 118) as Record<string, any>;
+    assert.equal(ld["@type"], "WebPage");
+    assert.equal(ld.url, "https://flydirectfrom.com/from/FCO");
+    assert.equal(ld.about.iataCode, "FCO");
+    assert.equal(ld.about.geo.latitude, 41.8);
+    assert.equal(ld.isPartOf["@id"], (websiteJsonLd() as Record<string, string>)["@id"]);
   });
 });

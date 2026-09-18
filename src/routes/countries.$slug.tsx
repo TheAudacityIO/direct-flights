@@ -3,7 +3,15 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { AD_SLOTS } from "@/lib/ads/config";
 import { getCountryPage } from "@/lib/flights/pages";
-import { countryPagePath, countryPageTitle, pageMeta, SITE_ORIGIN } from "@/lib/flights/seo";
+import {
+  breadcrumbJsonLd,
+  countryCrumbs,
+  countryPagePath,
+  countryPageTitle,
+  jsonLdScript,
+  pageMeta,
+  SITE_ORIGIN,
+} from "@/lib/flights/seo";
 
 export const Route = createFileRoute("/countries/$slug")({
   loader: async ({ params }) => {
@@ -28,6 +36,7 @@ export const Route = createFileRoute("/countries/$slug")({
         countryPagePath(country),
       ),
       links: [{ rel: "canonical", href: SITE_ORIGIN + countryPagePath(country) }],
+      scripts: [jsonLdScript(breadcrumbJsonLd(countryCrumbs(country)))],
     };
   },
   notFoundComponent: NotFoundPage,

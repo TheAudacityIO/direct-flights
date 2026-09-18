@@ -73,6 +73,14 @@ jobs:
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+          # Ad unit ids are public (they ship in the HTML), so they live as
+          # repository variables, not secrets. Unset variables build the
+          # reserved placeholders, exactly as before.
+          build-args: |
+            VITE_ADSENSE_SLOT_AIRPORT=${{ vars.ADSENSE_SLOT_AIRPORT }}
+            VITE_ADSENSE_SLOT_COUNTRY=${{ vars.ADSENSE_SLOT_COUNTRY }}
+            VITE_ADSENSE_SLOT_SIDEBAR=${{ vars.ADSENSE_SLOT_SIDEBAR }}
+            VITE_REWARDED_AD_UNIT=${{ vars.REWARDED_AD_UNIT }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

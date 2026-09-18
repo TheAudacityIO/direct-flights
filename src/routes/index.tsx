@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Explorer, type ExplorerSearch } from "@/components/explorer/Explorer";
-import { pageMeta } from "@/lib/flights/seo";
+import { jsonLdScript, pageMeta, websiteJsonLd } from "@/lib/flights/seo";
 
 function parseIata(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
@@ -16,6 +16,7 @@ export const Route = createFileRoute("/")({
       "/",
     ),
     links: [{ rel: "canonical", href: "https://flydirectfrom.com/" }],
+    scripts: [jsonLdScript(websiteJsonLd())],
   }),
   validateSearch: (raw: Record<string, unknown>): ExplorerSearch => ({
     from: parseIata(raw.from),
