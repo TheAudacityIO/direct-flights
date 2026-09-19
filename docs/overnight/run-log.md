@@ -83,5 +83,6 @@ his side (review "getting ready"); storage preference MinIO on atlas over R2/S3/
 Verification: tests 73 + 135 pass (three consecutive runs), typecheck and lint clean, production build
 OK; headless Chromium against the built server loaded `/?from=FCO` with 23 requests to
 tiles.flydirectfrom.com, attribution "Protomaps © OpenStreetMap", zero console or HTTP errors,
-screenshot reviewed (dark basemap, labels, arcs). EU-IP check on the live site shows the Google
-consent-message endpoint already loading, so the GDPR message is published.
+screenshot reviewed (dark basemap, labels, arcs). EU-IP check on the live site shows the AdSense script querying the Google consent-message
+endpoint; that does not prove a GDPR message is published (no dialog rendered). Only the AdSense
+console, Privacy & messaging, can confirm it.

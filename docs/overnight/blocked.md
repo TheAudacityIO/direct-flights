@@ -28,7 +28,7 @@ Decision: verify `flydirectfrom.com` in Search Console. Needs Miguel's Google ac
 
 Then submit the sitemap and request indexing for `/`, `/from`, `/from/FCO`.
 
-## B3. AdSense site review and go-live (RESOLVED 2026-09-19 on Miguel's side; review pending at Google, consent message verified loading from an EU IP)
+## B3. AdSense site review and go-live (RESOLVED 2026-09-19 on Miguel's side; review pending at Google; whether a GDPR message is published is NOT verifiable from outside, check Privacy & messaging in the console)
 
 Decision: none new, but every step is a console action under Miguel's account:
 
