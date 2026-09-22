@@ -108,6 +108,26 @@ export const getCountryPage = createServerFn({ method: "GET" })
     return { country: entries[0].country, airports: entries, meta };
   });
 
+const POPULAR_ORIGINS = 12;
+
+/** Best-connected origins, for the home page's crawlable links (airports.json is sorted by destinations desc). */
+export const getPopularOrigins = createServerFn({ method: "GET" }).handler(
+  async (): Promise<AirportIndexEntry[]> => {
+    const { readAirports } = await import("./dataset.server.ts");
+    const airports = await readAirports();
+    return airports
+      .filter((a) => a.destinations > 0)
+      .slice(0, POPULAR_ORIGINS)
+      .map(({ iata, name, city, country, destinations }) => ({
+        iata,
+        name,
+        city,
+        country,
+        destinations,
+      }));
+  },
+);
+
 export const getDatasetMeta = createServerFn({ method: "GET" }).handler(
   async (): Promise<DatasetMeta> => {
     const { readMeta } = await import("./dataset.server.ts");
