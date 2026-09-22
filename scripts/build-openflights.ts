@@ -14,7 +14,7 @@ import path from "node:path";
 import { parseAirports, parseAirlines, parseRoutes, buildDataset } from "../src/lib/flights/pipeline.ts";
 import { buildObservedDataset, windowFrom } from "../src/lib/flights/observed.ts";
 import { mergeObserved } from "../src/lib/flights/overlay.ts";
-import { airportPagePath, buildSitemap, countryPagePath } from "../src/lib/flights/seo.ts";
+import { airportPagePath, buildSitemap, countryPagePath, isIndexable } from "../src/lib/flights/seo.ts";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const RAW = path.join(ROOT, "data/raw");
@@ -119,7 +119,11 @@ async function main() {
     "/about-the-data",
     "/privacy",
     ...countries.map(countryPagePath),
-    ...[...dataset.routesByOrigin.keys()].sort().map(airportPagePath),
+    ...[...dataset.routesByOrigin]
+      .filter(([, destinations]) => isIndexable(destinations))
+      .map(([iata]) => iata)
+      .sort()
+      .map(airportPagePath),
   ];
   await writeFile(path.join(ROOT, "public/sitemap.xml"), buildSitemap(pages, meta.generatedAt));
 
@@ -131,6 +135,7 @@ async function main() {
         origins: originCount,
         routes: dataset.routeCount,
         observedOrigins: overlay?.origins ?? 0,
+        sitemapPages: pages.length,
         CAG: sample("CAG"),
         FCO: sample("FCO"),
       },

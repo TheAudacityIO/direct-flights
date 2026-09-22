@@ -19,6 +19,20 @@ export function airportPagePath(iata: string): string {
   return `/from/${iata.toUpperCase()}`;
 }
 
+/**
+ * Archive-only origins with fewer than this many destinations are thin pages:
+ * still linked and crawlable, but noindex and out of the sitemap, so the crawl
+ * budget goes to pages that can rank. Any origin with observed routes is indexable.
+ */
+export const MIN_INDEXABLE_DESTINATIONS = 3;
+
+export function isIndexable(destinations: Pick<Destination, "lastSeen">[]): boolean {
+  return (
+    destinations.length >= MIN_INDEXABLE_DESTINATIONS ||
+    destinations.some((d) => Boolean(d.lastSeen))
+  );
+}
+
 /** `Congo (Kinshasa)` -> `congo-kinshasa`; unique across the dataset's 222 countries. */
 export function countrySlug(country: string): string {
   return country

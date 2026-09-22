@@ -12,6 +12,7 @@ import {
   countryCrumbs,
   countryPagePath,
   countrySlug,
+  isIndexable,
   jsonLdScript,
   nearbyAirports,
   provenanceSentence,
@@ -156,5 +157,21 @@ describe("structured data", () => {
     assert.equal(ld.about.iataCode, "FCO");
     assert.equal(ld.about.geo.latitude, 41.8);
     assert.equal(ld.isPartOf["@id"], (websiteJsonLd() as Record<string, string>)["@id"]);
+  });
+});
+
+describe("isIndexable", () => {
+  const archive = (n: number): Pick<Destination, "lastSeen">[] => Array.from({ length: n }, () => ({}));
+  it("keeps archive-only origins out of the index below three destinations", () => {
+    assert.equal(isIndexable(archive(1)), false);
+    assert.equal(isIndexable(archive(2)), false);
+    assert.equal(isIndexable(archive(3)), true);
+  });
+  it("always indexes an origin with an observed route, however small", () => {
+    assert.equal(isIndexable([{ lastSeen: "2026-09-01" }]), true);
+    assert.equal(isIndexable([{}, { lastSeen: "2026-09-01" }]), true);
+  });
+  it("treats an empty list as not indexable", () => {
+    assert.equal(isIndexable([]), false);
   });
 });

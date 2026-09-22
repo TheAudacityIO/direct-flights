@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Explorer, type ExplorerSearch } from "@/components/explorer/Explorer";
+import { getPopularOrigins } from "@/lib/flights/pages";
 import { jsonLdScript, pageMeta, websiteJsonLd } from "@/lib/flights/seo";
 
 function parseIata(value: unknown): string | undefined {
@@ -9,6 +10,9 @@ function parseIata(value: unknown): string | undefined {
 }
 
 export const Route = createFileRoute("/")({
+  loader: () => getPopularOrigins(),
+  // The popular list is static per deploy; never refetch it when only ?from= changes.
+  staleTime: Infinity,
   head: () => ({
     meta: pageMeta(
       "Direct flights from any airport, on one map · FlyDirectFrom",
@@ -28,9 +32,11 @@ export const Route = createFileRoute("/")({
 function Home() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
+  const popular = Route.useLoaderData();
 
   return (
     <Explorer
+      popular={popular}
       search={search}
       onSearchChange={(next) => {
         void navigate({ search: next, replace: true });

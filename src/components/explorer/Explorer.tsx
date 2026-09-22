@@ -8,6 +8,7 @@ import { AdSlot } from "@/components/ads/AdSlot";
 import { AD_SLOTS } from "@/lib/ads/config";
 import { Button } from "@/components/ui/button";
 import { loadAirports, loadRoutes } from "@/lib/flights/api";
+import type { AirportIndexEntry } from "@/lib/flights/pages";
 import type { AirportIndex, Destination, RouteFile } from "@/lib/flights/types";
 import { cn } from "@/lib/utils";
 
@@ -19,9 +20,11 @@ export type ExplorerSearch = {
 type Props = {
   search: ExplorerSearch;
   onSearchChange: (next: ExplorerSearch) => void;
+  /** Server-rendered links to the best-connected origins, so crawlers reach them from the home page. */
+  popular?: AirportIndexEntry[];
 };
 
-export function Explorer({ search, onSearchChange }: Props) {
+export function Explorer({ search, onSearchChange, popular }: Props) {
   const [airports, setAirports] = useState<AirportIndex[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [routeFile, setRouteFile] = useState<RouteFile | null>(null);
@@ -163,6 +166,7 @@ export function Explorer({ search, onSearchChange }: Props) {
             onPick={selectOrigin}
             loading={!airports && !loadError}
             unknownCode={airports && search.from ? search.from : null}
+            popular={popular}
           />
         )}
 
@@ -366,11 +370,13 @@ function EmptyHint({
   onPick,
   loading,
   unknownCode,
+  popular,
 }: {
   airports: AirportIndex[] | null;
   onPick: (ap: AirportIndex) => void;
   loading: boolean;
   unknownCode: string | null;
+  popular?: AirportIndexEntry[];
 }) {
   const chips = ["CAG", "FCO", "LHR", "JFK"];
   const found =
@@ -411,6 +417,19 @@ function EmptyHint({
             ))}
           </div>
         )}
+        {popular && popular.length > 0 ? (
+          <p className="mt-4 text-xs leading-relaxed text-muted">
+            <span className="text-subtle">Direct flights from</span>{" "}
+            {popular.map((ap, i) => (
+              <span key={ap.iata}>
+                {i > 0 ? " · " : null}
+                <a href={`/from/${ap.iata}`} className="underline underline-offset-2 hover:text-fg">
+                  {ap.city || ap.name} <span className="font-mono text-accent">{ap.iata}</span>
+                </a>
+              </span>
+            ))}
+          </p>
+        ) : null}
         <p className="mt-4 text-[11px] text-subtle">
           <a href="/from" className="underline underline-offset-2 hover:text-fg">
             All airports

@@ -16,6 +16,7 @@ import {
   airportPageTitle,
   breadcrumbJsonLd,
   countrySlug,
+  isIndexable,
   jsonLdScript,
   pageMeta,
   provenanceSentence,
@@ -36,11 +37,14 @@ export const Route = createFileRoute("/from/$iata")({
     if (!loaderData) return { meta: [{ title: "Airport not found · FlyDirectFrom" }] };
     const { origin, destinations } = loaderData;
     return {
-      meta: pageMeta(
-        `${airportPageTitle(origin, destinations.length)} · FlyDirectFrom`,
-        airportPageDescription(origin, destinations),
-        airportPagePath(origin.iata),
-      ),
+      meta: [
+        ...pageMeta(
+          `${airportPageTitle(origin, destinations.length)} · FlyDirectFrom`,
+          airportPageDescription(origin, destinations),
+          airportPagePath(origin.iata),
+        ),
+        ...(isIndexable(destinations) ? [] : [{ name: "robots", content: "noindex, follow" }]),
+      ],
       links: [{ rel: "canonical", href: SITE_ORIGIN + airportPagePath(origin.iata) }],
       scripts: [
         jsonLdScript(breadcrumbJsonLd(airportCrumbs(origin))),
