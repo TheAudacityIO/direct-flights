@@ -27,6 +27,10 @@ export function initAnalytics() {
       autocapture: false,
       capture_pageview: "history_change",
       capture_pageleave: true,
+      // Send each event at once: batching holds the pageview for ~3 s, and a
+      // mobile visitor who bounces inside that window arrived as a lone
+      // $pageleave. At this volume batching saves nothing.
+      request_batching: false,
       // The Audacity project turns these on remotely for its other sites;
       // this site collects only what the privacy page lists.
       disable_session_recording: true,
