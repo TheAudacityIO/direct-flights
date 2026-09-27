@@ -1,0 +1,70 @@
+name: Search Console report
+
+# Weekly search performance for flydirectfrom.com: totals, daily clicks and
+# impressions, top queries and top pages, written to the run summary and kept
+# as a JSON artifact. Keyless: the flydirectfrom-growth service account via
+# Workload Identity Federation (repo variables below). The account must be a
+# user on the sc-domain:flydirectfrom.com property, or the query returns 403.
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/webmasters.readonly
+
+      - name: Query Search Analytics
+        env:
+          TOKEN: ${{ steps.auth.outputs.access_token }}
+        run: |
+          set -euo pipefail
+          url="https://searchconsole.googleapis.com/webmasters/v3/sites/sc-domain%3Aflydirectfrom.com/searchAnalytics/query"
+          # Search Console data lags two to three days.
+          end=$(date -u -d '2 days ago' +%F)
+          start=$(date -u -d '29 days ago' +%F)
+          mkdir -p out
+          q() {
+            curl -sS --fail-with-body -X POST "$url" \
+              -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+              -d "{\"startDate\":\"$start\",\"endDate\":\"$end\",$1}" > "out/$2.json"
+          }
+          q '"rowLimit":1' totals
+          q '"dimensions":["date"],"rowLimit":100' by-date
+          q '"dimensions":["query"],"rowLimit":25' queries
+          q '"dimensions":["page"],"rowLimit":25' pages
+
+          row='"| \(.keys[0] // "all") | \(.clicks) | \(.impressions) | \(.ctr*1000|round/10)% | \(.position*10|round/10) |"'
+          table() {
+            echo "| $1 | Clicks | Impressions | CTR | Position |"
+            echo "|---|---|---|---|---|"
+            jq -r "(.rows // [])[] | $row" "out/$2.json"
+            echo
+          }
+          {
+            echo "## flydirectfrom.com search, $start to $end"
+            echo
+            table Total totals
+            table Date by-date
+            table Query queries
+            table Page pages
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: search-console-${{ github.run_id }}
+          path: out/
+          retention-days: 90

@@ -1,5 +1,6 @@
 import { ExternalLink } from "lucide-react";
 import type { Destination } from "@/lib/flights/types";
+import { track } from "@/lib/analytics";
 
 /** Deep links into the big fare searches, nonstop pre-filtered. No affiliate ids (v1 non-goal). */
 function bookingLinks(origin: string, dest: Destination) {
@@ -35,6 +36,13 @@ export function BookingLinks({ origin, dest }: { origin: string; dest: Destinati
               href={l.href}
               target="_blank"
               rel="nofollow noopener"
+              onClick={() =>
+                track("booking_link_clicked", {
+                  provider: l.name,
+                  origin: origin.toUpperCase(),
+                  dest: dest.iata,
+                })
+              }
               className="inline-flex items-center gap-1 text-fg underline underline-offset-2 hover:text-accent"
             >
               {l.name}
