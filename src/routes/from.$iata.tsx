@@ -14,6 +14,7 @@ import {
   airportPageJsonLd,
   airportPagePath,
   airportPageTitle,
+  airlinesByRoutes,
   breadcrumbJsonLd,
   countrySlug,
   isIndexable,
@@ -39,7 +40,7 @@ export const Route = createFileRoute("/from/$iata")({
     return {
       meta: [
         ...pageMeta(
-          `${airportPageTitle(origin, destinations.length)} · FlyDirectFrom`,
+          airportPageTitle(origin, destinations.length),
           airportPageDescription(origin, destinations),
           airportPagePath(origin.iata),
         ),
@@ -81,6 +82,7 @@ function AirportPage() {
   const { origin, destinations, nearby, pageless, meta } = Route.useLoaderData();
   const noPage = new Set(pageless);
   const glance = airportGlance(destinations);
+  const airlines = airlinesByRoutes(destinations);
   // The dataset sorts by rounded minutes; km is the same order without the ties.
   const rows = destinations.slice().sort((a, b) => a.km - b.km || a.iata.localeCompare(b.iata));
   const countries = glance.countries;
@@ -203,6 +205,23 @@ function AirportPage() {
           />
         </dl>
       </section>
+
+      {airlines.length > 0 ? (
+        <section className="mt-10">
+          <h2 className="text-base font-medium text-fg">
+            Airlines flying nonstop from {origin.city || origin.name}
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-muted">
+            {airlines.map((a, i) => (
+              <span key={a.airline}>
+                {i > 0 ? ", " : ""}
+                <span className="text-fg">{a.airline}</span> ({a.routes})
+              </span>
+            ))}
+            . The number is how many of the destinations above each airline flies.
+          </p>
+        </section>
+      ) : null}
 
       {nearby.length > 0 ? (
         <section className="mt-10">

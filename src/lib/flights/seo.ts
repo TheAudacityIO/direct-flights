@@ -115,9 +115,11 @@ export function airportPageTitle(
   ap: Pick<AirportIndex, "iata" | "name" | "city">,
   count: number,
 ): string {
-  return `Direct flights from ${ap.city || ap.name} (${ap.iata}): ${count} nonstop ${
+  // Leads with the phrase people search ("bodrum direct flights") and stays
+  // under Google's ~60-character cut.
+  return `${ap.city || ap.name} direct flights: ${count} nonstop ${
     count === 1 ? "destination" : "destinations"
-  }`;
+  } from ${ap.iata}`;
 }
 
 export function airportPageDescription(
@@ -130,12 +132,22 @@ export function airportPageDescription(
     .sort((a, b) => b.km - a.km)
     .slice(0, 3)
     .map((d) => d.city || d.name);
-  const head = `Where can you fly direct from ${airportLabel(ap)}, ${ap.country}? ${
-    destinations.length
-  } nonstop ${destinations.length === 1 ? "destination" : "destinations"} in ${countries} ${
+  const airlines = new Set(destinations.flatMap((d) => d.airlines)).size;
+  const head = `${ap.city || ap.name} airport destinations: ${destinations.length} nonstop ${
+    destinations.length === 1 ? "flight" : "flights"
+  } from ${airportLabel(ap)}, ${ap.country}, to ${countries} ${
     countries === 1 ? "country" : "countries"
-  }`;
+  } on ${airlines} ${airlines === 1 ? "airline" : "airlines"}`;
   return top.length > 0 ? `${head}, as far as ${top.join(", ")}.` : `${head}.`;
+}
+
+/** Airlines at an origin, most nonstop destinations first (ties by name). */
+export function airlinesByRoutes(destinations: Destination[]): { airline: string; routes: number }[] {
+  const counts = new Map<string, number>();
+  for (const d of destinations) for (const a of new Set(d.airlines)) counts.set(a, (counts.get(a) ?? 0) + 1);
+  return [...counts]
+    .map(([airline, routes]) => ({ airline, routes }))
+    .sort((a, b) => b.routes - a.routes || a.airline.localeCompare(b.airline));
 }
 
 /** One honest sentence about where this origin's rows come from. */
