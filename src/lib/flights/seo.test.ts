@@ -4,6 +4,7 @@ import {
   airportCrumbs,
   airportGlance,
   airportPageDescription,
+  airlinesByRoutes,
   airportPageJsonLd,
   airportPagePath,
   airportPageTitle,
@@ -42,9 +43,9 @@ describe("airport page seo", () => {
   it("titles with the count and pluralises", () => {
     assert.equal(
       airportPageTitle(FCO, 118),
-      "Direct flights from Rome (FCO): 118 nonstop destinations",
+      "Rome direct flights: 118 nonstop destinations from FCO",
     );
-    assert.equal(airportPageTitle(FCO, 1), "Direct flights from Rome (FCO): 1 nonstop destination");
+    assert.equal(airportPageTitle(FCO, 1), "Rome direct flights: 1 nonstop destination from FCO");
   });
 
   it("describes with country count and farthest cities", () => {
@@ -54,7 +55,22 @@ describe("airport page seo", () => {
     ]);
     assert.equal(
       text,
-      "Where can you fly direct from Rome Fiumicino (FCO), Italy? 2 nonstop destinations in 2 countries, as far as New York, Cagliari.",
+      "Rome airport destinations: 2 nonstop flights from Rome Fiumicino (FCO), Italy, to 2 countries on 1 airline, as far as New York, Cagliari.",
+    );
+  });
+
+  it("ranks airlines by how many nonstop destinations they fly", () => {
+    assert.deepEqual(
+      airlinesByRoutes([
+        dest({ airlines: ["ITA Airways", "Delta"] }),
+        dest({ iata: "CAG", airlines: ["ITA Airways", "Ryanair"] }),
+        dest({ iata: "BCN", airlines: ["Ryanair", "ITA Airways"] }),
+      ]),
+      [
+        { airline: "ITA Airways", routes: 3 },
+        { airline: "Ryanair", routes: 2 },
+        { airline: "Delta", routes: 1 },
+      ],
     );
   });
 

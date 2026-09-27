@@ -44,8 +44,8 @@ jobs:
           }
           q '"rowLimit":1' totals
           q '"dimensions":["date"],"rowLimit":100' by-date
-          q '"dimensions":["query"],"rowLimit":25' queries
-          q '"dimensions":["page"],"rowLimit":25' pages
+          q '"dimensions":["query"],"rowLimit":100' queries
+          q '"dimensions":["page"],"rowLimit":100' pages
 
           row='"| \(.keys[0] // "all") | \(.clicks) | \(.impressions) | \(.ctr*1000|round/10)% | \(.position*10|round/10) |"'
           table() {
