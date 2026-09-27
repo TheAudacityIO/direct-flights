@@ -4,8 +4,8 @@ import { greatCircleCoords, splitAntimeridian } from "@/lib/flights/geo";
 import type { AirportIndex, Destination } from "@/lib/flights/types";
 
 // Self-hosted basemap: one PMTiles archive (Protomaps planet build, z0-10)
-// plus its sprites and fonts, served by MinIO on atlas behind the tunnel at
-// tiles.flydirectfrom.com. No third-party tile server, no key, no SLA to
+// plus its sprites and fonts, served as read-only static files by nginx on
+// atlas behind the tunnel at tiles.flydirectfrom.com. No third-party tile server, no key, no SLA to
 // lose (CARTO watermarked its courtesy tiles on 2026-09-11; OpenFreeMap was
 // the stopgap). Refresh recipe: docs/basemap.md. Style layers come from
 // @protomaps/basemaps' dark flavor with the site's own background and land
