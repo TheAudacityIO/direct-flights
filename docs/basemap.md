@@ -6,8 +6,9 @@ One archive, one bucket, one hostname.
 | Piece | Where |
 |---|---|
 | Archive | `world-z10.pmtiles`, Protomaps planet build `20260917`, zoom 0 to 10, 3.75 GB |
-| Storage | MinIO, stack `/opt/atlas/stacks/tiles/compose.yaml` on atlas (mirrored in the atlas repo), data in `/opt/atlas/data/tiles`, bucket `tiles` with anonymous read |
-| Hostname | `https://tiles.flydirectfrom.com` → tunnel ingress → `127.0.0.1:9000` (Cloudflare proxied, CORS `*`) |
+| Storage | MinIO (image pinned by digest), stack `/opt/atlas/stacks/tiles/compose.yaml` on atlas (mirrored in the atlas repo), data in `/opt/atlas/data/tiles`, bucket `tiles` |
+| Anonymous access | `s3:GetObject` on `tiles/*` only: no listing, no writes. The policy is `stacks/tiles/policy.json` in the atlas repo, applied with `apply-policy.sh` next to it (MinIO stores it in `/data`, so a fresh data dir needs it re-applied) |
+| Hostname | `https://tiles.flydirectfrom.com` → tunnel ingress → `127.0.0.1:9000` (Cloudflare proxied, CORS `https://flydirectfrom.com` and `https://www.flydirectfrom.com` only; add an origin there before serving the map from a new hostname or from local dev) |
 | Assets | `tiles/assets/sprites/v4/dark*` and `tiles/assets/fonts/Noto Sans {Regular,Medium,Italic}` from `protomaps/basemaps-assets` |
 | Style | built in `src/components/explorer/FlightMap.tsx` from `@protomaps/basemaps` dark flavor with the site's background and land colours; tiles read through the `pmtiles://` protocol (HTTP range requests) |
 | Fallback | `public/data/land.geojson` outlines if the style fails to load (unchanged) |
