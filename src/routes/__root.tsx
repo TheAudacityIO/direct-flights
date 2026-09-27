@@ -4,6 +4,8 @@ import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import appCss from "../styles.css?url";
 import { ADS_ENABLED, ADSENSE_CLIENT } from "@/lib/ads/config";
+import { useEffect } from "react";
+import { initAnalytics } from "@/lib/analytics";
 
 const APP_NAME = "FlyDirectFrom";
 const APP_DESC =
@@ -67,7 +69,12 @@ export const Route = createRootRoute({
       <SiteFooter />
     </main>
   ),
-  component: () => (
+  component: RootComponent,
+});
+
+function RootComponent() {
+  useEffect(initAnalytics, []);
+  return (
     <html lang="en" className="antialiased" suppressHydrationWarning>
       <head>
         <HeadContent />
@@ -80,5 +87,5 @@ export const Route = createRootRoute({
         <Scripts />
       </body>
     </html>
-  ),
-});
+  );
+}

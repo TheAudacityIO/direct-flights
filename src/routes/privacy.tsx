@@ -45,10 +45,10 @@ function PrivacyPage() {
         <section>
           <h2 className="text-base font-medium text-fg">The short version</h2>
           <p className="mt-2">
-            There are no accounts and nothing to sign up for. We do not run analytics. The only
-            thing the site writes to your browser is a 30-minute timer when you unlock booking
-            details, and that never leaves your device. Ads are served by Google, and in Europe
-            Google asks for your consent first.
+            There are no accounts and nothing to sign up for. We count visits with cookieless
+            analytics that store nothing in your browser. The only thing the site writes to your
+            browser is a 30-minute timer when you unlock booking details, and that never leaves your
+            device. Ads are served by Google, and in Europe Google asks for your consent first.
           </p>
         </section>
 
@@ -59,6 +59,13 @@ function PrivacyPage() {
             for, kept in server logs for up to 14 days so we can keep the site up and fend off
             abuse (our legitimate interest in running it). The site sits behind Cloudflare, which
             handles that same request data to deliver and protect it.
+          </p>
+          <p className="mt-2">
+            To learn which pages are useful and where visitors come from, the site sends PostHog
+            (hosted in the EU) the page you view, the referring site, your browser and device type,
+            and the fare-search links you click. PostHog anonymises your IP address, and nothing is
+            stored in your browser, so there is no identifier that follows you between visits. This
+            rests on our legitimate interest in improving the site.
           </p>
           <p className="mt-2">
             The map background (OpenStreetMap data, packaged by Protomaps) is served from our own
