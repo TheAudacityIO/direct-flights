@@ -27,8 +27,15 @@ export function initAnalytics() {
       autocapture: false,
       capture_pageview: "history_change",
       capture_pageleave: true,
+      // The Audacity project turns these on remotely for its other sites;
+      // this site collects only what the privacy page lists.
       disable_session_recording: true,
       disable_surveys: true,
+      disable_web_experiments: true,
+      capture_heatmaps: false,
+      capture_dead_clicks: false,
+      capture_exceptions: false,
+      capture_performance: false,
       loaded: (ph) => ph.register({ product: "flydirectfrom" }),
     });
     client = posthog;
