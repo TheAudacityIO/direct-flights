@@ -30,9 +30,31 @@ env:
 permissions: {}
 
 jobs:
+  # Manual dispatch must only deploy from main; a write-authorized user must not
+  # control the checked-out ref, compose config, or built image for production.
+  guard-ref:
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    permissions: {}
+    steps:
+      - name: Validate deployment trigger
+        run: |
+          echo "Event: ${{ github.event_name }}"
+          echo "Ref: ${{ github.ref }}"
+          
+      - name: Enforce main branch for manual dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          if [[ "${{ github.ref }}" != "refs/heads/main" ]]; then
+            echo "::error::Manual dispatch is only allowed from the main branch. Current ref: ${{ github.ref }}"
+            exit 1
+          fi
+          echo "Manual dispatch from main branch confirmed."
+
   # Broken code must not reach the box: the image only builds after the same
   # gate CI runs (tests + typecheck).
   check:
+    needs: guard-ref
     # For workflow_run chaining, deploy only after a SUCCESSFUL data refresh.
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
