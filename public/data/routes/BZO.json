@@ -1,1 +1,1 @@
-{"origin":"BZO","destinations":[{"iata":"CAG","name":"Cagliari Elmas Airport","city":"Cagliari","country":"Italy","lat":39.251499,"lon":9.05428,"km":823,"minutes":88,"airlines":["SkyAlps SRL"],"days":[],"lastSeen":"2026-09-10","flightCount":21}]}
+{"origin":"BZO","destinations":[{"iata":"CAG","name":"Cagliari Elmas Airport","city":"Cagliari","country":"Italy","lat":39.251499,"lon":9.05428,"km":823,"minutes":88,"airlines":["SkyAlps","SkyAlps SRL"],"days":[],"lastSeen":"2026-10-05","flightCount":13}]}

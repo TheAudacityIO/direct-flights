@@ -1,24 +1,16 @@
 {
  "source": "AeroDataBox (RapidAPI)",
  "endpoint": "/airports/iata/{code}/stats/routes/daily",
- "asOf": "2026-09-10",
+ "asOf": "2026-10-05",
  "lookbackDays": 30,
  "fetchedOrigins": [
   "CAG"
  ],
  "skippedOrigins": [],
  "unitCostPerCall": null,
- "unitsRemaining": 94,
- "requestsRemaining": 1550,
+ "unitsRemaining": 88,
+ "requestsRemaining": 1549,
  "routes": [
-  {
-   "originIata": "CAG",
-   "destIata": "AHO",
-   "airline": "Fly Air41 Airways",
-   "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 4
-  },
   {
    "originIata": "CAG",
    "destIata": "AMS",
@@ -32,32 +24,16 @@
     "fri",
     "sat"
    ],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 34
-  },
-  {
-   "originIata": "CAG",
-   "destIata": "ARN",
-   "airline": "Neos",
-   "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 13
   },
   {
    "originIata": "CAG",
    "destIata": "ARN",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 0
-  },
-  {
-   "originIata": "CAG",
-   "destIata": "ATH",
-   "airline": "Neos",
-   "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 4
+   "lastSeen": "2026-10-05",
+   "flightCount": 9
   },
   {
    "originIata": "CAG",
@@ -72,8 +48,24 @@
     "fri",
     "sat"
    ],
-   "lastSeen": "2026-09-10",
-   "flightCount": 47
+   "lastSeen": "2026-10-05",
+   "flightCount": 30
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "BGY",
+   "airline": "Neos",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-10-05",
+   "flightCount": 103
   },
   {
    "originIata": "CAG",
@@ -88,8 +80,8 @@
     "fri",
     "sat"
    ],
-   "lastSeen": "2026-09-10",
-   "flightCount": 103
+   "lastSeen": "2026-10-05",
+   "flightCount": 0
   },
   {
    "originIata": "CAG",
@@ -104,8 +96,24 @@
     "fri",
     "sat"
    ],
-   "lastSeen": "2026-09-10",
-   "flightCount": 111
+   "lastSeen": "2026-10-05",
+   "flightCount": 103
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "BLQ",
+   "airline": "Neos",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-10-05",
+   "flightCount": 0
   },
   {
    "originIata": "CAG",
@@ -120,7 +128,7 @@
     "fri",
     "sat"
    ],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 0
   },
   {
@@ -128,15 +136,15 @@
    "destIata": "BRI",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 26
+   "lastSeen": "2026-10-05",
+   "flightCount": 17
   },
   {
    "originIata": "CAG",
    "destIata": "BRN",
-   "airline": "SkyAlps SRL",
+   "airline": "SkyAlps",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 4
   },
   {
@@ -144,15 +152,15 @@
    "destIata": "BSL",
    "airline": "easyJet",
    "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 13
+   "lastSeen": "2026-10-05",
+   "flightCount": 9
   },
   {
    "originIata": "CAG",
    "destIata": "BUD",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 17
   },
   {
@@ -160,7 +168,15 @@
    "destIata": "BVA",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
+   "flightCount": 9
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "BZO",
+   "airline": "SkyAlps",
+   "days": [],
+   "lastSeen": "2026-10-05",
    "flightCount": 13
   },
   {
@@ -168,24 +184,24 @@
    "destIata": "BZO",
    "airline": "SkyAlps SRL",
    "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 21
+   "lastSeen": "2026-10-05",
+   "flightCount": 0
   },
   {
    "originIata": "CAG",
    "destIata": "CCF",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 13
+   "lastSeen": "2026-10-05",
+   "flightCount": 4
   },
   {
    "originIata": "CAG",
    "destIata": "CDG",
    "airline": "Air France",
    "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 9
+   "lastSeen": "2026-10-05",
+   "flightCount": 4
   },
   {
    "originIata": "CAG",
@@ -200,7 +216,7 @@
     "fri",
     "sat"
    ],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 94
   },
   {
@@ -208,8 +224,24 @@
    "destIata": "CRL",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 17
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "CTA",
+   "airline": "Aeroitalia",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-10-05",
+   "flightCount": 34
   },
   {
    "originIata": "CAG",
@@ -224,8 +256,8 @@
     "fri",
     "sat"
    ],
-   "lastSeen": "2026-09-10",
-   "flightCount": 39
+   "lastSeen": "2026-10-05",
+   "flightCount": 0
   },
   {
    "originIata": "CAG",
@@ -240,31 +272,23 @@
     "fri",
     "sat"
    ],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 0
-  },
-  {
-   "originIata": "CAG",
-   "destIata": "CUF",
-   "airline": "Fly Air41 Airways",
-   "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 17
   },
   {
    "originIata": "CAG",
    "destIata": "CUF",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 0
+   "lastSeen": "2026-10-05",
+   "flightCount": 4
   },
   {
    "originIata": "CAG",
    "destIata": "DUB",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 13
   },
   {
@@ -272,8 +296,24 @@
    "destIata": "DUS",
    "airline": "Eurowings",
    "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 21
+   "lastSeen": "2026-10-05",
+   "flightCount": 17
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "FCO",
+   "airline": "Aeroitalia",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-10-05",
+   "flightCount": 287
   },
   {
    "originIata": "CAG",
@@ -288,15 +328,15 @@
     "fri",
     "sat"
    ],
-   "lastSeen": "2026-09-10",
-   "flightCount": 321
+   "lastSeen": "2026-10-05",
+   "flightCount": 0
   },
   {
    "originIata": "CAG",
    "destIata": "FKB",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 17
   },
   {
@@ -304,7 +344,7 @@
    "destIata": "FLR",
    "airline": "Fly Air41 Airways",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 17
   },
   {
@@ -312,7 +352,7 @@
    "destIata": "FLR",
    "airline": "Volotea",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 0
   },
   {
@@ -320,7 +360,7 @@
    "destIata": "FRA",
    "airline": "Lufthansa",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 26
   },
   {
@@ -328,7 +368,7 @@
    "destIata": "FRL",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 13
   },
   {
@@ -336,7 +376,7 @@
    "destIata": "GOA",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 13
   },
   {
@@ -344,7 +384,7 @@
    "destIata": "GOT",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 9
   },
   {
@@ -352,15 +392,23 @@
    "destIata": "GVA",
    "airline": "easyJet",
    "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 17
+   "lastSeen": "2026-10-05",
+   "flightCount": 26
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "GVA",
+   "airline": "Neos",
+   "days": [],
+   "lastSeen": "2026-10-05",
+   "flightCount": 0
   },
   {
    "originIata": "CAG",
    "destIata": "HAM",
    "airline": "Eurowings",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 9
   },
   {
@@ -368,21 +416,29 @@
    "destIata": "HHN",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 21
+   "lastSeen": "2026-10-05",
+   "flightCount": 17
   },
   {
    "originIata": "CAG",
    "destIata": "KRK",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 26
+   "lastSeen": "2026-10-05",
+   "flightCount": 21
   },
   {
    "originIata": "CAG",
    "destIata": "LGW",
    "airline": "British Airways",
+   "days": [],
+   "lastSeen": "2026-10-05",
+   "flightCount": 26
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "LIN",
+   "airline": "Aeroitalia",
    "days": [
     "sun",
     "mon",
@@ -392,8 +448,8 @@
     "fri",
     "sat"
    ],
-   "lastSeen": "2026-09-10",
-   "flightCount": 39
+   "lastSeen": "2026-10-05",
+   "flightCount": 210
   },
   {
    "originIata": "CAG",
@@ -408,64 +464,32 @@
     "fri",
     "sat"
    ],
-   "lastSeen": "2026-09-10",
-   "flightCount": 300
+   "lastSeen": "2026-10-05",
+   "flightCount": 0
   },
   {
    "originIata": "CAG",
    "destIata": "LUX",
    "airline": "Luxair",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 13
   },
   {
    "originIata": "CAG",
    "destIata": "MAD",
-   "airline": "Iberia",
-   "days": [
-    "sun",
-    "mon",
-    "tue",
-    "wed",
-    "thu",
-    "fri",
-    "sat"
-   ],
-   "lastSeen": "2026-09-10",
-   "flightCount": 34
-  },
-  {
-   "originIata": "CAG",
-   "destIata": "MAD",
    "airline": "Ryanair",
-   "days": [
-    "sun",
-    "mon",
-    "tue",
-    "wed",
-    "thu",
-    "fri",
-    "sat"
-   ],
-   "lastSeen": "2026-09-10",
-   "flightCount": 0
+   "days": [],
+   "lastSeen": "2026-10-05",
+   "flightCount": 17
   },
   {
    "originIata": "CAG",
    "destIata": "MLA",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 21
-  },
-  {
-   "originIata": "CAG",
-   "destIata": "MRS",
-   "airline": "Volotea",
-   "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 13
   },
   {
    "originIata": "CAG",
@@ -480,8 +504,8 @@
     "fri",
     "sat"
    ],
-   "lastSeen": "2026-09-10",
-   "flightCount": 43
+   "lastSeen": "2026-10-05",
+   "flightCount": 34
   },
   {
    "originIata": "CAG",
@@ -496,24 +520,8 @@
     "fri",
     "sat"
    ],
-   "lastSeen": "2026-09-10",
-   "flightCount": 124
-  },
-  {
-   "originIata": "CAG",
-   "destIata": "MXP",
-   "airline": "Neos",
-   "days": [
-    "sun",
-    "mon",
-    "tue",
-    "wed",
-    "thu",
-    "fri",
-    "sat"
-   ],
-   "lastSeen": "2026-09-10",
-   "flightCount": 0
+   "lastSeen": "2026-10-05",
+   "flightCount": 73
   },
   {
    "originIata": "CAG",
@@ -528,24 +536,8 @@
     "fri",
     "sat"
    ],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 0
-  },
-  {
-   "originIata": "CAG",
-   "destIata": "NAP",
-   "airline": "easyJet",
-   "days": [
-    "sun",
-    "mon",
-    "tue",
-    "wed",
-    "thu",
-    "fri",
-    "sat"
-   ],
-   "lastSeen": "2026-09-10",
-   "flightCount": 51
   },
   {
    "originIata": "CAG",
@@ -560,15 +552,15 @@
     "fri",
     "sat"
    ],
-   "lastSeen": "2026-09-10",
-   "flightCount": 0
+   "lastSeen": "2026-10-05",
+   "flightCount": 47
   },
   {
    "originIata": "CAG",
    "destIata": "NRN",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 21
   },
   {
@@ -576,55 +568,31 @@
    "destIata": "NUE",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 13
-  },
-  {
-   "originIata": "CAG",
-   "destIata": "OLB",
-   "airline": "Fly Air41 Airways",
-   "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 4
+   "lastSeen": "2026-10-05",
+   "flightCount": 17
   },
   {
    "originIata": "CAG",
    "destIata": "OPO",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 13
   },
   {
    "originIata": "CAG",
    "destIata": "ORY",
    "airline": "easyJet",
-   "days": [
-    "sun",
-    "mon",
-    "tue",
-    "wed",
-    "thu",
-    "fri",
-    "sat"
-   ],
-   "lastSeen": "2026-09-10",
-   "flightCount": 30
+   "days": [],
+   "lastSeen": "2026-10-05",
+   "flightCount": 26
   },
   {
    "originIata": "CAG",
    "destIata": "ORY",
    "airline": "Transavia France",
-   "days": [
-    "sun",
-    "mon",
-    "tue",
-    "wed",
-    "thu",
-    "fri",
-    "sat"
-   ],
-   "lastSeen": "2026-09-10",
+   "days": [],
+   "lastSeen": "2026-10-05",
    "flightCount": 0
   },
   {
@@ -632,15 +600,23 @@
    "destIata": "PEG",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 17
+   "lastSeen": "2026-10-05",
+   "flightCount": 13
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "PGF",
+   "airline": "Ryanair",
+   "days": [],
+   "lastSeen": "2026-10-05",
+   "flightCount": 4
   },
   {
    "originIata": "CAG",
    "destIata": "PMF",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 17
   },
   {
@@ -648,7 +624,7 @@
    "destIata": "PMI",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 13
   },
   {
@@ -656,7 +632,7 @@
    "destIata": "PMO",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 21
   },
   {
@@ -664,16 +640,32 @@
    "destIata": "POZ",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 26
+   "lastSeen": "2026-10-05",
+   "flightCount": 17
   },
   {
    "originIata": "CAG",
    "destIata": "PRG",
    "airline": "SmartWings",
    "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 17
+   "lastSeen": "2026-10-05",
+   "flightCount": 26
+  },
+  {
+   "originIata": "CAG",
+   "destIata": "PSA",
+   "airline": "Aeroitalia",
+   "days": [
+    "sun",
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+    "sat"
+   ],
+   "lastSeen": "2026-10-05",
+   "flightCount": 64
   },
   {
    "originIata": "CAG",
@@ -688,8 +680,8 @@
     "fri",
     "sat"
    ],
-   "lastSeen": "2026-09-10",
-   "flightCount": 77
+   "lastSeen": "2026-10-05",
+   "flightCount": 0
   },
   {
    "originIata": "CAG",
@@ -704,7 +696,7 @@
     "fri",
     "sat"
    ],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 0
   },
   {
@@ -712,7 +704,7 @@
    "destIata": "PSR",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 9
   },
   {
@@ -720,47 +712,31 @@
    "destIata": "RMI",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 13
   },
   {
    "originIata": "CAG",
    "destIata": "STN",
    "airline": "Ryanair",
-   "days": [
-    "sun",
-    "mon",
-    "tue",
-    "wed",
-    "thu",
-    "fri",
-    "sat"
-   ],
-   "lastSeen": "2026-09-10",
-   "flightCount": 30
+   "days": [],
+   "lastSeen": "2026-10-05",
+   "flightCount": 26
   },
   {
    "originIata": "CAG",
    "destIata": "STR",
    "airline": "Eurowings",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 17
-  },
-  {
-   "originIata": "CAG",
-   "destIata": "SUF",
-   "airline": "Fly Air41 Airways",
-   "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 9
   },
   {
    "originIata": "CAG",
    "destIata": "SVQ",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 13
   },
   {
@@ -768,7 +744,7 @@
    "destIata": "SZG",
    "airline": "Eurowings",
    "days": [],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 4
   },
   {
@@ -776,8 +752,8 @@
    "destIata": "TLV",
    "airline": "El Al",
    "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 13
+   "lastSeen": "2026-10-05",
+   "flightCount": 9
   },
   {
    "originIata": "CAG",
@@ -792,7 +768,7 @@
     "fri",
     "sat"
    ],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 69
   },
   {
@@ -800,8 +776,8 @@
    "destIata": "TRS",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 26
+   "lastSeen": "2026-10-05",
+   "flightCount": 21
   },
   {
    "originIata": "CAG",
@@ -816,24 +792,8 @@
     "fri",
     "sat"
    ],
-   "lastSeen": "2026-09-10",
-   "flightCount": 60
-  },
-  {
-   "originIata": "CAG",
-   "destIata": "VCE",
-   "airline": "Volotea",
-   "days": [
-    "sun",
-    "mon",
-    "tue",
-    "wed",
-    "thu",
-    "fri",
-    "sat"
-   ],
-   "lastSeen": "2026-09-10",
-   "flightCount": 0
+   "lastSeen": "2026-10-05",
+   "flightCount": 39
   },
   {
    "originIata": "CAG",
@@ -848,8 +808,8 @@
     "fri",
     "sat"
    ],
-   "lastSeen": "2026-09-10",
-   "flightCount": 47
+   "lastSeen": "2026-10-05",
+   "flightCount": 34
   },
   {
    "originIata": "CAG",
@@ -864,7 +824,7 @@
     "fri",
     "sat"
    ],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 0
   },
   {
@@ -872,56 +832,24 @@
    "destIata": "VLC",
    "airline": "Ryanair",
    "days": [],
-   "lastSeen": "2026-09-10",
-   "flightCount": 13
-  },
-  {
-   "originIata": "CAG",
-   "destIata": "VRN",
-   "airline": "Neos",
-   "days": [
-    "sun",
-    "mon",
-    "tue",
-    "wed",
-    "thu",
-    "fri",
-    "sat"
-   ],
-   "lastSeen": "2026-09-10",
-   "flightCount": 86
+   "lastSeen": "2026-10-05",
+   "flightCount": 9
   },
   {
    "originIata": "CAG",
    "destIata": "VRN",
    "airline": "Ryanair",
-   "days": [
-    "sun",
-    "mon",
-    "tue",
-    "wed",
-    "thu",
-    "fri",
-    "sat"
-   ],
-   "lastSeen": "2026-09-10",
+   "days": [],
+   "lastSeen": "2026-10-05",
    "flightCount": 0
   },
   {
    "originIata": "CAG",
    "destIata": "VRN",
    "airline": "Volotea",
-   "days": [
-    "sun",
-    "mon",
-    "tue",
-    "wed",
-    "thu",
-    "fri",
-    "sat"
-   ],
-   "lastSeen": "2026-09-10",
-   "flightCount": 0
+   "days": [],
+   "lastSeen": "2026-10-05",
+   "flightCount": 18
   },
   {
    "originIata": "CAG",
@@ -936,7 +864,7 @@
     "fri",
     "sat"
    ],
-   "lastSeen": "2026-09-10",
+   "lastSeen": "2026-10-05",
    "flightCount": 34
   }
  ]
