@@ -435,6 +435,10 @@ function EmptyHint({
             All airports
           </a>
           {" · "}
+          <a href="/blog" className="underline underline-offset-2 hover:text-fg">
+            Blog
+          </a>
+          {" · "}
           <a href="/about-the-data" className="underline underline-offset-2 hover:text-fg">
             About the data
           </a>

@@ -9,7 +9,7 @@ declare global {
 }
 
 type Props = {
-  /** AdSense unit id; empty until units exist, which renders the reserved space instead. */
+  /** AdSense unit id; empty until units exist, which renders nothing. */
   slot: string;
   /** Reserved height so the page does not jump when the ad fills. */
   minHeight?: number;
@@ -34,33 +34,21 @@ export function AdSlot({ slot, minHeight = 250, className }: Props) {
     }
   }, [live]);
 
-  if (!ADS_ENABLED) return null;
+  // No unit id, no box: a dashed placeholder reads as empty space to an AdSense reviewer.
+  if (!live) return null;
 
   return (
-    <aside
-      aria-label="Advertisement"
-      className={cn("w-full", className)}
-      data-ad-space={live ? "live" : "reserved"}
-    >
+    <aside aria-label="Advertisement" className={cn("w-full", className)} data-ad-space="live">
       <p className="mb-1 text-[10px] uppercase tracking-[0.18em] text-subtle">Advertisement</p>
-      {live ? (
-        <ins
-          ref={ref}
-          className="adsbygoogle block"
-          style={{ display: "block", minHeight }}
-          data-ad-client={ADSENSE_CLIENT}
-          data-ad-slot={slot}
-          data-ad-format="auto"
-          data-full-width-responsive="true"
-        />
-      ) : (
-        <div
-          className="flex items-center justify-center rounded-md border border-dashed border-border text-[11px] text-subtle"
-          style={{ minHeight }}
-        >
-          Ad space reserved
-        </div>
-      )}
+      <ins
+        ref={ref}
+        className="adsbygoogle block"
+        style={{ display: "block", minHeight }}
+        data-ad-client={ADSENSE_CLIENT}
+        data-ad-slot={slot}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
     </aside>
   );
 }

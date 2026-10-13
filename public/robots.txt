@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://flydirectfrom.com/sitemap.xml
+Sitemap: https://flydirectfrom.com/sitemap-blog.xml

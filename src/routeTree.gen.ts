@@ -12,6 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutTheDataRouteImport } from './routes/about-the-data'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as SitemapBlogDotxmlRouteImport } from './routes/sitemap-blog[.]xml'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as BlogRssDotxmlRouteImport } from './routes/blog.rss[.]xml'
 import { Route as CountriesIndexRouteImport } from './routes/countries.index'
 import { Route as CountriesSlugRouteImport } from './routes/countries.$slug'
 import { Route as FromIndexRouteImport } from './routes/from.index'
@@ -30,6 +34,26 @@ const AboutTheDataRoute = AboutTheDataRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapBlogDotxmlRoute = SitemapBlogDotxmlRouteImport.update({
+  id: '/sitemap-blog.xml',
+  path: '/sitemap-blog.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogRssDotxmlRoute = BlogRssDotxmlRouteImport.update({
+  id: '/blog/rss.xml',
+  path: '/blog/rss.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CountriesIndexRoute = CountriesIndexRouteImport.update({
@@ -57,8 +81,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about-the-data': typeof AboutTheDataRoute
   '/privacy': typeof PrivacyRoute
+  '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
+  '/blog/$slug': typeof BlogSlugRoute
+  '/blog/rss.xml': typeof BlogRssDotxmlRoute
   '/countries/$slug': typeof CountriesSlugRoute
   '/from/$iata': typeof FromIataRoute
+  '/blog/': typeof BlogIndexRoute
   '/countries/': typeof CountriesIndexRoute
   '/from/': typeof FromIndexRoute
 }
@@ -66,8 +94,12 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about-the-data': typeof AboutTheDataRoute
   '/privacy': typeof PrivacyRoute
+  '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
+  '/blog/$slug': typeof BlogSlugRoute
+  '/blog/rss.xml': typeof BlogRssDotxmlRoute
   '/countries/$slug': typeof CountriesSlugRoute
   '/from/$iata': typeof FromIataRoute
+  '/blog': typeof BlogIndexRoute
   '/countries': typeof CountriesIndexRoute
   '/from': typeof FromIndexRoute
 }
@@ -76,8 +108,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about-the-data': typeof AboutTheDataRoute
   '/privacy': typeof PrivacyRoute
+  '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
+  '/blog/$slug': typeof BlogSlugRoute
+  '/blog/rss.xml': typeof BlogRssDotxmlRoute
   '/countries/$slug': typeof CountriesSlugRoute
   '/from/$iata': typeof FromIataRoute
+  '/blog/': typeof BlogIndexRoute
   '/countries/': typeof CountriesIndexRoute
   '/from/': typeof FromIndexRoute
 }
@@ -87,8 +123,12 @@ export interface FileRouteTypes {
     | '/'
     | '/about-the-data'
     | '/privacy'
+    | '/sitemap-blog.xml'
+    | '/blog/$slug'
+    | '/blog/rss.xml'
     | '/countries/$slug'
     | '/from/$iata'
+    | '/blog/'
     | '/countries/'
     | '/from/'
   fileRoutesByTo: FileRoutesByTo
@@ -96,8 +136,12 @@ export interface FileRouteTypes {
     | '/'
     | '/about-the-data'
     | '/privacy'
+    | '/sitemap-blog.xml'
+    | '/blog/$slug'
+    | '/blog/rss.xml'
     | '/countries/$slug'
     | '/from/$iata'
+    | '/blog'
     | '/countries'
     | '/from'
   id:
@@ -105,8 +149,12 @@ export interface FileRouteTypes {
     | '/'
     | '/about-the-data'
     | '/privacy'
+    | '/sitemap-blog.xml'
+    | '/blog/$slug'
+    | '/blog/rss.xml'
     | '/countries/$slug'
     | '/from/$iata'
+    | '/blog/'
     | '/countries/'
     | '/from/'
   fileRoutesById: FileRoutesById
@@ -115,8 +163,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutTheDataRoute: typeof AboutTheDataRoute
   PrivacyRoute: typeof PrivacyRoute
+  SitemapBlogDotxmlRoute: typeof SitemapBlogDotxmlRoute
+  BlogSlugRoute: typeof BlogSlugRoute
+  BlogRssDotxmlRoute: typeof BlogRssDotxmlRoute
   CountriesSlugRoute: typeof CountriesSlugRoute
   FromIataRoute: typeof FromIataRoute
+  BlogIndexRoute: typeof BlogIndexRoute
   CountriesIndexRoute: typeof CountriesIndexRoute
   FromIndexRoute: typeof FromIndexRoute
 }
@@ -142,6 +194,34 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-blog.xml': {
+      id: '/sitemap-blog.xml'
+      path: '/sitemap-blog.xml'
+      fullPath: '/sitemap-blog.xml'
+      preLoaderRoute: typeof SitemapBlogDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/rss.xml': {
+      id: '/blog/rss.xml'
+      path: '/blog/rss.xml'
+      fullPath: '/blog/rss.xml'
+      preLoaderRoute: typeof BlogRssDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/countries/': {
@@ -179,8 +259,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutTheDataRoute: AboutTheDataRoute,
   PrivacyRoute: PrivacyRoute,
+  SitemapBlogDotxmlRoute: SitemapBlogDotxmlRoute,
+  BlogSlugRoute: BlogSlugRoute,
+  BlogRssDotxmlRoute: BlogRssDotxmlRoute,
   CountriesSlugRoute: CountriesSlugRoute,
   FromIataRoute: FromIataRoute,
+  BlogIndexRoute: BlogIndexRoute,
   CountriesIndexRoute: CountriesIndexRoute,
   FromIndexRoute: FromIndexRoute,
 }

@@ -118,6 +118,7 @@ async function main() {
     "/from",
     "/about-the-data",
     "/privacy",
+    "/blog",
     ...countries.map(countryPagePath),
     ...[...dataset.routesByOrigin]
       .filter(([, destinations]) => isIndexable(destinations))

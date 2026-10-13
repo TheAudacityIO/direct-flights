@@ -1,8 +1,8 @@
 /**
  * Ad wiring. The AdSense script loads on every page once ADS_ENABLED (the
  * site review needs it present); manual slots render only when their unit
- * id is configured, otherwise the reserved space shows a quiet placeholder
- * so layout never shifts when units arrive. Consent for EEA/UK/CH visitors
+ * id is configured and render nothing otherwise (an empty placeholder reads
+ * as empty space to a reviewer). Consent for EEA/UK/CH visitors
  * is Google's certified CMP, enabled in the AdSense console (Privacy &
  * messaging) and delivered through the same script.
  */
@@ -15,6 +15,7 @@ export const AD_SLOTS = {
   airportPage: import.meta.env.VITE_ADSENSE_SLOT_AIRPORT ?? "",
   countryPage: import.meta.env.VITE_ADSENSE_SLOT_COUNTRY ?? "",
   mapSidebar: import.meta.env.VITE_ADSENSE_SLOT_SIDEBAR ?? "",
+  article: import.meta.env.VITE_ADSENSE_SLOT_ARTICLE ?? "",
 } as const;
 
 /** Google Ad Manager rewarded unit path, e.g. `/1234567/fdf-rewarded`. Empty = no rewarded ads yet. */
