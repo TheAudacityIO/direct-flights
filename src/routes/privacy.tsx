@@ -14,7 +14,7 @@ export const Route = createFileRoute("/privacy")({
   component: PrivacyPage,
 });
 
-const UPDATED = "2026-09-19";
+const UPDATED = "2026-10-13";
 const link = "underline underline-offset-2 hover:text-fg";
 
 function PrivacyPage() {
@@ -63,7 +63,11 @@ function PrivacyPage() {
           <p className="mt-2">
             To learn which pages are useful and where visitors come from, the site sends PostHog
             (hosted in the EU) the page you view, the referring site, your browser and device type,
-            and the fare-search links you click. PostHog anonymises your IP address, and nothing is
+            and the fare-search links you click. Two more events carry no personal data: an
+            &quot;article_read&quot; event when you scroll past three quarters of a blog post (the
+            post and its category), and an &quot;affiliate_click&quot; event when you follow a
+            partner link (which partner, where on the page, the destination, and whether it was an
+            affiliate link). PostHog anonymises your IP address, and nothing is
             stored in your browser, so there is no identifier that follows you between visits. This
             rests on our legitimate interest in improving the site.
           </p>
@@ -114,8 +118,13 @@ function PrivacyPage() {
             changes.
           </p>
           <p className="mt-2">
-            Links to fare searches (Google Flights, Skyscanner, Kayak) are plain links. We do not
-            earn a commission when you book, and those sites have their own privacy policies.
+            Some links to partners (fare searches, hotels, activities, eSIMs, travel insurance and
+            flight compensation) are affiliate links: if you book through one, the partner may pay
+            us a commission at no extra cost to you. They are marked as sponsored in the page code,
+            and blog posts say so next to them. Following any partner link takes you to that
+            partner&apos;s site, which may set its own cookies once you arrive (for example to
+            credit the referral); that is governed by the partner&apos;s privacy and cookie
+            policies, not ours. Nothing is set on this site before you click.
           </p>
         </section>
 

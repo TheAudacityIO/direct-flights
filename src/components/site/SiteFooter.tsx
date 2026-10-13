@@ -32,6 +32,10 @@ export function SiteFooter({ attribution }: { attribution?: string }) {
           Airports by country
         </Link>
         {" · "}
+        <Link to="/blog" className={link}>
+          Blog
+        </Link>
+        {" · "}
         <Link to="/about-the-data" className={link}>
           About the data
         </Link>

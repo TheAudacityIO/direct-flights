@@ -26,6 +26,12 @@ export const Route = createRootRoute({
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+      {
+        rel: "alternate",
+        type: "application/rss+xml",
+        title: "FlyDirectFrom blog",
+        href: "https://flydirectfrom.com/blog/rss.xml",
+      },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       {
         rel: "preconnect",

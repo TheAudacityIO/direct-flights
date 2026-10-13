@@ -6,6 +6,7 @@ import { AD_SLOTS } from "@/lib/ads/config";
 import { formatDuration, formatKm } from "@/lib/flights/geo";
 import { formatDays } from "@/lib/flights/observed";
 import { getAirportPage } from "@/lib/flights/pages";
+import { getAirportPosts } from "@/lib/blog/pages";
 import {
   airportCrumbs,
   airportGlance,
@@ -30,9 +31,12 @@ export const Route = createFileRoute("/from/$iata")({
     if (iata !== params.iata) {
       throw redirect({ to: "/from/$iata", params: { iata }, statusCode: 301 });
     }
-    const page = await getAirportPage({ data: iata });
+    const [page, posts] = await Promise.all([
+      getAirportPage({ data: iata }),
+      getAirportPosts({ data: iata }),
+    ]);
     if (!page) throw notFound();
-    return page;
+    return { ...page, posts };
   },
   head: ({ loaderData }) => {
     if (!loaderData) return { meta: [{ title: "Airport not found · FlyDirectFrom" }] };
@@ -79,7 +83,7 @@ function NotFoundPage() {
 }
 
 function AirportPage() {
-  const { origin, destinations, nearby, pageless, meta } = Route.useLoaderData();
+  const { origin, destinations, nearby, pageless, meta, posts } = Route.useLoaderData();
   const noPage = new Set(pageless);
   const glance = airportGlance(destinations);
   const airlines = airlinesByRoutes(destinations);
@@ -243,6 +247,26 @@ function AirportPage() {
                     {ap.destinations === 1 ? "destination" : "destinations"}
                   </span>
                 </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {posts.length > 0 ? (
+        <section className="mt-10">
+          <h2 className="text-base font-medium text-fg">From the blog</h2>
+          <ul className="mt-3 space-y-2 text-sm">
+            {posts.map((p) => (
+              <li key={p.slug}>
+                <Link
+                  to="/blog/$slug"
+                  params={{ slug: p.slug }}
+                  className="text-fg hover:underline underline-offset-2"
+                >
+                  {p.title}
+                </Link>
+                <span className="block text-xs text-subtle">{p.description}</span>
               </li>
             ))}
           </ul>

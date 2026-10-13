@@ -1,8 +1,8 @@
 /**
  * Cookieless PostHog. Memory persistence (no cookies, no localStorage), no
- * autocapture, no session replay: pageviews, referrers and the booking-click
- * event are all we need to see where visitors come from and whether they go
- * on to a fare search. Events go through the shared z.miketineo.com proxy into
+ * autocapture, no session replay: pageviews, referrers and the booking-click,
+ * article_read and affiliate_click events are all we need to see where
+ * visitors come from, what they read and whether they go on to a partner. Events go through the shared z.miketineo.com proxy into
  * The Audacity project, tagged product=flydirectfrom. The trade-off of memory
  * persistence: a full page reload counts as a new visitor.
  */
