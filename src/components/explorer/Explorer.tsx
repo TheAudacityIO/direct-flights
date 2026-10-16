@@ -107,6 +107,15 @@ export function Explorer({ search, onSearchChange, popular }: Props) {
     onSearchChange({ from: ap.iata });
   }
 
+  // Swap: the destination becomes the origin, and the way back stays selected when it exists.
+  const flyFrom =
+    origin && selected && airports?.some((a) => a.iata === selected.iata && a.destinations > 0)
+      ? () => {
+          track("airport_search", { iata: selected.iata, source: "swap" });
+          onSearchChange({ from: selected.iata, to: origin.iata });
+        }
+      : undefined;
+
   function clearOrigin() {
     onSearchChange({});
   }
@@ -193,6 +202,7 @@ export function Explorer({ search, onSearchChange, popular }: Props) {
                 origin={origin}
                 dest={selected}
                 onClose={() => onSearchChange({ from: origin.iata })}
+                onFlyFrom={flyFrom}
               />
             </div>
           </div>
@@ -231,6 +241,7 @@ export function Explorer({ search, onSearchChange, popular }: Props) {
                   origin={origin}
                   dest={selected}
                   onClose={() => onSearchChange({ from: origin.iata })}
+                  onFlyFrom={flyFrom}
                 />
               </div>
             ) : (
