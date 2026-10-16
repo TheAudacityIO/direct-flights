@@ -46,9 +46,13 @@ function PrivacyPage() {
           <h2 className="text-base font-medium text-fg">The short version</h2>
           <p className="mt-2">
             There are no accounts and nothing to sign up for. We count visits with cookieless
-            analytics that store nothing in your browser. The only thing the site writes to your
-            browser is a 30-minute timer when you unlock booking details, and that never leaves your
-            device. Ads are served by Google, and in Europe Google asks for your consent first.
+            analytics that store nothing in your browser. The site writes at most two things to your
+            browser&apos;s local storage, and neither ever leaves your device: a 30-minute timer when
+            you unlock booking details (<code>fdf.unlock.until</code>), and your home airport code,
+            only if you press &quot;Remember as my airport&quot; (<code>fdf.homeAirport</code>; press
+            Forget to remove it). Suggested airports on the map follow your device&apos;s time zone,
+            which is read in your browser and not sent to us. Ads are served by Google, and in
+            Europe Google asks for your consent first.
           </p>
         </section>
 

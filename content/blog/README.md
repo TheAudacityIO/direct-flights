@@ -22,4 +22,5 @@ Markdown body. No H1 (the title is the H1). Use ## and ### headings, lists, tabl
 - `partners` (optional): which "Plan the trip" links to show. Values: flights, hotels, activities, esim, insurance, compensation.
 - Internal links: airport pages as `/from/FCO`, other posts as `/blog/<slug>`.
 - No raw HTML, no images, no affiliate URLs in the body: the page renders partner links from `partners`.
-- Facts: cite a source link for any number that is not from our own dataset. Route data is mostly the ~2014 OpenFlights archive; only Cagliari (CAG) is observed (AeroDataBox, 30 days to 2026-10-05). Never present archive counts as current.
+- Facts: cite a source link for any number that is not from our own dataset. Route data is mostly the ~2014 OpenFlights archive; only airports listed in `data/observed/operated-routes.json` (`fetchedOrigins`) have current, observed routes. Never present archive counts as current, and never write an airport or route-pair article from archive data.
+- House style: US English, miles first with km in parentheses. Audience: US, UK and Nordic travellers. The site is global: no home city, no default airport.

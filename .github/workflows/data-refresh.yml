@@ -16,6 +16,14 @@ on:
         description: Max airports to fetch this run
         required: false
         default: '120'
+      pinned:
+        description: Comma-separated IATA codes fetched first (empty = script default; keep CAG first, each run replaces the overlay)
+        required: false
+        default: ''
+      unit_floor:
+        description: Stop when this many API units remain
+        required: false
+        default: '100'
 
 concurrency:
   group: data-refresh
@@ -43,6 +51,8 @@ jobs:
         env:
           AERODATABOX_API_KEY: ${{ secrets.AERODATABOX_API_KEY }}
           ADB_MAX_AIRPORTS: ${{ inputs.max_airports || '120' }}
+          ADB_PINNED: ${{ inputs.pinned }}
+          ADB_UNIT_FLOOR: ${{ inputs.unit_floor || '100' }}
         run: npm run data:fetch-observed
 
       # Fetched data costs real quota; keep it salvageable even when a later
