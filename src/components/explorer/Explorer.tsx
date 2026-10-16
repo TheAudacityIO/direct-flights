@@ -452,7 +452,17 @@ function EmptyHint({
             {popular.map((ap, i) => (
               <span key={ap.iata}>
                 {i > 0 ? " · " : null}
-                <a href={`/from/${ap.iata}`} className="underline underline-offset-2 hover:text-fg">
+                <a
+                  href={`/from/${ap.iata}`}
+                  onClick={(e) => {
+                    // Crawlers follow the /from link; a visitor's click opens the map like the chips.
+                    const full = airports?.find((a) => a.iata === ap.iata);
+                    if (!full || e.metaKey || e.ctrlKey || e.shiftKey) return;
+                    e.preventDefault();
+                    onPick(full, "popular");
+                  }}
+                  className="underline underline-offset-2 hover:text-fg"
+                >
                   {ap.city || ap.name} <span className="font-mono text-accent">{ap.iata}</span>
                 </a>
               </span>
