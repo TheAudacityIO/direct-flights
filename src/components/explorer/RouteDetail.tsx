@@ -1,4 +1,4 @@
-import { ArrowRight, X } from "lucide-react";
+import { ArrowLeftRight, ArrowRight, X } from "lucide-react";
 import { formatDuration, formatKm } from "@/lib/flights/geo";
 import { formatDays } from "@/lib/flights/observed";
 import type { AirportIndex, Destination } from "@/lib/flights/types";
@@ -11,9 +11,11 @@ type Props = {
   origin: AirportIndex;
   dest: Destination;
   onClose: () => void;
+  /** Re-centres the map on the destination; omitted when it has no nonstops of its own. */
+  onFlyFrom?: () => void;
 };
 
-export function RouteDetail({ origin, dest, onClose }: Props) {
+export function RouteDetail({ origin, dest, onClose, onFlyFrom }: Props) {
   const days = formatDays(dest.days);
   return (
     <section
@@ -69,6 +71,15 @@ export function RouteDetail({ origin, dest, onClose }: Props) {
           ? `Last seen ${dest.lastSeen}. Estimated block time, not a booking.`
           : "Estimated block time: great-circle ÷ 850 km/h + 30 min. Not a live schedule."}
       </p>
+
+      {onFlyFrom ? (
+        <Button variant="chip" size="chip" className="mt-3" onClick={onFlyFrom}>
+          <ArrowLeftRight className="size-3.5 text-accent" strokeWidth={1.75} aria-hidden />
+          <span>
+            Fly from {dest.city || dest.name} <span className="font-mono text-accent">{dest.iata}</span>
+          </span>
+        </Button>
+      ) : null}
 
       <div className="mt-4 border-t border-border pt-3">
         <p className="text-[11px] uppercase tracking-wider text-subtle">Book this route</p>
