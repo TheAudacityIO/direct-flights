@@ -3,6 +3,7 @@ import { ProvenanceChip } from "@/components/explorer/ProvenanceChip";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { AD_SLOTS } from "@/lib/ads/config";
+import { track } from "@/lib/analytics";
 import { formatDuration, formatKm } from "@/lib/flights/geo";
 import { formatDays } from "@/lib/flights/observed";
 import { getAirportPage } from "@/lib/flights/pages";
@@ -115,6 +116,13 @@ function AirportPage() {
         {countries === 1 ? "country" : "countries"}.
       </p>
       <p className="mt-1 text-xs text-subtle">{provenanceSentence(destinations, meta)}</p>
+      {glance.verified === 0 ? (
+        <p className="mt-3 rounded-md border border-border bg-surface px-3 py-2 text-xs leading-relaxed text-muted">
+          <strong className="text-fg">Historical schedule data.</strong> These routes come from the
+          OpenFlights archive, last updated around 2014, and we have not seen them operate
+          recently. Check with the airline before you plan around one.
+        </p>
+      ) : null}
       <p className="mt-4">
         <Link
           to="/"
@@ -239,6 +247,7 @@ function AirportPage() {
                 <Link
                   to="/from/$iata"
                   params={{ iata: ap.iata }}
+                  onClick={() => track("nearby_alt_click", { from: origin.iata, to: ap.iata, km: ap.km })}
                   className="text-muted hover:text-fg hover:underline underline-offset-2"
                 >
                   {ap.city || ap.name} <span className="font-mono text-accent">{ap.iata}</span>{" "}

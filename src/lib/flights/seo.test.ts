@@ -178,10 +178,10 @@ describe("structured data", () => {
 
 describe("isIndexable", () => {
   const archive = (n: number): Pick<Destination, "lastSeen">[] => Array.from({ length: n }, () => ({}));
-  it("keeps archive-only origins out of the index below three destinations", () => {
+  it("keeps archive-only origins out of the index below five destinations", () => {
     assert.equal(isIndexable(archive(1)), false);
-    assert.equal(isIndexable(archive(2)), false);
-    assert.equal(isIndexable(archive(3)), true);
+    assert.equal(isIndexable(archive(4)), false);
+    assert.equal(isIndexable(archive(5)), true);
   });
   it("always indexes an origin with an observed route, however small", () => {
     assert.equal(isIndexable([{ lastSeen: "2026-09-01" }]), true);

@@ -11,6 +11,9 @@ import { loadAirports, loadRoutes } from "@/lib/flights/api";
 import type { AirportIndexEntry } from "@/lib/flights/pages";
 import type { AirportIndex, Destination, RouteFile } from "@/lib/flights/types";
 import { cn } from "@/lib/utils";
+import { track } from "@/lib/analytics";
+import { chipsForTimezone, GLOBAL_CHIPS } from "@/lib/flights/home-chips";
+import { forgetHomeAirport, readHomeAirport, rememberHomeAirport } from "@/lib/flights/home-airport";
 
 export type ExplorerSearch = {
   from?: string;
@@ -98,7 +101,8 @@ export function Explorer({ search, onSearchChange, popular }: Props) {
   const selected: Destination | null =
     (search.to && destinations.find((d) => d.iata === search.to)) || null;
 
-  function selectOrigin(ap: AirportIndex) {
+  function selectOrigin(ap: AirportIndex, source = "search") {
+    track("airport_search", { iata: ap.iata, source });
     setSheet("split");
     onSearchChange({ from: ap.iata });
   }
@@ -329,6 +333,10 @@ function PanelHeader({
   primary: boolean;
 }) {
   const Heading = primary ? "h1" : "p";
+  // Opt-in only: nothing is stored until the visitor presses Remember.
+  const [home, setHome] = useState<string | null>(null);
+  useEffect(() => setHome(readHomeAirport()), []);
+  const isHome = home === origin.iata;
   return (
     <div className="mb-3 flex items-start justify-between gap-2 px-1">
       <div className="min-w-0">
@@ -351,6 +359,17 @@ function PanelHeader({
             Full list as a page
           </a>
         )}
+        <button
+          type="button"
+          onClick={() => {
+            if (isHome) forgetHomeAirport();
+            else rememberHomeAirport(origin.iata);
+            setHome(readHomeAirport());
+          }}
+          className="mt-1 ml-3 inline-block text-xs text-subtle underline underline-offset-2 hover:text-fg"
+        >
+          {isHome ? "Your airport · Forget" : "Remember as my airport"}
+        </button>
       </div>
       <Button
         variant="ghost"
@@ -373,14 +392,24 @@ function EmptyHint({
   popular,
 }: {
   airports: AirportIndex[] | null;
-  onPick: (ap: AirportIndex) => void;
+  onPick: (ap: AirportIndex, source: string) => void;
   loading: boolean;
   unknownCode: string | null;
   popular?: AirportIndexEntry[];
 }) {
-  const chips = ["CAG", "FCO", "LHR", "JFK"];
-  const found =
-    airports?.filter((a) => chips.includes(a.iata) && a.destinations > 0) ?? [];
+  // Global list on the server and first paint; after hydration the visitor's
+  // remembered airport (opt-in) and their device time zone, both read on-device.
+  const [chips, setChips] = useState({ codes: GLOBAL_CHIPS, local: false, home: null as string | null });
+  useEffect(() => {
+    const tz = chipsForTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    setChips({ ...tz, home: readHomeAirport() });
+  }, []);
+  const codes = [...new Set([...(chips.home ? [chips.home] : []), ...chips.codes])].slice(0, 4);
+  const found = codes
+    .map((code) => airports?.find((a) => a.iata === code && a.destinations > 0))
+    .filter((a): a is AirportIndex => Boolean(a));
+  const sourceFor = (iata: string) =>
+    iata === chips.home ? "home" : chips.local ? "chip_tz" : "chip_global";
 
   return (
     <div className="pointer-events-none absolute inset-x-0 top-[5.75rem] z-10 flex justify-center px-4 md:top-[6.5rem] md:justify-start md:px-5">
@@ -409,7 +438,7 @@ function EmptyHint({
                 key={ap.iata}
                 variant="chip"
                 size="chip"
-                onClick={() => onPick(ap)}
+                onClick={() => onPick(ap, sourceFor(ap.iata))}
               >
                 <span className="font-mono text-accent">{ap.iata}</span>
                 <span>{ap.city}</span>

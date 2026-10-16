@@ -35,7 +35,8 @@ for (const vp of viewports) {
   await page.waitForTimeout(2200);
   await page.screenshot({ path: `/workspace/screenshots/qa/${vp.name}-home.png` });
 
-  await page.getByRole("button", { name: /CAG/ }).click();
+  // Quick-pick chips follow the device time zone; any first chip will do.
+  await page.getByRole("button", { name: /^[A-Z]{3}\b/ }).first().click();
   await page.waitForFunction(
     () => document.body.innerText.includes("nonstop destinations"),
     { timeout: 10000 },

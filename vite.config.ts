@@ -179,6 +179,10 @@ export default defineConfig(({ command, isPreview }) => ({
             // The dataset changes once a month; let browsers and Cloudflare keep it for an hour.
             routeRules: {
               "/data/**": { headers: { "cache-control": "public, max-age=3600, stale-while-revalidate=86400" } },
+              // Indexable pages render the same for every visitor (personalisation runs in the
+              // browser only), so Cloudflare may share them; browsers always revalidate.
+              "/from/**": { headers: { "cache-control": "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400" } },
+              "/blog/**": { headers: { "cache-control": "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400" } },
             },
           }),
         ]

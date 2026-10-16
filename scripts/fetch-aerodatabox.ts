@@ -32,8 +32,14 @@ const REQUEST_FLOOR = Number(process.env.ADB_REQUEST_FLOOR ?? 50);
 const FALLBACK_MAX = Number(process.env.ADB_FALLBACK_MAX ?? 60);
 const DELAY_MS = Number(process.env.ADB_DELAY_MS ?? 400);
 // Origins fetched FIRST regardless of global rank. CAG is the canary
-// airport: without the pin it never makes the free-plan top-N cut.
-const PINNED = (process.env.ADB_PINNED ?? "CAG")
+// airport (data-refresh.yml checks CAG->DUB): keep it first, because each run
+// replaces the whole overlay. The rest are the target-market clusters
+// (UK, US Northeast/West, Nordics) whose nearby-airport stories need current routes.
+const DEFAULT_PINNED =
+  "CAG,LHR,LGW,STN,LTN,MAN,LPL,LBA,EDI,GLA,BRS,BHX,CWL," +
+  "JFK,EWR,PHL,BOS,PVD,MHT,IAD,DCA,BWI,SFO,OAK,SJC,LAX,BUR,SNA,LGB," +
+  "CPH,MMX,BLL,OSL,TRF,ARN,NYO,HEL,TMP";
+const PINNED = (process.env.ADB_PINNED || DEFAULT_PINNED)
   .split(",")
   .map((s) => s.trim().toUpperCase())
   .filter((s) => /^[A-Z]{3}$/.test(s));

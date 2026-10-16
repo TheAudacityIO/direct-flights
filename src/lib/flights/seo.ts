@@ -24,7 +24,7 @@ export function airportPagePath(iata: string): string {
  * still linked and crawlable, but noindex and out of the sitemap, so the crawl
  * budget goes to pages that can rank. Any origin with observed routes is indexable.
  */
-export const MIN_INDEXABLE_DESTINATIONS = 3;
+export const MIN_INDEXABLE_DESTINATIONS = 5;
 
 export function isIndexable(destinations: Pick<Destination, "lastSeen">[]): boolean {
   return (
