@@ -1,1 +1,1 @@
-{"origin":"OLA","destinations":[{"iata":"OSL","name":"Oslo Lufthavn","city":"Oslo","country":"Norway","lat":60.121,"lon":11.0502,"km":405,"minutes":59,"airlines":["ABSA - Aerolinhas Brasileiras"]}]}
+{"origin":"OLA","destinations":[{"iata":"OSL","name":"Oslo Lufthavn","city":"Oslo","country":"Norway","lat":60.121,"lon":11.0502,"km":405,"minutes":59,"airlines":["Danish Air"],"days":["sun","mon","tue","wed","thu","fri","sat"],"lastSeen":"2026-10-16","flightCount":43}]}

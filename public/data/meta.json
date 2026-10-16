@@ -1,13 +1,13 @@
 {
   "source": "OpenFlights + AeroDataBox overlay",
   "attribution": "Airport and route data © OpenFlights.org (https://openflights.org/data.html); current-route overlay via AeroDataBox (https://aerodatabox.com)",
-  "generatedAt": "2026-10-16T10:42:09.212Z",
-  "airportCount": 3021,
-  "originCount": 2997,
-  "routeCount": 34081,
-  "note": "Routes from the OpenFlights archive (~2014, defunct carriers removed), with routes observed operating in the 30 days to 2026-10-16 for 14 airports (AeroDataBox). Not a live timetable.",
+  "generatedAt": "2026-10-16T10:44:08.754Z",
+  "airportCount": 3195,
+  "originCount": 3174,
+  "routeCount": 37239,
+  "note": "Routes from the OpenFlights archive (~2014, defunct carriers removed), with routes observed operating in the 30 days to 2026-10-16 for 38 airports (AeroDataBox). Not a live timetable.",
   "lookbackDays": 30,
   "windowFrom": "2026-09-16",
   "windowTo": "2026-10-16",
-  "observedOrigins": 14
+  "observedOrigins": 38
 }
