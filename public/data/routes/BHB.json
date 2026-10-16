@@ -1,1 +1,1 @@
-{"origin":"BHB","destinations":[{"iata":"BOS","name":"General Edward Lawrence Logan International Airport","city":"Boston","country":"United States","lat":42.36429977,"lon":-71.00520325,"km":315,"minutes":52,"airlines":["Cape Air"]}]}
+{"origin":"BHB","destinations":[{"iata":"BOS","name":"General Edward Lawrence Logan International Airport","city":"Boston","country":"United States","lat":42.36429977,"lon":-71.00520325,"km":315,"minutes":52,"airlines":["Cape Air","PlaneSense","WMN"],"days":["sun","mon","tue","wed","thu","fri","sat"],"lastSeen":"2026-10-16","flightCount":219}]}

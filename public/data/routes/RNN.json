@@ -1,1 +1,1 @@
-{"origin":"RNN","destinations":[{"iata":"CPH","name":"Copenhagen Kastrup Airport","city":"Copenhagen","country":"Denmark","lat":55.617900848389,"lon":12.656000137329,"km":147,"minutes":40,"airlines":["DAT Danish Air Transport"]}]}
+{"origin":"RNN","destinations":[{"iata":"CPH","name":"Copenhagen Kastrup Airport","city":"Copenhagen","country":"Denmark","lat":55.617900848389,"lon":12.656000137329,"km":147,"minutes":40,"airlines":["Danish Air","DOT LT"],"days":["sun","mon","tue","wed","thu","fri","sat"],"lastSeen":"2026-10-16","flightCount":274}]}
