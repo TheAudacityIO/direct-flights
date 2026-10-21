@@ -25,16 +25,19 @@ export const Route = createFileRoute("/countries/$slug")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) return { meta: [{ title: "Country not found · FlyDirectFrom" }] };
-    const { country, airports } = loaderData;
+    const { country, airports, indexable } = loaderData;
     const top = airports.slice(0, 3).map((a) => `${a.city || a.name} (${a.iata})`);
     return {
-      meta: pageMeta(
-        `${countryPageTitle(country, airports.length)} · FlyDirectFrom`,
-        `Where can you fly direct from ${country}? ${airports.length} ${
-          airports.length === 1 ? "airport" : "airports"
-        } with nonstop routes, led by ${top.join(", ")}. Every destination, airline and estimated flight time per airport.`,
-        countryPagePath(country),
-      ),
+      meta: [
+        ...pageMeta(
+          `${countryPageTitle(country, airports.length)} · FlyDirectFrom`,
+          `Where can you fly direct from ${country}? ${airports.length} ${
+            airports.length === 1 ? "airport" : "airports"
+          } with nonstop routes, led by ${top.join(", ")}. Every destination, airline and estimated flight time per airport.`,
+          countryPagePath(country),
+        ),
+        ...(indexable ? [] : [{ name: "robots", content: "noindex, follow" }]),
+      ],
       links: [{ rel: "canonical", href: SITE_ORIGIN + countryPagePath(country) }],
       scripts: [jsonLdScript(breadcrumbJsonLd(countryCrumbs(country)))],
     };

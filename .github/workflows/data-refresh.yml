@@ -3,6 +3,9 @@ name: Data refresh
 # Monthly AeroDataBox overlay rebuild, sized to the FREE plan (400 API
 # units / 1600 requests per ~30 days). The fetch script reads live quota
 # headers and stops at its floors, so a run cannot exhaust the month.
+# Each run ACCUMULATES into data/observed/operated-routes.json: it fetches
+# the CAG canary, then origins never observed, then the oldest-observed,
+# and replaces only the rows of the origins it fetched.
 # The push below is made with GITHUB_TOKEN, which never triggers other
 # workflows; deploy.yml therefore also listens for this workflow's
 # completion via workflow_run.
@@ -17,7 +20,7 @@ on:
         required: false
         default: '120'
       pinned:
-        description: Comma-separated IATA codes fetched first (empty = script default; keep CAG first, each run replaces the overlay)
+        description: Comma-separated IATA codes fetched right after the CAG canary, ahead of the rotation (empty = rotation only)
         required: false
         default: ''
       unit_floor:
@@ -93,8 +96,9 @@ jobs:
           fi
           git commit \
             -m "data: monthly AeroDataBox overlay refresh" \
-            -m "Automated fetch of current routes for the busiest origins," \
-            -m "merged over the OpenFlights baseline. See data/observed/" \
+            -m "Automated fetch of current routes for this run's rotating origins," \
+            -m "accumulated over earlier runs and merged over the OpenFlights" \
+            -m "baseline. See data/observed/" \
             -m "operated-routes.json for quota telemetry." \
             -m "Actor: audacity/data-refresh" \
             -m "Via: gha+schedule"

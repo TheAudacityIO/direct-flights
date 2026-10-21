@@ -1,6 +1,7 @@
 /**
- * Fetch AeroDataBox daily-route stats for the busiest origins and write the
- * committed overlay input: data/observed/operated-routes.json.
+ * Fetch AeroDataBox daily-route stats for a rotating set of origins and
+ * accumulate them into the committed overlay input:
+ * data/observed/operated-routes.json.
  *
  * Endpoint (RapidAPI): GET /airports/iata/{code}/stats/routes/daily
  * — the /flights/... path variant 404s.
@@ -10,18 +11,26 @@
  * can never exhaust the month. If no unit header is recognizable, the run
  * falls back to a fixed conservative airport cap and says so.
  *
+ * Rotation: the file ACCUMULATES. Each run spends its units on the CAG
+ * canary, then origins never tried (Search Console candidates from
+ * data/search/keep-pages.json first, then by global rank), then the
+ * oldest-fetched origins. A re-fetched origin replaces only its own rows;
+ * the rest keep theirs, each dated by its rows' lastSeen.
+ *
  * Usage: AERODATABOX_API_KEY=... npm run data:fetch-observed
  * Tuning env: ADB_MAX_AIRPORTS (120), ADB_UNIT_FLOOR (100),
  *             ADB_REQUEST_FLOOR (50), ADB_FALLBACK_MAX (60), ADB_DELAY_MS (400)
  */
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { toOperatedRoutes } from "../src/lib/flights/overlay.ts";
-import type { OperatedRoute } from "../src/lib/flights/observed.ts";
+import { existsSync } from "node:fs";
+import { fetchOrder, mergeObservedRun, toOperatedRoutes } from "../src/lib/flights/overlay.ts";
+import { observedAsOf, type OperatedRoute } from "../src/lib/flights/observed.ts";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const OUT_DIR = path.join(ROOT, "data/observed");
 const OUT_FILE = path.join(OUT_DIR, "operated-routes.json");
+const KEEP_PAGES = path.join(ROOT, "data/search/keep-pages.json");
 const HOST = "aerodatabox.p.rapidapi.com";
 const LOOKBACK_DAYS = 30;
 
@@ -31,15 +40,11 @@ const UNIT_FLOOR = Number(process.env.ADB_UNIT_FLOOR ?? 100);
 const REQUEST_FLOOR = Number(process.env.ADB_REQUEST_FLOOR ?? 50);
 const FALLBACK_MAX = Number(process.env.ADB_FALLBACK_MAX ?? 60);
 const DELAY_MS = Number(process.env.ADB_DELAY_MS ?? 400);
-// Origins fetched FIRST regardless of global rank. CAG is the canary
-// airport (data-refresh.yml checks CAG->DUB): keep it first, because each run
-// replaces the whole overlay. The rest are the target-market clusters
-// (UK, US Northeast/West, Nordics) whose nearby-airport stories need current routes.
-const DEFAULT_PINNED =
-  "CAG,LHR,LGW,STN,LTN,MAN,LPL,LBA,EDI,GLA,BRS,BHX,CWL," +
-  "JFK,EWR,PHL,BOS,PVD,MHT,IAD,DCA,BWI,SFO,OAK,SJC,LAX,BUR,SNA,LGB," +
-  "CPH,MMX,BLL,OSL,TRF,ARN,NYO,HEL,TMP";
-const PINNED = (process.env.ADB_PINNED || DEFAULT_PINNED)
+// CAG is the canary airport (data-refresh.yml checks CAG->DUB): fetched
+// first every run so the check always sees fresh data. ADB_PINNED (manual
+// dispatch) adds origins fetched right after it, ahead of the rotation.
+const CANARY = "CAG";
+const PINNED = (process.env.ADB_PINNED ?? "")
   .split(",")
   .map((s) => s.trim().toUpperCase())
   .filter((s) => /^[A-Z]{3}$/.test(s));
@@ -74,7 +79,22 @@ async function main() {
   const airportsRaw = await readFile(path.join(ROOT, "public/data/airports.json"), "utf8");
   const ranked: { iata: string; destinations: number }[] = JSON.parse(airportsRaw);
   ranked.sort((a, b) => b.destinations - a.destinations || a.iata.localeCompare(b.iata));
-  const order = [...PINNED, ...ranked.map((r) => r.iata).filter((i) => !PINNED.includes(i))];
+
+  const prev: { routes?: OperatedRoute[]; skippedAsOf?: Record<string, string> } = existsSync(OUT_FILE)
+    ? JSON.parse(await readFile(OUT_FILE, "utf8"))
+    : {};
+  const prevRoutes = prev.routes ?? [];
+  const candidates: string[] = existsSync(KEEP_PAGES)
+    ? (JSON.parse(await readFile(KEEP_PAGES, "utf8")).airports ?? [])
+    : [];
+  const order = fetchOrder({
+    first: [CANARY, ...PINNED],
+    candidates,
+    ranked: ranked.map((r) => r.iata),
+    observedAsOf: observedAsOf(prevRoutes),
+    skippedAsOf: prev.skippedAsOf ?? {},
+    today: new Date().toISOString().slice(0, 10),
+  });
 
   const asOf = new Date().toISOString().slice(0, 10);
   const routes: OperatedRoute[] = [];
@@ -153,13 +173,13 @@ async function main() {
     await sleep(DELAY_MS);
   }
 
-  routes.sort(
-    (a, b) =>
-      a.originIata.localeCompare(b.originIata) ||
-      a.destIata.localeCompare(b.destIata) ||
-      a.airline.localeCompare(b.airline),
+  const merged = mergeObservedRun(
+    { routes: prevRoutes, skippedAsOf: prev.skippedAsOf },
+    { asOf, routes, fetchedOrigins, skippedOrigins },
   );
 
+  // asOf, fetchedOrigins, skippedOrigins and the quota fields describe THIS
+  // run; routes and skippedAsOf are the accumulated overlay.
   const doc = {
     source: "AeroDataBox (RapidAPI)",
     endpoint: "/airports/iata/{code}/stats/routes/daily",
@@ -170,7 +190,8 @@ async function main() {
     unitCostPerCall,
     unitsRemaining,
     requestsRemaining,
-    routes,
+    skippedAsOf: merged.skippedAsOf,
+    routes: merged.routes,
   };
   await mkdir(OUT_DIR, { recursive: true });
   await writeFile(OUT_FILE, JSON.stringify(doc, null, 1));
@@ -182,6 +203,8 @@ async function main() {
         origins: fetchedOrigins.length,
         skipped: skippedOrigins.length,
         legs: routes.length,
+        totalOrigins: Object.keys(observedAsOf(merged.routes)).length,
+        totalLegs: merged.routes.length,
         unitCostPerCall,
         unitsRemaining,
         requestsRemaining,

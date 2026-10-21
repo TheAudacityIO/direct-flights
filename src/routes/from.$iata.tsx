@@ -17,10 +17,13 @@ import {
   airportPagePath,
   airportPageTitle,
   airlinesByRoutes,
+  airportLastmod,
+  archiveAirportPageDescription,
+  archiveAirportPageTitle,
   breadcrumbJsonLd,
   countrySlug,
-  isIndexable,
   jsonLdScript,
+  observedSentence,
   pageMeta,
   provenanceSentence,
   SITE_ORIGIN,
@@ -41,20 +44,25 @@ export const Route = createFileRoute("/from/$iata")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) return { meta: [{ title: "Airport not found · FlyDirectFrom" }] };
-    const { origin, destinations } = loaderData;
+    const { origin, destinations, observed, indexable, meta } = loaderData;
+    const title = observed
+      ? airportPageTitle(origin, destinations.length)
+      : archiveAirportPageTitle(origin, destinations.length);
     return {
       meta: [
         ...pageMeta(
-          airportPageTitle(origin, destinations.length),
-          airportPageDescription(origin, destinations),
+          title,
+          observed
+            ? airportPageDescription(origin, destinations)
+            : archiveAirportPageDescription(origin, destinations),
           airportPagePath(origin.iata),
         ),
-        ...(isIndexable(destinations) ? [] : [{ name: "robots", content: "noindex, follow" }]),
+        ...(indexable ? [] : [{ name: "robots", content: "noindex, follow" }]),
       ],
       links: [{ rel: "canonical", href: SITE_ORIGIN + airportPagePath(origin.iata) }],
       scripts: [
         jsonLdScript(breadcrumbJsonLd(airportCrumbs(origin))),
-        jsonLdScript(airportPageJsonLd(origin, destinations.length)),
+        jsonLdScript(airportPageJsonLd(origin, title, airportLastmod(observed, meta))),
       ],
     };
   },
@@ -84,7 +92,8 @@ function NotFoundPage() {
 }
 
 function AirportPage() {
-  const { origin, destinations, nearby, alternatives, pageless, meta, posts } = Route.useLoaderData();
+  const { origin, destinations, observed, nearby, alternatives, pageless, meta, posts } = Route.useLoaderData();
+  const answer = observed ? observedSentence(origin, destinations, meta) : null;
   const noPage = new Set(pageless);
   const glance = airportGlance(destinations);
   const airlines = airlinesByRoutes(destinations);
@@ -110,6 +119,7 @@ function AirportPage() {
         Direct flights from {origin.city || origin.name}{" "}
         <span className="font-mono text-accent">{origin.iata}</span>
       </h1>
+      {answer ? <p className="mt-2 text-base text-fg">{answer}</p> : null}
       <p className="mt-2 text-sm text-muted">
         {airportLabel(origin)}, {origin.country}. {destinations.length} nonstop{" "}
         {destinations.length === 1 ? "destination" : "destinations"} in {countries}{" "}

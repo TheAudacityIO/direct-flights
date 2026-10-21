@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import {
   buildObservedDataset,
   formatDays,
+  observedAsOf,
+  spanWindow,
   windowFrom,
   type OperatedRoute,
 } from "./observed.ts";
@@ -150,5 +152,58 @@ describe("buildObservedDataset", () => {
       { asOf, lookbackDays },
     );
     assert.equal(built.routesByOrigin.get("CAG")?.[0]?.iata, "DUB");
+  });
+});
+
+describe("observedAsOf", () => {
+  it("dates each origin by its latest lastSeen, keys sorted", () => {
+    const leg = (originIata: string, lastSeen: string): OperatedRoute => ({
+      originIata,
+      destIata: "DUB",
+      airline: "",
+      days: [],
+      lastSeen,
+      flightCount: 1,
+    });
+    assert.deepEqual(
+      observedAsOf([leg("LHR", "2026-09-05"), leg("cag", "2026-10-16"), leg("LHR", "2026-09-04")]),
+      { CAG: "2026-10-16", LHR: "2026-09-05" },
+    );
+  });
+});
+
+describe("spanWindow", () => {
+  it("spans the earliest origin window start to the latest asOf", () => {
+    const span = spanWindow({ CAG: "2026-10-16", LHR: "2026-08-05", JFK: "2026-09-05" }, 30);
+    assert.deepEqual(span, {
+      asOf: "2026-10-16",
+      lookbackDays: 30 + 72,
+      windowFrom: "2026-07-06",
+      windowTo: "2026-10-16",
+    });
+    // As an ObservedWindow it reaches back to the oldest origin's start.
+    assert.equal(windowFrom(span!.asOf, span!.lookbackDays), span!.windowFrom);
+  });
+
+  it("is the plain single-run window when every origin shares one date", () => {
+    assert.deepEqual(spanWindow({ CAG: "2026-10-16", LHR: "2026-10-16" }, 30), {
+      asOf: "2026-10-16",
+      lookbackDays: 30,
+      windowFrom: "2026-09-16",
+      windowTo: "2026-10-16",
+    });
+  });
+
+  it("is null when nothing was observed", () => {
+    assert.equal(spanWindow({}, 30), null);
+  });
+
+  it("keeps every origin's rows through buildObservedDataset", () => {
+    const rows: OperatedRoute[] = [
+      { originIata: "CAG", destIata: "DUB", airline: "Ryanair", days: [], lastSeen: "2026-10-16", flightCount: 4 },
+      { originIata: "DUB", destIata: "CAG", airline: "Ryanair", days: [], lastSeen: "2026-08-05", flightCount: 4 },
+    ];
+    const built = buildObservedDataset(AIRPORTS, rows, spanWindow(observedAsOf(rows), 30)!);
+    assert.deepEqual([...built.routesByOrigin.keys()].sort(), ["CAG", "DUB"]);
   });
 });

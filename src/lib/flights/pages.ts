@@ -3,13 +3,24 @@
  * fs reader dynamically so it never enters the client bundle.
  */
 import { createServerFn } from "@tanstack/react-start";
-import { countrySlug, nearbyAirports, type NearbyAirport } from "./seo.ts";
+import {
+  bookableObserved,
+  countrySlug,
+  isAirportIndexable,
+  isCountryIndexable,
+  nearbyAirports,
+  type NearbyAirport,
+} from "./seo.ts";
 import { MAX_ALT_KM, nearbyAlternatives, type NearbyAlternative } from "./nearby-alternatives.ts";
 import type { AirportIndex, DatasetMeta, Destination } from "./types.ts";
 
 export type AirportPageData = {
   origin: AirportIndex;
+  /** On observed origins, only the bookable observed rows (see bookableObserved). */
   destinations: Destination[];
+  /** Routes come from AeroDataBox (meta.observedOriginCodes), not the archive. */
+  observed: boolean;
+  indexable: boolean;
   nearby: NearbyAirport[];
   /** Observed nonstops from airports a short drive away that the origin does not fly. */
   alternatives: NearbyAlternative[];
@@ -21,7 +32,7 @@ export type AirportPageData = {
 export const getAirportPage = createServerFn({ method: "GET" })
   .inputValidator((iata: string) => iata.toUpperCase())
   .handler(async ({ data: iata }): Promise<AirportPageData | null> => {
-    const { readAirports, readMeta, readRoutes } = await import("./dataset.server.ts");
+    const { readAirports, readKeepPages, readMeta, readRoutes } = await import("./dataset.server.ts");
     const [airports, meta, routes] = await Promise.all([
       readAirports(),
       readMeta(),
@@ -40,7 +51,9 @@ export const getAirportPage = createServerFn({ method: "GET" })
     const candidateRoutes = await Promise.all(candidates.map((a) => readRoutes(a.iata)));
     return {
       origin,
-      destinations: routes.destinations,
+      destinations: observed ? bookableObserved(routes.destinations) : routes.destinations,
+      observed,
+      indexable: isAirportIndexable(iata, observedCodes, readKeepPages()),
       nearby: nearbyAirports(origin, airports),
       alternatives: nearbyAlternatives(
         { iata, destinations: routes.destinations, observed },
@@ -102,13 +115,14 @@ export const getCountryIndex = createServerFn({ method: "GET" }).handler(
 export type CountryPageData = {
   country: string;
   airports: AirportIndexEntry[];
+  indexable: boolean;
   meta: DatasetMeta;
 };
 
 export const getCountryPage = createServerFn({ method: "GET" })
   .inputValidator((slug: string) => slug)
   .handler(async ({ data: slug }): Promise<CountryPageData | null> => {
-    const { readAirports, readMeta } = await import("./dataset.server.ts");
+    const { readAirports, readKeepPages, readMeta } = await import("./dataset.server.ts");
     const [airports, meta] = await Promise.all([readAirports(), readMeta()]);
     const entries = airports
       .filter((a) => a.destinations > 0 && countrySlug(a.country) === slug)
@@ -120,7 +134,13 @@ export const getCountryPage = createServerFn({ method: "GET" })
         destinations,
       }));
     if (entries.length === 0) return null;
-    return { country: entries[0].country, airports: entries, meta };
+    const indexable = isCountryIndexable(
+      slug,
+      entries.map((e) => e.iata),
+      new Set(meta.observedOriginCodes ?? []),
+      readKeepPages(),
+    );
+    return { country: entries[0].country, airports: entries, indexable, meta };
   });
 
 const POPULAR_ORIGINS = 12;

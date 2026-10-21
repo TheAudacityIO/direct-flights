@@ -34,6 +34,9 @@ export const NON_SCHEDULED_OPERATORS = new Set([
   "TCN",
   "Baker Aviation",
   "Executive Fliteways",
+  "NetJets Europe",
+  "Hop-A-Jet Worldwide Jet Charter",
+  "Jet Linx Aviation",
 ]);
 
 /** True when at least one airline on the row sells seats. */
