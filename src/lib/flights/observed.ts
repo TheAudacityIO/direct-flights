@@ -44,6 +44,40 @@ export function windowFrom(asOf: string, lookbackDays: number): string {
   return d.toISOString().slice(0, 10);
 }
 
+/** Date each origin was last fetched: its rows' latest lastSeen (a fetch stamps every row with its asOf). */
+export function observedAsOf(routes: OperatedRoute[]): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const r of routes) {
+    const o = r.originIata.toUpperCase();
+    if (!out[o] || r.lastSeen > out[o]) out[o] = r.lastSeen;
+  }
+  return Object.fromEntries(Object.entries(out).sort(([a], [b]) => a.localeCompare(b)));
+}
+
+/**
+ * The accumulated overlay mixes origins fetched on different runs, each with
+ * its own [asOf - lookbackDays, asOf] window. The overall window runs from the
+ * earliest origin's start to the latest asOf; as an ObservedWindow its
+ * lookbackDays spans that whole range so buildObservedDataset keeps every
+ * origin's rows. Null when nothing was observed.
+ */
+export function spanWindow(
+  asOfByOrigin: Record<string, string>,
+  lookbackDays: number,
+): (ObservedWindow & { windowFrom: string; windowTo: string }) | null {
+  const dates = Object.values(asOfByOrigin).sort();
+  if (dates.length === 0) return null;
+  const earliest = dates[0];
+  const latest = dates[dates.length - 1];
+  const spread = Math.round((utcDate(latest).getTime() - utcDate(earliest).getTime()) / 86_400_000);
+  return {
+    asOf: latest,
+    lookbackDays: lookbackDays + spread,
+    windowFrom: windowFrom(earliest, lookbackDays),
+    windowTo: latest,
+  };
+}
+
 export function formatDays(days: string[] | undefined): string {
   if (!days || days.length === 0) return "";
   const unique = [...new Set(days)];

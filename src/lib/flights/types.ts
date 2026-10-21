@@ -49,6 +49,8 @@ export type DatasetMeta = {
   observedOrigins?: number;
   /** Origins whose route list is wholly AeroDataBox-observed (not mirrored return legs or archive). */
   observedOriginCodes?: string[];
+  /** Per observed origin, the date its rows were fetched (origins rotate across runs). */
+  observedAsOf?: Record<string, string>;
 };
 
 /** Internal airport record used while building the dataset. */

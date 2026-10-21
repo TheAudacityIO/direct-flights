@@ -7,6 +7,9 @@ import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import type { AirportIndex, DatasetMeta, RouteFile } from "./types.ts";
+import type { KeepPages } from "./seo.ts";
+// Bundled into the server build: data/ is not copied to .output.
+import keepPages from "../../../data/search/keep-pages.json";
 
 const CANDIDATES = [".output/public/data", "public/data"];
 
@@ -33,6 +36,10 @@ export function readAirports(): Promise<AirportIndex[]> {
 export function readMeta(): Promise<DatasetMeta> {
   meta ??= readJson<DatasetMeta>("meta.json");
   return meta;
+}
+
+export function readKeepPages(): KeepPages {
+  return keepPages;
 }
 
 export async function readRoutes(iata: string): Promise<RouteFile | null> {

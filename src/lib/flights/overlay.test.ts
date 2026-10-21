@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { toOperatedRoutes, mergeObserved } from "./overlay.ts";
-import { buildObservedDataset } from "./observed.ts";
+import { fetchOrder, mergeObserved, mergeObservedRun, toOperatedRoutes } from "./overlay.ts";
+import { buildObservedDataset, type OperatedRoute } from "./observed.ts";
 import type { BuiltDataset } from "./pipeline.ts";
 import type { AirportRecord, Destination } from "./types.ts";
 
@@ -213,5 +213,117 @@ describe("mergeObserved", () => {
     const { merged, replacedOrigins } = mergeObserved(baseDataset(), empty);
     assert.deepEqual(replacedOrigins, []);
     assert.equal(merged.routesByOrigin.get("CAG")!.length, 2);
+  });
+});
+
+function leg(originIata: string, destIata: string, lastSeen: string): OperatedRoute {
+  return { originIata, destIata, airline: "Ryanair", days: [], lastSeen, flightCount: 1 };
+}
+
+describe("mergeObservedRun", () => {
+  const prev = {
+    routes: [leg("CAG", "DUB", "2026-09-05"), leg("CAG", "STN", "2026-09-05"), leg("LHR", "JFK", "2026-09-05")],
+    skippedAsOf: { XXX: "2026-09-05", BHX: "2026-09-05" },
+  };
+
+  it("replaces only re-fetched origins' rows and keeps the rest with their dates", () => {
+    const { routes } = mergeObservedRun(prev, {
+      asOf: "2026-10-05",
+      routes: [leg("CAG", "BGY", "2026-10-05"), leg("ARN", "CPH", "2026-10-05")],
+      fetchedOrigins: ["CAG", "ARN"],
+      skippedOrigins: [],
+    });
+    assert.deepEqual(
+      routes.map((r) => `${r.originIata}-${r.destIata}@${r.lastSeen}`),
+      ["ARN-CPH@2026-10-05", "CAG-BGY@2026-10-05", "LHR-JFK@2026-09-05"],
+    );
+  });
+
+  it("keeps earlier rows of an origin that now returned nothing, and stamps the skip", () => {
+    const { routes, skippedAsOf } = mergeObservedRun(prev, {
+      asOf: "2026-10-05",
+      routes: [leg("BHX", "DUB", "2026-10-05")],
+      fetchedOrigins: ["BHX"],
+      skippedOrigins: ["LHR", "ZZZ"],
+    });
+    assert.ok(routes.some((r) => r.originIata === "LHR" && r.lastSeen === "2026-09-05"));
+    // BHX succeeded, so its old skip stamp goes; XXX keeps its stamp.
+    assert.deepEqual(skippedAsOf, { LHR: "2026-10-05", XXX: "2026-09-05", ZZZ: "2026-10-05" });
+  });
+
+  it("works from an empty (first-run or legacy) file", () => {
+    const res = mergeObservedRun(
+      { routes: [] },
+      { asOf: "2026-10-05", routes: [leg("CAG", "DUB", "2026-10-05")], fetchedOrigins: ["CAG"], skippedOrigins: [] },
+    );
+    assert.equal(res.routes.length, 1);
+    assert.deepEqual(res.skippedAsOf, {});
+  });
+});
+
+describe("fetchOrder", () => {
+  const ranked = ["LHR", "CDG", "JFK", "FRA", "AMS", "CAG", "BLQ", "FUE"];
+
+  it("canary, then untried candidates by rank, untried rest by rank, then oldest attempts", () => {
+    const order = fetchOrder({
+      first: ["CAG"],
+      candidates: ["FUE", "BLQ", "JFK"],
+      ranked,
+      observedAsOf: { CAG: "2026-10-05", LHR: "2026-09-05", JFK: "2026-10-05" },
+      skippedAsOf: { AMS: "2026-08-05" },
+    });
+    assert.deepEqual(order, [
+      "CAG", // canary
+      "BLQ", "FUE", // never tried, with impressions (JFK is already observed)
+      "CDG", "FRA", // never tried, by global rank
+      "AMS", "LHR", "JFK", // oldest attempt first; CAG already placed
+    ]);
+  });
+
+  it("puts manual pins right after the canary without repeating them", () => {
+    const order = fetchOrder({
+      first: ["CAG", "LHR"],
+      candidates: ["LHR"],
+      ranked,
+      observedAsOf: { LHR: "2026-09-05" },
+      skippedAsOf: {},
+    });
+    assert.deepEqual(order.slice(0, 3), ["CAG", "LHR", "CDG"]);
+    assert.equal(order.length, ranked.length);
+  });
+
+  it("dates a skipped-after-observed origin by its latest attempt", () => {
+    const order = fetchOrder({
+      first: [],
+      candidates: [],
+      ranked: ["LHR", "CDG"],
+      observedAsOf: { LHR: "2026-08-05", CDG: "2026-09-05" },
+      skippedAsOf: { LHR: "2026-10-05" },
+    });
+    assert.deepEqual(order, ["CDG", "LHR"]);
+  });
+
+  it("ranks unknown candidates after ranked ones", () => {
+    const order = fetchOrder({
+      first: [],
+      candidates: ["QQQ", "BLQ"],
+      ranked: ["BLQ"],
+      observedAsOf: {},
+      skippedAsOf: {},
+    });
+    assert.deepEqual(order, ["BLQ", "QQQ"]);
+  });
+
+  it("refreshes observed origins older than 90 days before the unseen queue", () => {
+    const order = fetchOrder({
+      first: ["CAG"],
+      candidates: ["NEW"],
+      ranked: ["NEW", "OLD", "FRS"],
+      observedAsOf: { CAG: "2026-10-16", OLD: "2026-06-01", FRS: "2026-10-01" },
+      skippedAsOf: {},
+      today: "2026-11-05",
+    });
+    assert.deepEqual(order.slice(0, 3), ["CAG", "OLD", "NEW"]);
+    assert.equal(order.at(-1), "FRS");
   });
 });

@@ -1,5 +1,6 @@
 /** Pure helpers for the per-airport pages and the sitemap (no fs, testable). */
 import { haversineKm } from "./geo.ts";
+import { isBookable } from "./operators.ts";
 import type { AirportIndex, DatasetMeta, Destination } from "./types.ts";
 
 export const SITE_ORIGIN = "https://flydirectfrom.com";
@@ -19,18 +20,60 @@ export function airportPagePath(iata: string): string {
   return `/from/${iata.toUpperCase()}`;
 }
 
-/**
- * Archive-only origins with fewer than this many destinations are thin pages:
- * still linked and crawlable, but noindex and out of the sitemap, so the crawl
- * budget goes to pages that can rank. Any origin with observed routes is indexable.
- */
-export const MIN_INDEXABLE_DESTINATIONS = 5;
+/** Search Console keep list (data/search/keep-pages.json): pages with impressions in the last 90 days. */
+export type KeepPages = { airports: string[]; countries: string[] };
 
-export function isIndexable(destinations: Pick<Destination, "lastSeen">[]): boolean {
-  return (
-    destinations.length >= MIN_INDEXABLE_DESTINATIONS ||
-    destinations.some((d) => Boolean(d.lastSeen))
-  );
+/**
+ * An airport page is indexable when we observed its routes (AeroDataBox) or
+ * Search Console has shown it. Everything else stays linked and crawlable
+ * but noindex and out of the sitemap.
+ */
+export function isAirportIndexable(iata: string, observedCodes: ReadonlySet<string>, keep: KeepPages): boolean {
+  return observedCodes.has(iata) || keep.airports.includes(iata);
+}
+
+/** A country page is indexable when Search Console has shown it or one of its origins is observed. */
+export function isCountryIndexable(
+  slug: string,
+  originCodes: string[],
+  observedCodes: ReadonlySet<string>,
+  keep: KeepPages,
+): boolean {
+  return keep.countries.includes(slug) || originCodes.some((c) => observedCodes.has(c));
+}
+
+/** Last archive cleanup: the date archive-only pages last changed. */
+export const ARCHIVE_LASTMOD = "2026-09-22";
+
+/** Observed pages change with each refresh (windowTo); archive pages with the last cleanup. */
+export function airportLastmod(observed: boolean, meta: Pick<DatasetMeta, "windowTo">): string {
+  return observed && meta.windowTo ? meta.windowTo : ARCHIVE_LASTMOD;
+}
+
+/**
+ * Rows seen operating that someone can buy a seat on: drops private jet,
+ * charter and cargo-only rows, and those operators from mixed rows.
+ */
+export function bookableObserved(destinations: Destination[]): Destination[] {
+  return destinations
+    .filter((d) => d.lastSeen && isBookable(d.airlines))
+    .map((d) => ({ ...d, airlines: d.airlines.filter((a) => isBookable([a])) }));
+}
+
+/** The answer-first sentence for an observed airport, from its bookable observed rows. */
+export function observedSentence(
+  ap: Pick<AirportIndex, "iata" | "name" | "city">,
+  destinations: Destination[],
+  meta: Pick<DatasetMeta, "windowFrom" | "windowTo">,
+): string | null {
+  const rows = bookableObserved(destinations);
+  if (!meta.windowFrom || !meta.windowTo || rows.length === 0) return null;
+  const airlines = new Set(rows.flatMap((d) => d.airlines)).size;
+  return `Between ${meta.windowFrom} and ${meta.windowTo} we saw ${airlines} ${
+    airlines === 1 ? "airline" : "airlines"
+  } fly nonstop from ${ap.city || ap.name} (${ap.iata}) to ${rows.length} ${
+    rows.length === 1 ? "destination" : "destinations"
+  }.`;
 }
 
 /** `Congo (Kinshasa)` -> `congo-kinshasa`; unique across the dataset's 222 countries. */
@@ -122,6 +165,28 @@ export function airportPageTitle(
   } from ${ap.iata}`;
 }
 
+export function archiveAirportPageTitle(ap: Pick<AirportIndex, "iata" | "name" | "city">, count: number): string {
+  return `${ap.city || ap.name} direct flights from ${ap.iata}: ${count} ${count === 1 ? "route" : "routes"} (historical data)`;
+}
+
+/** Archive-only airports say so up front; the farthest cities are added only while it fits ~155 characters. */
+export function archiveAirportPageDescription(
+  ap: Pick<AirportIndex, "iata" | "name" | "city" | "country">,
+  destinations: Destination[],
+): string {
+  const countries = new Set(destinations.map((d) => d.country)).size;
+  const head = `Historical list of nonstop routes from ${airportLabel(ap)}, ${ap.country}: ${destinations.length} ${
+    destinations.length === 1 ? "destination" : "destinations"
+  } in ${countries} ${countries === 1 ? "country" : "countries"}`;
+  const top = destinations
+    .slice()
+    .sort((a, b) => b.km - a.km)
+    .slice(0, 2)
+    .map((d) => d.city || d.name);
+  const long = `${head}, as far as ${top.join(", ")}.`;
+  return top.length > 0 && long.length <= 155 ? long : `${head}.`;
+}
+
 export function airportPageDescription(
   ap: Pick<AirportIndex, "iata" | "name" | "city" | "country">,
   destinations: Destination[],
@@ -209,13 +274,15 @@ export function countryCrumbs(country: string): Crumb[] {
 /** The airport page as a WebPage about a schema.org Airport (iataCode is the searchable key). */
 export function airportPageJsonLd(
   ap: Pick<AirportIndex, "iata" | "name" | "city" | "country" | "lat" | "lon">,
-  count: number,
+  name: string,
+  dateModified: string,
 ): Record<string, unknown> {
   return {
     "@type": "WebPage",
     "@id": SITE_ORIGIN + airportPagePath(ap.iata),
     url: SITE_ORIGIN + airportPagePath(ap.iata),
-    name: airportPageTitle(ap, count),
+    name,
+    dateModified,
     isPartOf: { "@id": `${SITE_ORIGIN}/#website` },
     about: {
       "@type": "Airport",
@@ -240,10 +307,45 @@ export function websiteJsonLd(): Record<string, unknown> {
   };
 }
 
-export function buildSitemap(paths: string[], lastmod: string): string {
-  const day = lastmod.slice(0, 10);
-  const urls = paths
-    .map((p) => `  <url><loc>${SITE_ORIGIN}${p}</loc><lastmod>${day}</lastmod></url>`)
+export type SitemapEntry = { path: string; lastmod: string };
+
+export function buildSitemap(entries: SitemapEntry[]): string {
+  const urls = entries
+    .map((e) => `  <url><loc>${SITE_ORIGIN}${e.path}</loc><lastmod>${e.lastmod.slice(0, 10)}</lastmod></url>`)
     .join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
+}
+
+const STATIC_PAGES = ["/", "/from", "/about-the-data", "/privacy", "/blog"];
+
+/**
+ * public/sitemap.xml from the built dataset: static pages, then indexable
+ * country and airport pages. build-openflights.ts and build-sitemap.ts both
+ * call this, so the two cannot drift.
+ */
+export function datasetSitemapEntries(
+  airports: Pick<AirportIndex, "iata" | "country" | "destinations">[],
+  meta: Pick<DatasetMeta, "generatedAt" | "windowTo" | "observedOriginCodes">,
+  keep: KeepPages,
+): SitemapEntry[] {
+  const observed = new Set(meta.observedOriginCodes ?? []);
+  const origins = airports.filter((a) => a.destinations > 0);
+  const byCountry = new Map<string, string[]>();
+  for (const a of origins) byCountry.set(a.country, [...(byCountry.get(a.country) ?? []), a.iata]);
+  return [
+    ...STATIC_PAGES.map((path) => ({ path, lastmod: meta.generatedAt })),
+    ...[...byCountry.keys()]
+      .sort()
+      .filter((country) => isCountryIndexable(countrySlug(country), byCountry.get(country) ?? [], observed, keep))
+      .map((country) => ({
+        path: countryPagePath(country),
+        // A country page changes with each refresh when one of its origins is observed.
+        lastmod: airportLastmod((byCountry.get(country) ?? []).some((c) => observed.has(c)), meta),
+      })),
+    ...origins
+      .map((a) => a.iata)
+      .filter((iata) => isAirportIndexable(iata, observed, keep))
+      .sort()
+      .map((iata) => ({ path: airportPagePath(iata), lastmod: airportLastmod(observed.has(iata), meta) })),
+  ];
 }

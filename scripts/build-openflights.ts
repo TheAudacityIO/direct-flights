@@ -12,9 +12,9 @@ import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { parseAirports, parseAirlines, parseRoutes, buildDataset } from "../src/lib/flights/pipeline.ts";
-import { buildObservedDataset, windowFrom } from "../src/lib/flights/observed.ts";
+import { buildObservedDataset, observedAsOf, spanWindow } from "../src/lib/flights/observed.ts";
 import { mergeObserved } from "../src/lib/flights/overlay.ts";
-import { airportPagePath, buildSitemap, countryPagePath, isIndexable } from "../src/lib/flights/seo.ts";
+import { buildSitemap, datasetSitemapEntries } from "../src/lib/flights/seo.ts";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const RAW = path.join(ROOT, "data/raw");
@@ -49,31 +49,38 @@ async function main() {
   const built = buildDataset(airportRows, parseAirlines(airlinesDat), parseRoutes(routesDat));
 
   // AeroDataBox overlay: observed origins replace the baseline; the long
-  // tail stays OpenFlights. Absent file = plain baseline build.
+  // tail stays OpenFlights. Absent file = plain baseline build. The file
+  // accumulates origins fetched on different runs, so each origin carries its
+  // own asOf and the meta window spans them all.
   const OBSERVED = path.join(ROOT, "data/observed/operated-routes.json");
   let dataset = built;
   let overlay: {
     source: string;
-    asOf: string;
     lookbackDays: number;
+    windowFrom: string;
+    windowTo: string;
+    asOfByOrigin: Record<string, string>;
     origins: number;
     originCodes: string[];
   } | null = null;
   if (existsSync(OBSERVED)) {
     const file = JSON.parse(await readFile(OBSERVED, "utf8"));
-    const observedBuilt = buildObservedDataset(airportRows, file.routes, {
-      asOf: file.asOf,
-      lookbackDays: file.lookbackDays,
-    });
-    const res = mergeObserved(built, observedBuilt);
-    dataset = res.merged;
-    overlay = {
-      source: file.source,
-      asOf: file.asOf,
-      lookbackDays: file.lookbackDays,
-      origins: res.replacedOrigins.length,
-      originCodes: res.replacedOrigins,
-    };
+    const asOfByOrigin = observedAsOf(file.routes ?? []);
+    const span = spanWindow(asOfByOrigin, file.lookbackDays);
+    if (span) {
+      const observedBuilt = buildObservedDataset(airportRows, file.routes, span);
+      const res = mergeObserved(built, observedBuilt);
+      dataset = res.merged;
+      overlay = {
+        source: file.source,
+        lookbackDays: file.lookbackDays,
+        windowFrom: span.windowFrom,
+        windowTo: span.windowTo,
+        asOfByOrigin: Object.fromEntries(res.replacedOrigins.map((o) => [o, asOfByOrigin[o]])),
+        origins: res.replacedOrigins.length,
+        originCodes: res.replacedOrigins,
+      };
+    }
   }
 
   const routesDir = path.join(OUT, "routes");
@@ -104,36 +111,25 @@ async function main() {
     originCount,
     routeCount: dataset.routeCount,
     note: overlay
-      ? `Routes from the OpenFlights archive (~2014, defunct carriers removed), with routes observed operating in the ${overlay.lookbackDays} days to ${overlay.asOf} for ${overlay.origins === 1 ? "one airport" : `${overlay.origins} airports`} (AeroDataBox). Not a live timetable.`
+      ? `Routes from the OpenFlights archive (~2014, defunct carriers removed), with routes observed operating between ${overlay.windowFrom} and ${overlay.windowTo} for ${overlay.origins === 1 ? "one airport" : `${overlay.origins} airports`} (AeroDataBox, ${overlay.lookbackDays}-day window per airport). Not a live timetable.`
       : "Routes from the OpenFlights archive (~2014, defunct carriers removed). Not a live timetable.",
     ...(overlay
       ? {
           lookbackDays: overlay.lookbackDays,
-          windowFrom: windowFrom(overlay.asOf, overlay.lookbackDays),
-          windowTo: overlay.asOf,
+          windowFrom: overlay.windowFrom,
+          windowTo: overlay.windowTo,
           observedOrigins: overlay.origins,
           observedOriginCodes: overlay.originCodes,
+          observedAsOf: overlay.asOfByOrigin,
         }
       : {}),
   };
   await writeFile(path.join(OUT, "meta.json"), JSON.stringify(meta, null, 2));
 
-  // One crawlable page per origin and per country, plus the static pages.
-  const countries = [...new Set(dataset.airports.filter((a) => a.destinations > 0).map((a) => a.country))].sort();
-  const pages = [
-    "/",
-    "/from",
-    "/about-the-data",
-    "/privacy",
-    "/blog",
-    ...countries.map(countryPagePath),
-    ...[...dataset.routesByOrigin]
-      .filter(([, destinations]) => isIndexable(destinations))
-      .map(([iata]) => iata)
-      .sort()
-      .map(airportPagePath),
-  ];
-  await writeFile(path.join(ROOT, "public/sitemap.xml"), buildSitemap(pages, meta.generatedAt));
+  // Same rule and writer as scripts/build-sitemap.ts (indexable pages only).
+  const keep = JSON.parse(await readFile(path.join(ROOT, "data/search/keep-pages.json"), "utf8"));
+  const pages = datasetSitemapEntries(dataset.airports, meta, keep);
+  await writeFile(path.join(ROOT, "public/sitemap.xml"), buildSitemap(pages));
 
   const sample = (code: string) => dataset.routesByOrigin.get(code)?.length ?? 0;
   console.log(

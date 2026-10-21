@@ -4,7 +4,6 @@ import { formatDays } from "@/lib/flights/observed";
 import type { AirportIndex, Destination } from "@/lib/flights/types";
 import { Button } from "@/components/ui/button";
 import { BookingLinks } from "@/components/ads/BookingLinks";
-import { RewardGate } from "@/components/ads/RewardGate";
 import { ProvenanceChip } from "./ProvenanceChip";
 
 type Props = {
@@ -84,9 +83,7 @@ export function RouteDetail({ origin, dest, onClose, onFlyFrom }: Props) {
       <div className="mt-4 border-t border-border pt-3">
         <p className="text-[11px] uppercase tracking-wider text-subtle">Book this route</p>
         <div className="mt-2">
-          <RewardGate>
-            <BookingLinks origin={origin.iata} dest={dest} />
-          </RewardGate>
+          <BookingLinks origin={origin.iata} dest={dest} />
         </div>
       </div>
     </section>

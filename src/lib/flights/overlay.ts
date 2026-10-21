@@ -67,6 +67,86 @@ export function toOperatedRoutes(
   return out;
 }
 
+/**
+ * Accumulate one fetch run into the committed overlay. An origin fetched this
+ * run replaces only its own rows; every other origin keeps its rows (and so
+ * its own observation date). An origin that returned no routes keeps any
+ * earlier rows and is stamped in skippedAsOf so rotation moves past it.
+ */
+export function mergeObservedRun(
+  prev: { routes: OperatedRoute[]; skippedAsOf?: Record<string, string> },
+  run: { asOf: string; routes: OperatedRoute[]; fetchedOrigins: string[]; skippedOrigins: string[] },
+): { routes: OperatedRoute[]; skippedAsOf: Record<string, string> } {
+  const fetched = new Set(run.fetchedOrigins);
+  const routes = [
+    ...prev.routes.filter((r) => !fetched.has(r.originIata)),
+    ...run.routes,
+  ].sort(
+    (a, b) =>
+      a.originIata.localeCompare(b.originIata) ||
+      a.destIata.localeCompare(b.destIata) ||
+      a.airline.localeCompare(b.airline),
+  );
+  const skipped: Record<string, string> = { ...prev.skippedAsOf };
+  for (const o of fetched) delete skipped[o];
+  for (const o of run.skippedOrigins) skipped[o] = run.asOf;
+  const skippedAsOf = Object.fromEntries(
+    Object.entries(skipped).sort(([a], [b]) => a.localeCompare(b)),
+  );
+  return { routes, skippedAsOf };
+}
+
+/**
+ * Order in which a run spends its units: `first` (the CAG canary, then any
+ * manual pins), then origins never tried, those with Search Console
+ * impressions (`candidates`) before the rest, each group by global rank, then
+ * already-tried origins oldest attempt first. `ranked` is busiest first.
+ */
+export function fetchOrder(opts: {
+  first: string[];
+  candidates: string[];
+  ranked: string[];
+  observedAsOf: Record<string, string>;
+  skippedAsOf: Record<string, string>;
+  /** YYYY-MM-DD of this run; observed origins older than STALE_DAYS jump ahead of the unseen queue. */
+  today?: string;
+}): string[] {
+  const rank = new Map(opts.ranked.map((c, i) => [c, i]));
+  const byRank = (a: string, b: string) =>
+    (rank.get(a) ?? opts.ranked.length) - (rank.get(b) ?? opts.ranked.length) ||
+    a.localeCompare(b);
+  const lastTried = (c: string) => {
+    const o = opts.observedAsOf[c] ?? "";
+    const s = opts.skippedAsOf[c] ?? "";
+    return o > s ? o : s;
+  };
+  const tried = new Set([...Object.keys(opts.observedAsOf), ...Object.keys(opts.skippedAsOf)]);
+  const unseen = (codes: string[]) => codes.filter((c) => !tried.has(c)).sort(byRank);
+  const refresh = [...tried].sort(
+    (a, b) => lastTried(a).localeCompare(lastTried(b)) || byRank(a, b),
+  );
+  // Without this, ~3,400 unseen origins would starve refreshes for years.
+  const cutoff = opts.today ? shiftDay(opts.today, -STALE_DAYS) : "";
+  const stale = refresh.filter((c) => (opts.observedAsOf[c] ?? "") !== "" && opts.observedAsOf[c] < cutoff);
+  return [
+    ...new Set([
+      ...opts.first,
+      ...stale,
+      ...unseen(opts.candidates),
+      ...unseen(opts.ranked),
+      ...refresh,
+    ]),
+  ];
+}
+
+export const STALE_DAYS = 90;
+
+function shiftDay(day: string, days: number): string {
+  const d = new Date(`${day}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
 function byDuration(a: Destination, b: Destination): number {
   return a.minutes - b.minutes || a.iata.localeCompare(b.iata);
 }
