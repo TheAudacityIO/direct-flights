@@ -40,10 +40,28 @@ export function initAnalytics() {
       capture_dead_clicks: false,
       capture_exceptions: false,
       capture_performance: false,
-      loaded: (ph) => ph.register({ product: "flydirectfrom" }),
+      loaded: (ph) => ph.register({ product: "flydirectfrom", bot_suspect: botSuspect() }),
     });
     client = posthog;
   });
+}
+
+/**
+ * Flags (does not drop) automated browsers so charts can exclude them. The
+ * 2026-10 bursts (~1,500 renders/day) ran Chrome 119-121 through residential
+ * proxies while real visitors ran ~155; posthog-js already drops UAs that
+ * name themselves bots. Chrome more than 20 majors old, or webdriver, is suspect.
+ */
+export const CURRENT_CHROME_MAJOR = 155;
+
+export function isBotSuspect(userAgent: string, webdriver: boolean): boolean {
+  if (webdriver) return true;
+  const chrome = /Chrome\/(\d+)\./.exec(userAgent);
+  return chrome ? Number(chrome[1]) < CURRENT_CHROME_MAJOR - 20 : false;
+}
+
+function botSuspect(): boolean {
+  return isBotSuspect(navigator.userAgent, Boolean(navigator.webdriver));
 }
 
 export function track(event: string, properties?: Record<string, unknown>) {

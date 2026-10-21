@@ -84,7 +84,7 @@ function NotFoundPage() {
 }
 
 function AirportPage() {
-  const { origin, destinations, nearby, pageless, meta, posts } = Route.useLoaderData();
+  const { origin, destinations, nearby, alternatives, pageless, meta, posts } = Route.useLoaderData();
   const noPage = new Set(pageless);
   const glance = airportGlance(destinations);
   const airlines = airlinesByRoutes(destinations);
@@ -259,6 +259,45 @@ function AirportPage() {
               </li>
             ))}
           </ul>
+        </section>
+      ) : null}
+
+      {alternatives.length > 0 ? (
+        <section className="mt-10">
+          <h2 className="text-base font-medium text-fg">Nonstops a short drive away</h2>
+          <p className="mt-1 text-xs text-subtle">
+            Observed in the 30 days to {meta.windowTo ?? "the last refresh"}. Drive times are
+            straight-line estimates, not directions.
+          </p>
+          <div className="mt-3 space-y-4">
+            {alternatives.map((b) => (
+              <div key={b.iata}>
+                <p className="text-sm text-fg">
+                  {b.city || b.name} <span className="font-mono text-accent">{b.iata}</span>{" "}
+                  <span className="text-subtle">
+                    · {b.miles} mi ({b.km} km) · {b.drive}
+                  </span>
+                </p>
+                <ul className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                  {b.routes.map((r) => (
+                    <li key={r.iata}>
+                      <Link
+                        to="/"
+                        search={{ from: b.iata, to: r.iata }}
+                        title={r.airlines.join(", ")}
+                        onClick={() =>
+                          track("nearby_alt_click", { from: origin.iata, to: b.iata, dest: r.iata, km: b.km })
+                        }
+                        className="text-muted hover:text-fg hover:underline underline-offset-2"
+                      >
+                        {r.city || r.iata} <span className="font-mono text-accent">{r.iata}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </section>
       ) : null}
 
