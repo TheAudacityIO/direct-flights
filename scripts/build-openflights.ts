@@ -52,8 +52,13 @@ async function main() {
   // tail stays OpenFlights. Absent file = plain baseline build.
   const OBSERVED = path.join(ROOT, "data/observed/operated-routes.json");
   let dataset = built;
-  let overlay: { source: string; asOf: string; lookbackDays: number; origins: number } | null =
-    null;
+  let overlay: {
+    source: string;
+    asOf: string;
+    lookbackDays: number;
+    origins: number;
+    originCodes: string[];
+  } | null = null;
   if (existsSync(OBSERVED)) {
     const file = JSON.parse(await readFile(OBSERVED, "utf8"));
     const observedBuilt = buildObservedDataset(airportRows, file.routes, {
@@ -67,6 +72,7 @@ async function main() {
       asOf: file.asOf,
       lookbackDays: file.lookbackDays,
       origins: res.replacedOrigins.length,
+      originCodes: res.replacedOrigins,
     };
   }
 
@@ -106,6 +112,7 @@ async function main() {
           windowFrom: windowFrom(overlay.asOf, overlay.lookbackDays),
           windowTo: overlay.asOf,
           observedOrigins: overlay.origins,
+          observedOriginCodes: overlay.originCodes,
         }
       : {}),
   };

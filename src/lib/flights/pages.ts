@@ -4,12 +4,15 @@
  */
 import { createServerFn } from "@tanstack/react-start";
 import { countrySlug, nearbyAirports, type NearbyAirport } from "./seo.ts";
+import { MAX_ALT_KM, nearbyAlternatives, type NearbyAlternative } from "./nearby-alternatives.ts";
 import type { AirportIndex, DatasetMeta, Destination } from "./types.ts";
 
 export type AirportPageData = {
   origin: AirportIndex;
   destinations: Destination[];
   nearby: NearbyAirport[];
+  /** Observed nonstops from airports a short drive away that the origin does not fly. */
+  alternatives: NearbyAlternative[];
   /** Destination codes that have no /from page of their own (no departures in the data). */
   pageless: string[];
   meta: DatasetMeta;
@@ -27,10 +30,22 @@ export const getAirportPage = createServerFn({ method: "GET" })
     const origin = airports.find((a) => a.iata === iata);
     if (!origin || !routes || routes.destinations.length === 0) return null;
     const withPage = new Set(airports.filter((a) => a.destinations > 0).map((a) => a.iata));
+    const observedCodes = new Set(meta.observedOriginCodes ?? []);
+    const observed = observedCodes.has(iata);
+    // Only observed origins qualify: other fields nearby carry mirrored business-jet
+    // legs (NetJets, Flexjet) or military traffic nobody can book.
+    const candidates = observed
+      ? nearbyAirports(origin, airports.filter((a) => observedCodes.has(a.iata)), 12, MAX_ALT_KM)
+      : [];
+    const candidateRoutes = await Promise.all(candidates.map((a) => readRoutes(a.iata)));
     return {
       origin,
       destinations: routes.destinations,
       nearby: nearbyAirports(origin, airports),
+      alternatives: nearbyAlternatives(
+        { iata, destinations: routes.destinations, observed },
+        candidates.map((airport, i) => ({ airport, destinations: candidateRoutes[i]?.destinations ?? [] })),
+      ),
       pageless: routes.destinations.map((d) => d.iata).filter((i) => !withPage.has(i)),
       meta,
     };
