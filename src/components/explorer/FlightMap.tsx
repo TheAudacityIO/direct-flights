@@ -1,5 +1,10 @@
 import { useEffect, useRef } from "react";
-import type { Map as MapLibreMap, GeoJSONSource, MapMouseEvent } from "maplibre-gl";
+import type {
+  Map as MapLibreMap,
+  FilterSpecification,
+  GeoJSONSource,
+  MapMouseEvent,
+} from "maplibre-gl";
 import { greatCircleCoords, splitAntimeridian } from "@/lib/flights/geo";
 import type { AirportIndex, Destination } from "@/lib/flights/types";
 
@@ -76,6 +81,16 @@ const ARC_DIM = "rgba(126, 184, 201, 0.62)";
 const ARC_SEL = "#e8f6f8";
 const ORIGIN = "#f4f5f7";
 const DEST = "#9fd4e0";
+
+// Selection focus: when a destination is picked, every other route recedes
+// so the chosen arc reads as the only thing on the map.
+const FADE_MS = { duration: 180, delay: 0 };
+const ARC_WIDTH = 1.7;
+const ARC_WIDTH_FADED = 1.1;
+const ARC_OPACITY_FADED = 0.16;
+const DEST_OPACITY = 0.92;
+const DEST_OPACITY_FADED = 0.18;
+const NO_MATCH: FilterSpecification = ["==", ["get", "iata"], ""];
 
 const DASH_SEQ: number[][] = [
   [0, 4, 3],
@@ -183,8 +198,10 @@ function addLayers(map: MapLibreMap) {
     source: "arcs",
     paint: {
       "line-color": ARC_DIM,
-      "line-width": 1.7,
+      "line-width": ARC_WIDTH,
+      "line-width-transition": FADE_MS,
       "line-opacity": 1,
+      "line-opacity-transition": FADE_MS,
       "line-blur": 0.15,
     },
     layout: { "line-cap": "round", "line-join": "round" },
@@ -196,9 +213,9 @@ function addLayers(map: MapLibreMap) {
     source: "sel-arc",
     paint: {
       "line-color": ARC,
-      "line-width": 6,
-      "line-opacity": 0.22,
-      "line-blur": 2.4,
+      "line-width": 12,
+      "line-opacity": 0.32,
+      "line-blur": 5,
     },
     layout: { "line-cap": "round" },
   });
@@ -209,8 +226,8 @@ function addLayers(map: MapLibreMap) {
     source: "sel-arc",
     paint: {
       "line-color": ARC_SEL,
-      "line-width": 2.1,
-      "line-opacity": 0.95,
+      "line-width": 3.5,
+      "line-opacity": 1,
     },
     layout: { "line-cap": "round" },
   });
@@ -238,7 +255,35 @@ function addLayers(map: MapLibreMap) {
       "circle-color": DEST,
       "circle-stroke-width": 1,
       "circle-stroke-color": "rgba(8,9,12,0.85)",
-      "circle-opacity": 0.92,
+      "circle-opacity": DEST_OPACITY,
+      "circle-opacity-transition": FADE_MS,
+      "circle-stroke-opacity-transition": FADE_MS,
+    },
+  });
+
+  map.addLayer({
+    id: "sel-dest-ring",
+    type: "circle",
+    source: "points",
+    filter: NO_MATCH,
+    paint: {
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, 9, 4, 12, 7, 15],
+      "circle-color": "rgba(126,184,201,0.18)",
+      "circle-stroke-width": 1.5,
+      "circle-stroke-color": ARC_SEL,
+    },
+  });
+
+  map.addLayer({
+    id: "sel-dest",
+    type: "circle",
+    source: "points",
+    filter: NO_MATCH,
+    paint: {
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, 4.5, 4, 6, 7, 8],
+      "circle-color": "#ffffff",
+      "circle-stroke-width": 1.5,
+      "circle-stroke-color": "rgba(8,9,12,0.9)",
     },
   });
 
@@ -265,6 +310,25 @@ function addLayers(map: MapLibreMap) {
       "circle-stroke-color": ARC,
     },
   });
+}
+
+function applySelection(map: MapLibreMap, selectedIata: string | null) {
+  if (selectedIata) {
+    map.setPaintProperty("arcs-dim", "line-opacity", ARC_OPACITY_FADED);
+    map.setPaintProperty("arcs-dim", "line-width", ARC_WIDTH_FADED);
+    map.setPaintProperty("dests", "circle-opacity", DEST_OPACITY_FADED);
+    map.setPaintProperty("dests", "circle-stroke-opacity", DEST_OPACITY_FADED);
+    const match: FilterSpecification = ["==", ["get", "iata"], selectedIata];
+    map.setFilter("sel-dest-ring", match);
+    map.setFilter("sel-dest", match);
+  } else {
+    map.setPaintProperty("arcs-dim", "line-opacity", 1);
+    map.setPaintProperty("arcs-dim", "line-width", ARC_WIDTH);
+    map.setPaintProperty("dests", "circle-opacity", DEST_OPACITY);
+    map.setPaintProperty("dests", "circle-stroke-opacity", 1);
+    map.setFilter("sel-dest-ring", NO_MATCH);
+    map.setFilter("sel-dest", NO_MATCH);
+  }
 }
 
 function setSource(map: MapLibreMap, id: string, data: AnyFC) {
@@ -507,6 +571,7 @@ function applyData(
     setSource(map, "arcs", emptyFc());
     setSource(map, "sel-arc", emptyFc());
     setSource(map, "points", emptyFc());
+    applySelection(map, null);
     map.easeTo({ center: [12, 28], zoom: 1.55, duration: 700 });
     return;
   }
@@ -516,9 +581,12 @@ function applyData(
   setSource(map, "points", pointsGeoJSON(origin, destinations));
 
   const selected = destinations.find((d) => d.iata === selectedIata) ?? null;
+  applySelection(map, selected?.iata ?? null);
   if (selected) {
     setSource(map, "sel-arc", arcsGeoJSON(origin, [selected]));
-    fitAll(map, origin, [selected], pad);
+    // Desktop shows the route card (360px at left 20px) over the map; keep
+    // both ends of the selected route clear of it.
+    fitAll(map, origin, [selected], compactPanel ? pad : { ...pad, left: 404 });
   } else {
     setSource(map, "sel-arc", emptyFc());
     fitAll(map, origin, destinations, pad);
