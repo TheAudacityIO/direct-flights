@@ -4,9 +4,13 @@ on:
   push:
     branches: [main]
     # Docs and roadmap edits (MISSION/SUCCESS/PLANE/PLANNING, README) must not
-    # rebuild and redeploy the live site.
-    paths-ignore:
-      - '**.md'
+    # rebuild and redeploy the live site, but blog posts under content/ are
+    # markdown that ships in the build, so they must. Patterns apply in order:
+    # the later content/** re-includes what !**.md excluded.
+    paths:
+      - '**'
+      - '!**.md'
+      - 'content/**'
   # The monthly data-refresh workflow pushes with GITHUB_TOKEN, and such
   # pushes never trigger push workflows; chain off its completion instead.
   workflow_run:
