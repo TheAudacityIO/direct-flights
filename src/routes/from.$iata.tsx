@@ -2,7 +2,9 @@ import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-route
 import { ProvenanceChip } from "@/components/explorer/ProvenanceChip";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { AdSlot } from "@/components/ads/AdSlot";
+import { PlanTrip } from "@/components/ads/PlanTrip";
 import { AD_SLOTS } from "@/lib/ads/config";
+import { carsCovered } from "@/lib/affiliates";
 import { track } from "@/lib/analytics";
 import { formatDuration, formatKm } from "@/lib/flights/geo";
 import { formatDays } from "@/lib/flights/observed";
@@ -227,6 +229,16 @@ function AirportPage() {
           />
         </dl>
       </section>
+
+      <div className="mt-10">
+        <PlanTrip
+          partners={carsCovered(origin.country) ? ["transfers", "cars"] : ["transfers"]}
+          origin={origin.iata}
+          country={origin.country}
+          placement="airport_page"
+          title={`Getting to and from ${origin.city || origin.name} airport`}
+        />
+      </div>
 
       {airlines.length > 0 ? (
         <section className="mt-10">

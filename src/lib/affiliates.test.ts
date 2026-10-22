@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { isAffiliate, isPartner, partnerRel, partnerUrl } from "./affiliates.ts";
+import { carsCovered, isAffiliate, isPartner, partnerRel, partnerUrl } from "./affiliates.ts";
 
 describe("partnerUrl", () => {
   it("fills {q} and {origin} in a template, URL-encoded", () => {
@@ -55,8 +55,40 @@ describe("isAffiliate / partnerRel / isPartner", () => {
     assert.equal(partnerRel(false), "nofollow noopener");
   });
 
-  it("knows the six partners", () => {
+  it("knows the eight partners", () => {
     assert.equal(isPartner("esim"), true);
-    assert.equal(isPartner("cars"), false);
+    assert.equal(isPartner("transfers"), true);
+    assert.equal(isPartner("cars"), true);
+    assert.equal(isPartner("trains"), false);
+  });
+});
+
+describe("transfers and cars", () => {
+  it("sends transfers to the airport's Kiwitaxi page by IATA code", () => {
+    assert.equal(partnerUrl("transfers", { origin: "MAN" }, ""), "https://kiwitaxi.com/en/search?from=MAN");
+    assert.equal(partnerUrl("transfers", { destination: "CPH" }, ""), "https://kiwitaxi.com/en/search?from=CPH");
+    assert.equal(partnerUrl("transfers", { destination: "Rome" }, ""), "https://kiwitaxi.com/en/");
+  });
+
+  it("sends cars to the Localrent country page only where covered", () => {
+    assert.equal(carsCovered("Greece"), true);
+    assert.equal(carsCovered("United States"), false);
+    assert.equal(carsCovered("Denmark"), false);
+    assert.equal(carsCovered(undefined), false);
+    assert.equal(carsCovered("toString"), false);
+    assert.equal(partnerUrl("cars", { country: "Czech Republic" }, ""), "https://www.localrent.com/en/czech/");
+    assert.equal(partnerUrl("cars", { country: "United Kingdom" }, ""), "https://www.localrent.com/en/");
+  });
+
+  it("wraps the plain URL via {u} like the other partners", () => {
+    const tp = "https://tp.media/r?marker=1&u={u}";
+    assert.equal(
+      partnerUrl("transfers", { origin: "BOS" }, tp),
+      "https://tp.media/r?marker=1&u=" + encodeURIComponent("https://kiwitaxi.com/en/search?from=BOS"),
+    );
+    assert.equal(
+      partnerUrl("cars", { country: "Iceland" }, tp),
+      "https://tp.media/r?marker=1&u=" + encodeURIComponent("https://www.localrent.com/en/iceland/"),
+    );
   });
 });

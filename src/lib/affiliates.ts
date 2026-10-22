@@ -8,12 +8,59 @@
  * https: the plain, non-affiliate URL. No Vite-only APIs beyond the optional
  * env read, so `node --test` can import it.
  */
-export const PARTNERS = ["flights", "hotels", "activities", "esim", "insurance", "compensation"] as const;
+export const PARTNERS = [
+  "flights",
+  "hotels",
+  "activities",
+  "esim",
+  "insurance",
+  "compensation",
+  "transfers",
+  "cars",
+] as const;
 export type Partner = (typeof PARTNERS)[number];
 
-export type LinkContext = { destination?: string; origin?: string };
+/** `country` is the dataset's country name (e.g. "Greece"), used by the car rental link. */
+export type LinkContext = { destination?: string; origin?: string; country?: string };
 
 const enc = encodeURIComponent;
+const isIata = (code?: string): code is string => !!code && /^[A-Z]{3}$/.test(code);
+
+/**
+ * Localrent country pages for the countries it actually serves, keyed by the
+ * dataset's country name. Verified 2026-10-22 against localrent.com/en/: each
+ * slug returns a populated country page with city pages (at least four, except
+ * Iceland: Reykjavik and Keflavik). Left out on purpose: United States (Miami
+ * only), United Kingdom, Finland, Norway (empty pages with no offers), Denmark
+ * and Sweden (404).
+ */
+const LOCALRENT_COUNTRIES: Record<string, string> = {
+  Albania: "albania",
+  Argentina: "argentina",
+  Bulgaria: "bulgaria",
+  Croatia: "croatia",
+  Cyprus: "cyprus",
+  "Czech Republic": "czech",
+  France: "france",
+  Georgia: "georgia",
+  Germany: "germany",
+  Greece: "greece",
+  Iceland: "iceland",
+  Italy: "italy",
+  Montenegro: "montenegro",
+  Morocco: "morocco",
+  Poland: "poland",
+  Portugal: "portugal",
+  Spain: "spain",
+  Thailand: "thailand",
+  Turkey: "turkey",
+  "United Arab Emirates": "uae",
+};
+
+/** Whether Localrent has cars in this country (see LOCALRENT_COUNTRIES). */
+export function carsCovered(country?: string): boolean {
+  return !!country && Object.hasOwn(LOCALRENT_COUNTRIES, country);
+}
 
 const INFO: Record<Partner, { label: string; why: string; fallback: (ctx: LinkContext) => string }> = {
   flights: {
@@ -55,6 +102,29 @@ const INFO: Record<Partner, { label: string; why: string; fallback: (ctx: LinkCo
     why: "Claim compensation for a delayed or cancelled flight.",
     fallback: () => "https://www.airhelp.com/",
   },
+  transfers: {
+    label: "Kiwitaxi",
+    why: "A private airport transfer at a fixed price.",
+    // Verified 2026-10-22: /en/search?from={IATA} redirects (302) to that airport's transfer
+    // page: MAN -> /en/united-kingdom/manchester-airport, CPH -> /en/denmark/copenhagen-kastrup-airport,
+    // BOS -> /en/usa/logan-airport; JFK, LAX, SEA, LHR, ARN, OSL, HEL likewise. An airport
+    // Kiwitaxi does not serve (e.g. BGO) goes to /en/search-results, a "no transfers" page
+    // with a search form. The origin airport wins, else a destination given as a code.
+    fallback: ({ origin, destination }) => {
+      const code = isIata(origin) ? origin : isIata(destination) ? destination : undefined;
+      return code ? `https://kiwitaxi.com/en/search?from=${code}` : "https://kiwitaxi.com/en/";
+    },
+  },
+  cars: {
+    label: "Localrent",
+    why: "Car rental from local companies.",
+    // Verified 2026-10-22: https://www.localrent.com/en/{country}/ lists the country's cities
+    // and offers; there is no airport-code URL. Shown only where carsCovered() is true.
+    fallback: ({ country }) =>
+      country && carsCovered(country)
+        ? `https://www.localrent.com/en/${LOCALRENT_COUNTRIES[country]}/`
+        : "https://www.localrent.com/en/",
+  },
 };
 
 const TEMPLATES: Record<Partner, string> = {
@@ -64,6 +134,8 @@ const TEMPLATES: Record<Partner, string> = {
   esim: import.meta.env?.VITE_AFF_ESIM_URL ?? "",
   insurance: import.meta.env?.VITE_AFF_INSURANCE_URL ?? "",
   compensation: import.meta.env?.VITE_AFF_COMPENSATION_URL ?? "",
+  transfers: import.meta.env?.VITE_AFF_TRANSFERS_URL ?? "",
+  cars: import.meta.env?.VITE_AFF_CARS_URL ?? "",
 };
 
 const usable = (template: string) => template.startsWith("https://");

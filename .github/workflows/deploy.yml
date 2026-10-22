@@ -92,6 +92,8 @@ jobs:
             VITE_AFF_ESIM_URL=${{ vars.AFF_ESIM_URL }}
             VITE_AFF_INSURANCE_URL=${{ vars.AFF_INSURANCE_URL }}
             VITE_AFF_COMPENSATION_URL=${{ vars.AFF_COMPENSATION_URL }}
+            VITE_AFF_TRANSFERS_URL=${{ vars.AFF_TRANSFERS_URL }}
+            VITE_AFF_CARS_URL=${{ vars.AFF_CARS_URL }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

@@ -122,10 +122,11 @@ function PrivacyPage() {
             changes.
           </p>
           <p className="mt-2">
-            Some links to partners (fare searches, hotels, activities, eSIMs, travel insurance and
-            flight compensation) are affiliate links: if you book through one, the partner may pay
-            us a commission at no extra cost to you. They are marked as sponsored in the page code,
-            and blog posts say so next to them. Following any partner link takes you to that
+            Some links to partners (fare searches, hotels, activities, eSIMs, travel insurance,
+            flight compensation, airport transfers and car rental) are affiliate links: if you book
+            through one, the partner may pay us a commission at no extra cost to you. They are
+            marked as sponsored in the page code, and blog posts and airport pages say so next to
+            them. Following any partner link takes you to that
             partner&apos;s site, which may set its own cookies once you arrive (for example to
             credit the referral); that is governed by the partner&apos;s privacy and cookie
             policies, not ours. Nothing is set on this site before you click.

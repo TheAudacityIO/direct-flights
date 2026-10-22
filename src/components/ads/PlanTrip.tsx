@@ -13,23 +13,28 @@ type Props = {
   partners: Partner[];
   /** Place name for the hotel and activity searches. */
   destination?: string;
+  /** Airport IATA code for the transfer link. */
+  origin?: string;
+  /** Dataset country name for the car rental link. */
+  country?: string;
   /** Where on the site the box sits, for the click event. */
   placement: string;
+  title?: string;
 };
 
 /** "Plan the trip" partner links with a commission disclosure. Renders nothing without partners. */
-export function PlanTrip({ partners, destination, placement }: Props) {
+export function PlanTrip({ partners, destination, origin, country, placement, title = "Plan the trip" }: Props) {
   if (partners.length === 0) return null;
   return (
     <aside className="rounded-xl border border-border bg-surface p-5">
-      <h2 className="text-base font-medium text-fg">Plan the trip</h2>
+      <h2 className="text-base font-medium text-fg">{title}</h2>
       <ul className="mt-3 space-y-2.5 text-sm">
         {partners.map((partner) => {
           const affiliate = isAffiliate(partner);
           return (
             <li key={partner}>
               <a
-                href={partnerUrl(partner, { destination })}
+                href={partnerUrl(partner, { destination, origin, country })}
                 target="_blank"
                 rel={partnerRel(affiliate)}
                 onClick={() =>
