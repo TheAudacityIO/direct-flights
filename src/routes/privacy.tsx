@@ -54,6 +54,12 @@ function PrivacyPage() {
             which is read in your browser and not sent to us. Ads are served by Google, and in
             Europe Google asks for your consent first.
           </p>
+          <p className="mt-2">
+            Temporarily (from 22 October 2026, for a short setup period), the home page also loads
+            a script from our affiliate partner Travelpayouts (<code>emrld.ltd</code>). It reads the
+            page and can turn travel links into affiliate links; Travelpayouts&apos; own privacy
+            policy covers what it collects. It does not run on any other page.
+          </p>
         </section>
 
         <section>
