@@ -2,7 +2,9 @@
  * Partner links for the "Plan the trip" box and the fare-search links. Each
  * partner's affiliate URL is a template from a build-time env var
  * (`VITE_AFF_<PARTNER>_URL`, a repository variable in deploy.yml) with `{q}`
- * for the URL-encoded destination and, for flights, `{origin}`. Unset or not
+ * for the URL-encoded destination, for flights `{origin}`, and `{u}` for the
+ * URL-encoded plain partner URL (Travelpayouts tracking links wrap it:
+ * `https://tp.media/r?campaign_id=..&marker=..&p=..&trs=..&u={u}`). Unset or not
  * https: the plain, non-affiliate URL. No Vite-only APIs beyond the optional
  * env read, so `node --test` can import it.
  */
@@ -15,12 +17,13 @@ const enc = encodeURIComponent;
 
 const INFO: Record<Partner, { label: string; why: string; fallback: (ctx: LinkContext) => string }> = {
   flights: {
-    label: "Skyscanner",
+    label: "Kiwi.com",
     why: "Compare fares on the nonstop.",
-    fallback: ({ origin }) =>
-      origin
-        ? `https://www.skyscanner.net/transport/flights-from/${origin.toLowerCase()}/`
-        : "https://www.skyscanner.net/",
+    // Kiwi's deep link takes IATA codes (verified 2026-10-22: FCO/NCE resolves to the route search).
+    fallback: ({ origin, destination }) =>
+      origin && destination && /^[A-Z]{3}$/.test(destination)
+        ? `https://www.kiwi.com/deep?from=${origin}&to=${destination}&departure=anytime&return=no-return`
+        : "https://www.kiwi.com/en/",
   },
   hotels: {
     label: "Booking.com",
@@ -31,10 +34,11 @@ const INFO: Record<Partner, { label: string; why: string; fallback: (ctx: LinkCo
         : "https://www.booking.com/",
   },
   activities: {
-    label: "GetYourGuide",
-    why: "Tours and tickets once you arrive.",
+    label: "Tiqets",
+    why: "Tickets for museums and attractions.",
+    // /en/search?q= redirects to the city's attractions page (no trailing slash: /search/ 404s).
     fallback: ({ destination }) =>
-      destination ? `https://www.getyourguide.com/s/?q=${enc(destination)}` : "https://www.getyourguide.com/",
+      destination ? `https://www.tiqets.com/en/search?q=${enc(destination)}` : "https://www.tiqets.com/en/",
   },
   esim: {
     label: "Airalo",
@@ -82,7 +86,10 @@ export function isAffiliate(partner: Partner, template = TEMPLATES[partner]): bo
 
 export function partnerUrl(partner: Partner, ctx: LinkContext, template = TEMPLATES[partner]): string {
   if (!usable(template)) return INFO[partner].fallback(ctx);
-  return template.replaceAll("{q}", enc(ctx.destination ?? "")).replaceAll("{origin}", enc(ctx.origin ?? ""));
+  return template
+    .replaceAll("{u}", enc(INFO[partner].fallback(ctx)))
+    .replaceAll("{q}", enc(ctx.destination ?? ""))
+    .replaceAll("{origin}", enc(ctx.origin ?? ""));
 }
 
 /** Paid links are marked sponsored (Google's link-attribute guidance); every outbound link is nofollow. */
