@@ -4,14 +4,13 @@ import { track } from "@/lib/analytics";
 import { isAffiliate, partnerRel, partnerUrl } from "@/lib/affiliates";
 
 /**
- * Deep links into the big fare searches, nonstop pre-filtered. Skyscanner
- * becomes the affiliate link when VITE_AFF_FLIGHTS_URL is set ({origin} and
- * {q} get the two IATA codes); Google Flights and Kayak stay plain.
+ * Deep links into the big fare searches, nonstop pre-filtered. Kiwi.com is
+ * the flights partner (Travelpayouts tracking when VITE_AFF_FLIGHTS_URL is
+ * set); Google Flights and Kayak stay plain.
  */
 function bookingLinks(origin: string, dest: Destination) {
   const o = origin.toUpperCase();
   const d = dest.iata.toUpperCase();
-  const affiliate = isAffiliate("flights");
   return [
     {
       name: "Google Flights",
@@ -19,11 +18,9 @@ function bookingLinks(origin: string, dest: Destination) {
       affiliate: false,
     },
     {
-      name: "Skyscanner",
-      href: affiliate
-        ? partnerUrl("flights", { origin: o, destination: d })
-        : `https://www.skyscanner.net/transport/flights/${o.toLowerCase()}/${d.toLowerCase()}/`,
-      affiliate,
+      name: "Kiwi.com",
+      href: partnerUrl("flights", { origin: o, destination: d }),
+      affiliate: isAffiliate("flights"),
     },
     { name: "Kayak", href: `https://www.kayak.com/flights/${o}-${d}?fs=stops=0`, affiliate: false },
   ];
@@ -55,7 +52,7 @@ export function BookingLinks({ origin, dest }: { origin: string; dest: Destinati
                   origin: origin.toUpperCase(),
                   dest: dest.iata,
                 });
-                if (l.name === "Skyscanner") {
+                if (l.name === "Kiwi.com") {
                   track("affiliate_click", {
                     partner: "flights",
                     placement: "booking_links",

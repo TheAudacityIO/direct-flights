@@ -17,11 +17,24 @@ describe("partnerUrl", () => {
   it("falls back to the plain URL without a template", () => {
     assert.equal(partnerUrl("hotels", { destination: "Sardinia" }, ""), "https://www.booking.com/searchresults.html?ss=Sardinia");
     assert.equal(partnerUrl("hotels", {}, ""), "https://www.booking.com/");
-    assert.equal(partnerUrl("activities", { destination: "Rome" }, ""), "https://www.getyourguide.com/s/?q=Rome");
+    assert.equal(partnerUrl("activities", { destination: "Rome" }, ""), "https://www.tiqets.com/en/search?q=Rome");
     assert.equal(partnerUrl("esim", {}, ""), "https://www.airalo.com/");
     assert.equal(partnerUrl("insurance", {}, ""), "https://safetywing.com/");
     assert.equal(partnerUrl("compensation", {}, ""), "https://www.airhelp.com/");
-    assert.equal(partnerUrl("flights", { origin: "CAG" }, ""), "https://www.skyscanner.net/transport/flights-from/cag/");
+    assert.equal(
+      partnerUrl("flights", { origin: "FCO", destination: "NCE" }, ""),
+      "https://www.kiwi.com/deep?from=FCO&to=NCE&departure=anytime&return=no-return",
+    );
+    assert.equal(partnerUrl("flights", { destination: "Sardinia" }, ""), "https://www.kiwi.com/en/");
+  });
+
+  it("wraps the encoded plain URL in a Travelpayouts tracking link via {u}", () => {
+    const tp = "https://tp.media/r?campaign_id=111&marker=793399&p=4136&trs=588769&u={u}";
+    assert.equal(
+      partnerUrl("flights", { origin: "FCO", destination: "NCE" }, tp),
+      "https://tp.media/r?campaign_id=111&marker=793399&p=4136&trs=588769&u=" +
+        encodeURIComponent("https://www.kiwi.com/deep?from=FCO&to=NCE&departure=anytime&return=no-return"),
+    );
   });
 
   it("ignores a template that is not https", () => {
