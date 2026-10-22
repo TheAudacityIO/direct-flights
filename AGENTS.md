@@ -23,7 +23,7 @@ The OpenFlights dump has no dates and misses modern LCC pairs; it is the BASELIN
 
 - Posts live in `content/blog/<slug>.md` (served at `/blog/<slug>`); the format (frontmatter keys, categories, partners) is in `content/blog/README.md`.
 - `src/lib/blog/posts.server.ts` inlines them with Vite's `import.meta.glob(?raw)` and is only imported from server functions and server routes, so post bodies never reach the client bundle. Markdown renders with `marked` (raw HTML escaped). Feeds: `/blog/rss.xml`, `/sitemap-blog.xml` (listed in `robots.txt`).
-- "Plan the trip" partner links come from `src/lib/affiliates.ts`. Affiliate URL templates are repository Actions VARIABLES `AFF_FLIGHTS_URL`, `AFF_HOTELS_URL`, `AFF_ACTIVITIES_URL`, `AFF_ESIM_URL`, `AFF_INSURANCE_URL`, `AFF_COMPENSATION_URL` (`{q}` = destination, `{origin}` for flights), passed as `VITE_AFF_*` build args; unset = plain non-affiliate links. The article ad unit is `ADSENSE_SLOT_ARTICLE`.
+- "Plan the trip" partner links come from `src/lib/affiliates.ts`. Affiliate URL templates are repository Actions VARIABLES `AFF_FLIGHTS_URL`, `AFF_HOTELS_URL`, `AFF_ACTIVITIES_URL`, `AFF_ESIM_URL`, `AFF_INSURANCE_URL`, `AFF_COMPENSATION_URL`, `AFF_TRANSFERS_URL`, `AFF_CARS_URL` (`{q}` = destination, `{origin}` for flights), passed as `VITE_AFF_*` build args; unset = plain non-affiliate links. The article ad unit is `ADSENSE_SLOT_ARTICLE`.
 
 Framework docs: `MISSION.md` (why + non-goals), `SUCCESS.md` (definition of done, verifiable), `PLANE.md` (roadmap single-source), `PLANNING.md` (decisions + retro). Read MISSION.md before proposing scope changes; update PLANE.md when you finish or queue work.
 

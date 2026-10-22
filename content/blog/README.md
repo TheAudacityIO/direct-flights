@@ -19,7 +19,7 @@ Markdown body. No H1 (the title is the H1). Use ## and ### headings, lists, tabl
 - `category`: one of Routes, Aerospace, Travel guides, Airports.
 - `airports` (optional): IATA codes that have a file in `public/data/routes/`; rendered as "Airports in this post" links to `/from/{IATA}`.
 - `destination` (optional): place name used to build the hotel/activity search links.
-- `partners` (optional): which "Plan the trip" links to show. Values: flights, hotels, activities, esim, insurance, compensation.
+- `partners` (optional): which "Plan the trip" links to show. Values: flights, hotels, activities, esim, insurance, compensation, transfers, cars. On a post, transfers reaches the airport page only when `destination` is an IATA code and cars always opens the Localrent home page, so both work best on airport pages.
 - Internal links: airport pages as `/from/FCO`, other posts as `/blog/<slug>`.
 - No raw HTML, no images, no affiliate URLs in the body: the page renders partner links from `partners`.
 - Facts: cite a source link for any number that is not from our own dataset. Route data is mostly the ~2014 OpenFlights archive; only airports listed in `data/observed/operated-routes.json` (`fetchedOrigins`) have current, observed routes. Never present archive counts as current, and never write an airport or route-pair article from archive data.
