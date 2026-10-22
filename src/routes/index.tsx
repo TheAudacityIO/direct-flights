@@ -20,13 +20,7 @@ export const Route = createFileRoute("/")({
       "/",
     ),
     links: [{ rel: "canonical", href: "https://flydirectfrom.com/" }],
-    scripts: [
-      jsonLdScript(websiteJsonLd()),
-      // TEMPORARY (2026-10-22): Travelpayouts Drive, home page only, so its onboarding
-      // check passes and the account unlocks its API token. Remove once the token is in
-      // Vault; affiliate links are then built server-side (src/lib/affiliates.ts).
-      { src: "https://emrld.ltd/NTg4NzY5.js?t=588769", async: true, "data-cmp-ab": "2" },
-    ],
+    scripts: [jsonLdScript(websiteJsonLd())],
   }),
   validateSearch: (raw: Record<string, unknown>): ExplorerSearch => ({
     from: parseIata(raw.from),
