@@ -34,9 +34,28 @@ env:
 permissions: {}
 
 jobs:
+  # A manual dispatch may only deploy main: anyone with write access could
+  # otherwise ship an unreviewed branch to production. The ref goes through
+  # env, never ${{ }} inside the script, so a branch name cannot inject shell.
+  guard-ref:
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    permissions: {}
+    steps:
+      - name: Manual dispatch must target main
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          if [ "$REF" != "refs/heads/main" ]; then
+            echo "::error::Manual deploys are only allowed from main (got $REF)."
+            exit 1
+          fi
+
   # Broken code must not reach the box: the image only builds after the same
   # gate CI runs (tests + typecheck).
   check:
+    needs: guard-ref
     # For workflow_run chaining, deploy only after a SUCCESSFUL data refresh.
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
