@@ -30,6 +30,7 @@ import {
   provenanceSentence,
   SITE_ORIGIN,
 } from "@/lib/flights/seo";
+import goneAirports from "../../data/search/gone-airports.json";
 
 export const Route = createFileRoute("/from/$iata")({
   loader: async ({ params }) => {
@@ -41,7 +42,12 @@ export const Route = createFileRoute("/from/$iata")({
       getAirportPage({ data: iata }),
       getAirportPosts({ data: iata }),
     ]);
-    if (!page) throw notFound();
+    if (!page) {
+      // Airports cut from the dataset in Sept 2026 keep a country to send search traffic to.
+      const slug = (goneAirports.airports as Record<string, string>)[iata];
+      if (slug) throw redirect({ to: "/countries/$slug", params: { slug }, statusCode: 301 });
+      throw notFound();
+    }
     return { ...page, posts };
   },
   head: ({ loaderData }) => {
