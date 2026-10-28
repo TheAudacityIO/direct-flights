@@ -1,0 +1,25 @@
+# FlyDirectFrom
+
+> FlyDirectFrom answers one question: from this airport, where can I fly without changing planes? It maps every known nonstop route from 3,000+ airports worldwide, with the airlines on each route, great-circle distance and an estimated gate-to-gate time. It is free, needs no account, and does not sell tickets.
+
+Routes marked **Verified** were seen operating in the last 30 days (AeroDataBox departure counts, refreshed monthly for a growing set of airports). Routes marked **Archive** come from the OpenFlights route archive (about 2014, defunct airlines removed, absorbed brands renamed) and should be confirmed with the airline. Estimated time is distance at 850 km/h plus 30 minutes. There are no prices, seats, flight numbers or schedules.
+
+## Main pages
+
+- [Interactive map](https://flydirectfrom.com/): search any airport and see its nonstop destinations drawn on a world map
+- [Airports by country](https://flydirectfrom.com/from): index of every airport page, grouped by country
+- [About the data](https://flydirectfrom.com/about-the-data): sources, the Verified and Archive labels, how distance and time are computed
+- [Blog](https://flydirectfrom.com/blog): articles on nonstop routes, airports and flying direct
+
+## Page patterns
+
+- `https://flydirectfrom.com/from/{IATA}`: one page per departure airport (for example [/from/JFK](https://flydirectfrom.com/from/JFK), [/from/LHR](https://flydirectfrom.com/from/LHR)), listing each nonstop destination with airlines, distance and estimated time
+- `https://flydirectfrom.com/countries/{country}`: the airports in a country and their nonstop counts
+- `https://flydirectfrom.com/blog/{slug}`: individual articles
+
+## Optional
+
+- [Sitemap](https://flydirectfrom.com/sitemap.xml)
+- [Blog sitemap](https://flydirectfrom.com/sitemap-blog.xml)
+- [Blog RSS](https://flydirectfrom.com/blog/rss.xml)
+- [Privacy](https://flydirectfrom.com/privacy)

@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ADS_ENABLED } from "@/lib/ads/config";
+import { ThemeToggleLink } from "./ThemeToggle";
 
 const link = "underline underline-offset-2 hover:text-fg";
 
@@ -43,6 +44,8 @@ export function SiteFooter({ attribution }: { attribution?: string }) {
         <Link to="/privacy" className={link}>
           Privacy
         </Link>
+        {" · "}
+        <ThemeToggleLink className={link} />
         {ADS_ENABLED ? (
           <>
             {" · "}

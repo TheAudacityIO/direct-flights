@@ -5,6 +5,7 @@ import { DestinationList } from "./DestinationList";
 import { FlightMap } from "./FlightMap";
 import { RouteDetail } from "./RouteDetail";
 import { AdSlot } from "@/components/ads/AdSlot";
+import { ThemeToggle } from "@/components/site/ThemeToggle";
 import { AD_SLOTS } from "@/lib/ads/config";
 import { Button } from "@/components/ui/button";
 import { loadAirports, loadRoutes } from "@/lib/flights/api";
@@ -160,6 +161,7 @@ export function Explorer({ search, onSearchChange, popular }: Props) {
                   disabled={!airports}
                 />
               </div>
+              <ThemeToggle />
             </div>
             {routesLoading && (
               <div
