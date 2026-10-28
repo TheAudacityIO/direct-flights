@@ -10,7 +10,7 @@
   --color-surface-2: #1a1d25;
   --color-fg: #e8eaee;
   --color-muted: #8a9099;
-  --color-subtle: #5c616a;
+  --color-subtle: #80868f;
   --color-accent: #7eb8c9;
   --color-accent-dim: #3d6d7a;
   --color-border: #23262e;
@@ -23,6 +23,29 @@
   --radius-xl: 24px;
 
   --shadow-panel: 0 18px 50px -24px rgb(0 0 0 / 0.7);
+}
+
+:root {
+  color-scheme: dark;
+}
+
+/* Light theme: the same identity on warm paper. Dark stays the default; the
+   inline boot script in __root.tsx sets data-theme before first paint. Every
+   text token clears WCAG AA (4.5:1) on bg, surface and surface-2. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-bg: #f6f5f1;
+  --color-surface: #ffffff;
+  --color-surface-2: #eceae4;
+  --color-fg: #14161b;
+  --color-muted: #4f545c;
+  --color-subtle: #5f646c;
+  --color-accent: #2f6878;
+  --color-accent-dim: #8fb5bf;
+  --color-border: #dcd9d2;
+  --color-origin: #14161b;
+  --color-danger: #9c3b3b;
+  --shadow-panel: 0 18px 50px -24px rgb(20 22 27 / 0.25);
 }
 
 @layer base {

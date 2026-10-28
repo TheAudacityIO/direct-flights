@@ -7,14 +7,15 @@ import type {
 } from "maplibre-gl";
 import { greatCircleCoords, splitAntimeridian } from "@/lib/flights/geo";
 import type { AirportIndex, Destination } from "@/lib/flights/types";
+import { useTheme, type Theme } from "@/lib/theme";
 
 // Self-hosted basemap: one PMTiles archive (Protomaps planet build, z0-10)
 // plus its sprites and fonts, served as read-only static files by nginx on
 // atlas behind the tunnel at tiles.flydirectfrom.com. No third-party tile server, no key, no SLA to
 // lose (CARTO watermarked its courtesy tiles on 2026-09-11; OpenFreeMap was
 // the stopgap). Refresh recipe: docs/basemap.md. Style layers come from
-// @protomaps/basemaps' dark flavor with the site's own background and land
-// colours so the map matches the rest of the dark identity.
+// @protomaps/basemaps' dark or light flavor with the site's own background
+// and land colours so the map matches the active theme.
 const TILES_ORIGIN = "https://tiles.flydirectfrom.com/tiles";
 const PMTILES_URL = `${TILES_ORIGIN}/world-z10.pmtiles`;
 const BASEMAP_ATTRIBUTION =
@@ -22,17 +23,24 @@ const BASEMAP_ATTRIBUTION =
 
 type BasemapsModule = typeof import("@protomaps/basemaps");
 
-function basemapStyle(basemaps: BasemapsModule) {
+// Background, land and coastline per theme, shared by the basemap and the local fallback.
+const GROUND: Record<Theme, { background: string; earth: string; outline: string }> = {
+  dark: { background: "#08090c", earth: "#1a1f29", outline: "#2c3442" },
+  light: { background: "#f6f5f1", earth: "#e4e1d9", outline: "#cfcbc2" },
+};
+
+function basemapStyle(basemaps: BasemapsModule, theme: Theme) {
+  const ground = GROUND[theme];
   const flavor = {
-    ...basemaps.namedFlavor("dark"),
-    background: "#08090c",
-    earth: "#1a1f29",
-    water: "#08090c",
+    ...basemaps.namedFlavor(theme),
+    background: ground.background,
+    earth: ground.earth,
+    water: ground.background,
   };
   return {
     version: 8 as const,
     glyphs: `${TILES_ORIGIN}/assets/fonts/{fontstack}/{range}.pbf`,
-    sprite: `${TILES_ORIGIN}/assets/sprites/v4/dark`,
+    sprite: `${TILES_ORIGIN}/assets/sprites/v4/${theme}`,
     sources: {
       protomaps: {
         type: "vector" as const,
@@ -46,41 +54,78 @@ function basemapStyle(basemaps: BasemapsModule) {
 
 // The local fallback style declares its own credit on its source.
 
-const LOCAL_STYLE = {
-  version: 8 as const,
-  sources: {
-    land: {
-      type: "geojson" as const,
-      data: "/data/land.geojson",
-      attribution: "Land outlines from Natural Earth",
+function localStyle(theme: Theme) {
+  const ground = GROUND[theme];
+  return {
+    version: 8 as const,
+    sources: {
+      land: {
+        type: "geojson" as const,
+        data: "/data/land.geojson",
+        attribution: "Land outlines from Natural Earth",
+      },
     },
-  },
-  layers: [
-    {
-      id: "background",
-      type: "background" as const,
-      paint: { "background-color": "#08090c" },
-    },
-    {
-      id: "land",
-      type: "fill" as const,
-      source: "land",
-      paint: { "fill-color": "#1a1f29" },
-    },
-    {
-      id: "land-outline",
-      type: "line" as const,
-      source: "land",
-      paint: { "line-color": "#2c3442", "line-width": 0.7 },
-    },
-  ],
+    layers: [
+      {
+        id: "background",
+        type: "background" as const,
+        paint: { "background-color": ground.background },
+      },
+      {
+        id: "land",
+        type: "fill" as const,
+        source: "land",
+        paint: { "fill-color": ground.earth },
+      },
+      {
+        id: "land-outline",
+        type: "line" as const,
+        source: "land",
+        paint: { "line-color": ground.outline, "line-width": 0.7 },
+      },
+    ],
+  };
+}
+
+type Palette = {
+  arc: string;
+  arcDim: string;
+  arcSel: string;
+  arcDash: string;
+  origin: string;
+  originHalo: string;
+  dest: string;
+  pointStroke: string;
+  selRing: string;
+  selDest: string;
 };
 
-const ARC = "#7eb8c9";
-const ARC_DIM = "rgba(126, 184, 201, 0.62)";
-const ARC_SEL = "#e8f6f8";
-const ORIGIN = "#f4f5f7";
-const DEST = "#9fd4e0";
+const PALETTES: Record<Theme, Palette> = {
+  dark: {
+    arc: "#7eb8c9",
+    arcDim: "rgba(126, 184, 201, 0.62)",
+    arcSel: "#e8f6f8",
+    arcDash: "#ffffff",
+    origin: "#f4f5f7",
+    originHalo: "rgba(244,245,247,0.16)",
+    dest: "#9fd4e0",
+    pointStroke: "rgba(8,9,12,0.85)",
+    selRing: "rgba(126,184,201,0.18)",
+    selDest: "#ffffff",
+  },
+  light: {
+    arc: "#2f6878",
+    arcDim: "rgba(47, 104, 120, 0.55)",
+    arcSel: "#14161b",
+    arcDash: "#f6f5f1",
+    origin: "#14161b",
+    originHalo: "rgba(20,22,27,0.14)",
+    dest: "#2f6878",
+    pointStroke: "rgba(255,255,255,0.9)",
+    selRing: "rgba(47,104,120,0.18)",
+    selDest: "#14161b",
+  },
+};
 
 // Selection focus: when a destination is picked, every other route recedes
 // so the chosen arc reads as the only thing on the map.
@@ -185,7 +230,7 @@ function pointsGeoJSON(
   return { type: "FeatureCollection", features };
 }
 
-function addLayers(map: MapLibreMap) {
+function addLayers(map: MapLibreMap, pal: Palette) {
   if (map.getSource("arcs")) return;
 
   map.addSource("arcs", { type: "geojson", data: emptyFc() });
@@ -197,7 +242,7 @@ function addLayers(map: MapLibreMap) {
     type: "line",
     source: "arcs",
     paint: {
-      "line-color": ARC_DIM,
+      "line-color": pal.arcDim,
       "line-width": ARC_WIDTH,
       "line-width-transition": FADE_MS,
       "line-opacity": 1,
@@ -212,7 +257,7 @@ function addLayers(map: MapLibreMap) {
     type: "line",
     source: "sel-arc",
     paint: {
-      "line-color": ARC,
+      "line-color": pal.arc,
       "line-width": 12,
       "line-opacity": 0.32,
       "line-blur": 5,
@@ -225,7 +270,7 @@ function addLayers(map: MapLibreMap) {
     type: "line",
     source: "sel-arc",
     paint: {
-      "line-color": ARC_SEL,
+      "line-color": pal.arcSel,
       "line-width": 3.5,
       "line-opacity": 1,
     },
@@ -237,7 +282,7 @@ function addLayers(map: MapLibreMap) {
     type: "line",
     source: "sel-arc",
     paint: {
-      "line-color": "#ffffff",
+      "line-color": pal.arcDash,
       "line-width": 1.4,
       "line-dasharray": DASH_SEQ[0],
       "line-opacity": 0.9,
@@ -252,9 +297,9 @@ function addLayers(map: MapLibreMap) {
     filter: ["==", ["get", "kind"], "dest"],
     paint: {
       "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, 3.2, 4, 5, 7, 7],
-      "circle-color": DEST,
+      "circle-color": pal.dest,
       "circle-stroke-width": 1,
-      "circle-stroke-color": "rgba(8,9,12,0.85)",
+      "circle-stroke-color": pal.pointStroke,
       "circle-opacity": DEST_OPACITY,
       "circle-opacity-transition": FADE_MS,
       "circle-stroke-opacity-transition": FADE_MS,
@@ -268,9 +313,9 @@ function addLayers(map: MapLibreMap) {
     filter: NO_MATCH,
     paint: {
       "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, 9, 4, 12, 7, 15],
-      "circle-color": "rgba(126,184,201,0.18)",
+      "circle-color": pal.selRing,
       "circle-stroke-width": 1.5,
-      "circle-stroke-color": ARC_SEL,
+      "circle-stroke-color": pal.arcSel,
     },
   });
 
@@ -281,9 +326,9 @@ function addLayers(map: MapLibreMap) {
     filter: NO_MATCH,
     paint: {
       "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, 4.5, 4, 6, 7, 8],
-      "circle-color": "#ffffff",
+      "circle-color": pal.selDest,
       "circle-stroke-width": 1.5,
-      "circle-stroke-color": "rgba(8,9,12,0.9)",
+      "circle-stroke-color": pal.pointStroke,
     },
   });
 
@@ -294,7 +339,7 @@ function addLayers(map: MapLibreMap) {
     filter: ["==", ["get", "kind"], "origin"],
     paint: {
       "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, 10, 4, 14, 7, 18],
-      "circle-color": "rgba(244,245,247,0.16)",
+      "circle-color": pal.originHalo,
     },
   });
 
@@ -305,9 +350,9 @@ function addLayers(map: MapLibreMap) {
     filter: ["==", ["get", "kind"], "origin"],
     paint: {
       "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, 4, 4, 5.5, 7, 7],
-      "circle-color": ORIGIN,
+      "circle-color": pal.origin,
       "circle-stroke-width": 2,
-      "circle-stroke-color": ARC,
+      "circle-stroke-color": pal.arc,
     },
   });
 }
@@ -387,6 +432,12 @@ export function FlightMap({
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const readyRef = useRef(false);
+  const theme = useTheme();
+  const themeRef = useRef(theme);
+  themeRef.current = theme;
+  // Set once the map has loaded: the basemaps module, and whether the tile server failed over to the local style.
+  const basemapsRef = useRef<BasemapsModule | null>(null);
+  const localStyleRef = useRef(false);
   const onSelectRef = useRef(onSelectDest);
   onSelectRef.current = onSelectDest;
   const propsRef = useRef({ origin, destinations, selectedIata, compactPanel });
@@ -418,6 +469,7 @@ export function FlightMap({
           import("@protomaps/basemaps"),
         ]);
         if (cancelled || !containerRef.current) return;
+        basemapsRef.current = basemapsMod;
 
         const { Map: MapLibre, setWorkerUrl, addProtocol } = maplibreMod;
         // v6 worker is a sibling of import.meta.url; Vite must emit it via ?worker&url.
@@ -429,7 +481,7 @@ export function FlightMap({
 
         map = new MapLibre({
           container: containerRef.current,
-          style: basemapStyle(basemapsMod),
+          style: basemapStyle(basemapsMod, themeRef.current),
           center: [12, 28],
           zoom: 1.55,
           attributionControl: { compact: true },
@@ -448,17 +500,20 @@ export function FlightMap({
             msg.toLowerCase().includes("ajax");
           if (!isStyle) return;
           styleAttempt += 1;
-          if (styleAttempt === 1) map?.setStyle(LOCAL_STYLE);
+          if (styleAttempt === 1) {
+            localStyleRef.current = true;
+            map?.setStyle(localStyle(themeRef.current));
+          }
         });
 
         const onReady = () => {
           if (!map || cancelled) return;
-          addLayers(map);
+          addLayers(map, PALETTES[themeRef.current]);
           readyRef.current = true;
           map.resize();
           requestAnimationFrame(() => map?.resize());
           const p = propsRef.current;
-          applyData(map, p.origin, p.destinations, p.selectedIata, p.compactPanel);
+          applyData(map, p.origin, p.destinations, p.selectedIata, p.compactPanel, PALETTES[themeRef.current]);
 
           if (!reduceMotion && !raf) {
             let last = 0;
@@ -536,8 +591,20 @@ export function FlightMap({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !readyRef.current) return;
-    applyData(map, origin, destinations, selectedIata, compactPanel);
+    applyData(map, origin, destinations, selectedIata, compactPanel, PALETTES[themeRef.current]);
   }, [origin, destinations, selectedIata, compactPanel]);
+
+  // Theme switch: a full style reload (diff off) so style.load re-adds the route layers in the new palette.
+  const appliedThemeRef = useRef(theme);
+  useEffect(() => {
+    const map = mapRef.current;
+    const basemaps = basemapsRef.current;
+    if (!map || !basemaps || appliedThemeRef.current === theme) return;
+    appliedThemeRef.current = theme;
+    map.setStyle(localStyleRef.current ? localStyle(theme) : basemapStyle(basemaps, theme), {
+      diff: false,
+    });
+  }, [theme]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -562,8 +629,9 @@ function applyData(
   destinations: Destination[],
   selectedIata: string | null,
   compactPanel: boolean,
+  pal: Palette,
 ) {
-  if (!map.getSource("arcs")) addLayers(map);
+  if (!map.getSource("arcs")) addLayers(map, pal);
 
   const pad = paddingFor(compactPanel);
 

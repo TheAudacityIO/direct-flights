@@ -6,6 +6,7 @@ import appCss from "../styles.css?url";
 import { ADS_ENABLED, ADSENSE_CLIENT } from "@/lib/ads/config";
 import { useEffect } from "react";
 import { initAnalytics } from "@/lib/analytics";
+import { THEME_BOOT } from "@/lib/theme";
 
 const APP_NAME = "FlyDirectFrom";
 const APP_DESC =
@@ -47,15 +48,18 @@ export const Route = createRootRoute({
       { rel: "manifest", href: "/__grok/manifest.webmanifest" },
       { rel: "apple-touch-icon", href: "/__grok/icon-180.png" },
     ],
-    scripts: ADS_ENABLED
-      ? [
-          {
-            src: `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`,
-            async: true,
-            crossOrigin: "anonymous",
-          },
-        ]
-      : [],
+    scripts: [
+      { children: THEME_BOOT },
+      ...(ADS_ENABLED
+        ? [
+            {
+              src: `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`,
+              async: true,
+              crossOrigin: "anonymous" as const,
+            },
+          ]
+        : []),
+    ],
   }),
   notFoundComponent: () => (
     <main className="mx-auto min-h-dvh w-full max-w-2xl px-5 py-12">
