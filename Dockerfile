@@ -16,6 +16,7 @@ ARG VITE_ADSENSE_SLOT_AIRPORT=""
 ARG VITE_ADSENSE_SLOT_COUNTRY=""
 ARG VITE_ADSENSE_SLOT_SIDEBAR=""
 ARG VITE_ADSENSE_SLOT_ARTICLE=""
+ARG VITE_ADSENSE_SLOT_HOME=""
 ARG VITE_REWARDED_AD_UNIT=""
 # Affiliate URL templates ({q} = destination, {origin} for flights). Empty
 # (the default) builds plain, non-affiliate partner links.

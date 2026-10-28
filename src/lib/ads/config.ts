@@ -16,6 +16,7 @@ export const AD_SLOTS = {
   countryPage: import.meta.env.VITE_ADSENSE_SLOT_COUNTRY ?? "",
   mapSidebar: import.meta.env.VITE_ADSENSE_SLOT_SIDEBAR ?? "",
   article: import.meta.env.VITE_ADSENSE_SLOT_ARTICLE ?? "",
+  home: import.meta.env.VITE_ADSENSE_SLOT_HOME ?? "",
 } as const;
 
 /** Google Ad Manager rewarded unit path, e.g. `/1234567/fdf-rewarded`. Empty = no rewarded ads yet. */
