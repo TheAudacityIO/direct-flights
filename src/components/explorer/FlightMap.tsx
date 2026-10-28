@@ -29,6 +29,18 @@ const GROUND: Record<Theme, { background: string; earth: string; outline: string
   light: { background: "#f6f5f1", earth: "#e4e1d9", outline: "#cfcbc2" },
 };
 
+// The stock light flavor tints land cover green and sand; flatten it to paper tones
+// so the routes stay the only colour on the map, as they are in dark.
+const LIGHT_LANDCOVER = {
+  grassland: "#e0ddd4",
+  barren: "#e8e5dd",
+  urban_area: "#dcd9d1",
+  farmland: "#e0ddd4",
+  glacier: "#efede8",
+  scrub: "#e2dfd7",
+  forest: "#dcd9cf",
+};
+
 function basemapStyle(basemaps: BasemapsModule, theme: Theme) {
   const ground = GROUND[theme];
   const flavor = {
@@ -36,6 +48,7 @@ function basemapStyle(basemaps: BasemapsModule, theme: Theme) {
     background: ground.background,
     earth: ground.earth,
     water: ground.background,
+    ...(theme === "light" ? { landcover: LIGHT_LANDCOVER } : {}),
   };
   return {
     version: 8 as const,
