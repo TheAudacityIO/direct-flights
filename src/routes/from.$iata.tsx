@@ -4,7 +4,8 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { PlanTrip } from "@/components/ads/PlanTrip";
 import { AD_SLOTS } from "@/lib/ads/config";
-import { carsCovered } from "@/lib/affiliates";
+import { carsCovered, isAffiliate, partnerRel, partnerUrl } from "@/lib/affiliates";
+import { ExternalLink } from "lucide-react";
 import { track } from "@/lib/analytics";
 import { formatDuration, formatKm } from "@/lib/flights/geo";
 import { formatDays } from "@/lib/flights/observed";
@@ -153,7 +154,11 @@ function AirportPage() {
 
       <AdSlot slot={AD_SLOTS.airportPage} minHeight={120} className="mt-6" />
 
-      <div className="mt-8 overflow-x-auto">
+      <p className="mt-8 text-xs text-subtle">
+        &ldquo;Fares&rdquo; opens a fare search for that nonstop on Kiwi.com. Some links may earn us a
+        commission at no extra cost to you.
+      </p>
+      <div className="mt-3 overflow-x-auto">
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="border-b border-border text-left text-[11px] uppercase tracking-wider text-muted whitespace-nowrap">
@@ -190,6 +195,24 @@ function AirportPage() {
                     <span className="block text-xs text-muted">
                       {d.name}, {d.country}
                     </span>
+                    <a
+                      href={partnerUrl("flights", { origin: origin.iata, destination: d.iata })}
+                      target="_blank"
+                      rel={partnerRel(isAffiliate("flights"))}
+                      onClick={() =>
+                        track("affiliate_click", {
+                          partner: "flights",
+                          placement: "airport_table",
+                          page: window.location.pathname,
+                          destination: d.iata,
+                          affiliate: isAffiliate("flights"),
+                        })
+                      }
+                      className="mt-1 inline-flex min-h-6 items-center gap-1 text-xs text-accent underline underline-offset-2 hover:text-fg"
+                    >
+                      Fares
+                      <ExternalLink className="size-3" strokeWidth={1.75} aria-hidden />
+                    </a>
                   </td>
                   <td className="py-2.5 pr-3 text-muted [overflow-wrap:anywhere]">
                     {d.airlines.length > 0 ? d.airlines.join(", ") : "Airline unknown"}
@@ -238,11 +261,11 @@ function AirportPage() {
 
       <div className="mt-10">
         <PlanTrip
-          partners={carsCovered(origin.country) ? ["transfers", "cars"] : ["transfers"]}
+          partners={carsCovered(origin.country) ? ["transfers", "cars", "esim"] : ["transfers", "esim"]}
           origin={origin.iata}
           country={origin.country}
           placement="airport_page"
-          title={`Getting to and from ${origin.city || origin.name} airport`}
+          title={`Before you fly from ${origin.city || origin.name}`}
         />
       </div>
 

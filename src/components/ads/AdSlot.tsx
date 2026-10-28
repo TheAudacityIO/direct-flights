@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { ADS_ENABLED, ADSENSE_CLIENT } from "@/lib/ads/config";
+import { isBotSuspect } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 
 declare global {
@@ -27,6 +28,9 @@ export function AdSlot({ slot, minHeight = 250, className }: Props) {
 
   useEffect(() => {
     if (!live || !ref.current || ref.current.getAttribute("data-adsbygoogle-status")) return;
+    // Never request an ad for a suspected automated browser: impressions from the old-Chrome
+    // proxy bursts would count as invalid traffic against the AdSense account.
+    if (isBotSuspect(navigator.userAgent, Boolean(navigator.webdriver))) return;
     try {
       (window.adsbygoogle = window.adsbygoogle ?? []).push({});
     } catch {
