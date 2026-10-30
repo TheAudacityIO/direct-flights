@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronsDown, ChevronsUp, Minus, Plus, RotateCcw } from "lucide-react";
 import { AirportSearch } from "./AirportSearch";
 import { DestinationList } from "./DestinationList";
 import { FlightMap } from "./FlightMap";
 import { RouteDetail } from "./RouteDetail";
+import { ScopeFilter } from "./ScopeFilter";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { ThemeToggle } from "@/components/site/ThemeToggle";
 import { AD_SLOTS } from "@/lib/ads/config";
@@ -14,6 +15,7 @@ import type { AirportIndex, Destination, RouteFile } from "@/lib/flights/types";
 import { cn } from "@/lib/utils";
 import { track } from "@/lib/analytics";
 import { chipsForTimezone, GLOBAL_CHIPS } from "@/lib/flights/home-chips";
+import { filterByScope, scopeCounts, type Scope } from "@/lib/flights/scope";
 import { forgetHomeAirport, readHomeAirport, rememberHomeAirport } from "@/lib/flights/home-airport";
 
 export type ExplorerSearch = {
@@ -36,6 +38,7 @@ export function Explorer({ search, onSearchChange, popular }: Props) {
   const [routesLoading, setRoutesLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [sheet, setSheet] = useState<"peek" | "split" | "full">("split");
+  const [scope, setScope] = useState<Scope>("all");
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
@@ -71,6 +74,7 @@ export function Explorer({ search, onSearchChange, popular }: Props) {
 
   const originIata = origin?.iata;
   useEffect(() => {
+    setScope("all");
     if (!originIata) {
       setRouteFile(null);
       setRoutesError(null);
@@ -98,9 +102,25 @@ export function Explorer({ search, onSearchChange, popular }: Props) {
     };
   }, [originIata]);
 
-  const destinations = routeFile?.destinations ?? [];
+  const destinations = useMemo(() => routeFile?.destinations ?? [], [routeFile]);
   const selected: Destination | null =
     (search.to && destinations.find((d) => d.iata === search.to)) || null;
+  const counts = useMemo(
+    () => (origin ? scopeCounts(origin, destinations) : { all: 0, domestic: 0, international: 0 }),
+    [origin, destinations],
+  );
+  // When one side is empty the control is hidden, so treat the scope as "all".
+  const effectiveScope: Scope =
+    counts.domestic > 0 && counts.international > 0 ? scope : "all";
+  const scoped = useMemo(
+    () => (origin ? filterByScope(origin, destinations, effectiveScope) : destinations),
+    [origin, destinations, effectiveScope],
+  );
+  // The selected route stays on the map even when it is outside the scope.
+  const mapDestinations = useMemo(
+    () => (selected && !scoped.includes(selected) ? [...scoped, selected] : scoped),
+    [scoped, selected],
+  );
 
   function selectOrigin(ap: AirportIndex, source = "search") {
     track("airport_search", { iata: ap.iata, source });
@@ -129,8 +149,28 @@ export function Explorer({ search, onSearchChange, popular }: Props) {
     });
   }
 
+  function changeScope(next: Scope) {
+    if (!origin) return;
+    setScope(next);
+    track("scope_filter", { scope: next, origin: origin.iata });
+  }
+
   const sheetHeight =
-    sheet === "full" ? "min(88dvh, 100%)" : sheet === "peek" ? "9.5rem" : "min(62dvh, 34rem)";
+    sheet === "full" ? "min(88dvh, 100%)" : sheet === "peek" ? "9.5rem" : "min(42dvh, 22rem)";
+  const prevSheet = useRef(sheet);
+
+  useEffect(() => {
+    if (prevSheet.current === sheet) return;
+    prevSheet.current = sheet;
+    if (!isMobile || !originIata) return;
+    // The sheet height changed, so re-fit the routes to the map's new visible area.
+    const timeout = window.setTimeout(() => {
+      window.dispatchEvent(
+        new CustomEvent("direct-flights-fit", { detail: { keepSelection: true } }),
+      );
+    }, 250);
+    return () => window.clearTimeout(timeout);
+  }, [sheet, isMobile, originIata]);
 
   function cycleSheet() {
     setSheet((s) => (s === "split" ? "full" : s === "full" ? "peek" : "split"));
@@ -142,7 +182,7 @@ export function Explorer({ search, onSearchChange, popular }: Props) {
       <div className="relative min-h-0 flex-1">
         <FlightMap
           origin={origin}
-          destinations={destinations}
+          destinations={mapDestinations}
           selectedIata={selected?.iata ?? null}
           onSelectDest={selectDest}
           compactPanel={isMobile}
@@ -258,12 +298,21 @@ export function Explorer({ search, onSearchChange, popular }: Props) {
                   primary={isMobile}
                 />
                 {sheet !== "peek" && (
-                  <DestinationList
-                    key={origin.iata}
-                    destinations={destinations}
-                    selectedIata={null}
-                    onSelect={selectDest}
-                  />
+                  <>
+                    <ScopeFilter
+                      scope={effectiveScope}
+                      counts={counts}
+                      onChange={changeScope}
+                      compact
+                    />
+                    <DestinationList
+                      key={`${origin.iata}:${effectiveScope}`}
+                      destinations={scoped}
+                      selectedIata={null}
+                      onSelect={selectDest}
+                      showTextFilter={sheet === "full"}
+                    />
+                  </>
                 )}
               </>
             )}
@@ -286,9 +335,10 @@ export function Explorer({ search, onSearchChange, popular }: Props) {
             onReset={clearOrigin}
             primary={!isMobile}
           />
+          <ScopeFilter scope={effectiveScope} counts={counts} onChange={changeScope} />
           <DestinationList
-            key={origin.iata}
-            destinations={destinations}
+            key={`${origin.iata}:${effectiveScope}`}
+            destinations={scoped}
             selectedIata={selected?.iata ?? null}
             onSelect={selectDest}
           />
