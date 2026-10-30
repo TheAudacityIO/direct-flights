@@ -9,9 +9,16 @@ type Props = {
   destinations: Destination[];
   selectedIata: string | null;
   onSelect: (iata: string) => void;
+  /** Whether to show and apply the text filter. */
+  showTextFilter?: boolean;
 };
 
-export function DestinationList({ destinations, selectedIata, onSelect }: Props) {
+export function DestinationList({
+  destinations,
+  selectedIata,
+  onSelect,
+  showTextFilter = true,
+}: Props) {
   const [filter, setFilter] = useState("");
   const filterId = useId();
   const listRef = useRef<HTMLUListElement>(null);
@@ -23,7 +30,7 @@ export function DestinationList({ destinations, selectedIata, onSelect }: Props)
       ?.scrollIntoView({ block: "nearest" });
   }, [selectedIata]);
   const filtered = useMemo(() => {
-    const q = filter.trim().toLowerCase();
+    const q = showTextFilter ? filter.trim().toLowerCase() : "";
     if (!q) return destinations;
     return destinations.filter(
       (d) =>
@@ -33,7 +40,7 @@ export function DestinationList({ destinations, selectedIata, onSelect }: Props)
         d.country.toLowerCase().includes(q) ||
         d.airlines.some((a) => a.toLowerCase().includes(q)),
     );
-  }, [destinations, filter]);
+  }, [destinations, filter, showTextFilter]);
 
   if (destinations.length === 0) {
     return (
@@ -45,7 +52,7 @@ export function DestinationList({ destinations, selectedIata, onSelect }: Props)
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      {destinations.length > 12 && (
+      {showTextFilter && destinations.length > 12 && (
         <div className="mb-2 px-1">
           <label htmlFor={filterId} className="sr-only">
             Filter destinations

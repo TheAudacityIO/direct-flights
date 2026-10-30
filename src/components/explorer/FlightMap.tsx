@@ -576,11 +576,18 @@ export function FlightMap({
         onZoomCmd = onZoomCmdInner;
         window.addEventListener("direct-flights-zoom", onZoomCmdInner);
 
-        const onFitInner = () => {
+        const onFitInner = (ev: Event) => {
           if (!map || !readyRef.current) return;
           const p = propsRef.current;
           if (!p.origin) return;
-          fitAll(map, p.origin, p.destinations, paddingFor(p.compactPanel));
+          const pad = paddingFor(p.compactPanel);
+          const keep = (ev as CustomEvent<{ keepSelection?: boolean } | undefined>).detail?.keepSelection;
+          const selected = keep ? p.destinations.find((d) => d.iata === p.selectedIata) : undefined;
+          if (selected) {
+            fitAll(map, p.origin, [selected], p.compactPanel ? pad : { ...pad, left: 404 });
+          } else {
+            fitAll(map, p.origin, p.destinations, pad);
+          }
         };
         onFitCmd = onFitInner;
         window.addEventListener("direct-flights-fit", onFitInner);
